@@ -11,6 +11,11 @@ abstract: >-
 url: https://github.com/Roche-AXELIOS/xoosnf
 repository-code: https://github.com/Roche-AXELIOS/xoosnf
 license-url: https://github.com/Roche-AXELIOS/xoosnf/blob/main/LICENSE.md
+doi: 10.5281/zenodo.21339773
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21339773
+    description: Concept DOI for all versions
 authors:
   - family-names: D'Costa
     given-names: Alister
