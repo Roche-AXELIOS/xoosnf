@@ -1,0 +1,637 @@
+nextflow_pipeline {
+
+    name "Test pipeline - input validation"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "input_validation"
+
+    test("should fail - broken BAM symlink") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/broken_bam"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            // Create a broken symlink: points to a nonexistent target
+            def link = java.nio.file.Paths.get("${bamDir}/HG001.bam")
+            def target = java.nio.file.Paths.get("${bamDir}/nonexistent.bam")
+            java.nio.file.Files.createSymbolicLink(link, target)
+
+            // Create a valid samplesheet
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            // Create the input samplesheet pointing to the broken BAM dir
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/broken_bam/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('No such file') } ||
+                         workflow.stderr.any { it.contains('No such file') } }
+            )
+        }
+    }
+
+    test("should fail - broken FASTQ symlink") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/broken_fastq"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            // Create a broken symlink to a FASTQ file
+            def link = java.nio.file.Paths.get("${fastqDir}/raw_fastq_HG001.fastq.gz")
+            def target = java.nio.file.Paths.get("${fastqDir}/nonexistent.fastq.gz")
+            java.nio.file.Files.createSymbolicLink(link, target)
+
+            // Create a valid samplesheet
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            // Create the input samplesheet pointing to the broken FASTQ dir
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/broken_fastq/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('No such file') } ||
+                         workflow.stderr.any { it.contains('No such file') } }
+            )
+        }
+    }
+
+    test("should fail - missing run_dir") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/missing_run_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(inputsDir).mkdirs()
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            // Point to a run_dir that does not exist
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${testDir}/nonexistent_dir,${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/missing_run_dir/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('does not exist') || it.contains('No such file') } ||
+                         workflow.stderr.any { it.contains('does not exist') || it.contains('No such file') } }
+            )
+        }
+    }
+
+    test("should fail - duplicate BAM names for same sample") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/duplicate_bam"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            // Two samples each with both a full and a subsampled BAM —
+            // both should be reported in a single error.
+            ['HG001', 'HG002'].each { sample ->
+                ['', '.subsampled'].each { suffix ->
+                    new File("${bamDir}/${sample}${suffix}.bam").text = ''
+                    new File("${bamDir}/${sample}${suffix}.bam.bai").text = ''
+                }
+            }
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+HG002,AAAATTTTCCCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/duplicate_bam/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            // Error spans multiple lines (one per offending sample joined by \n),
+            // so flatten stdout+stderr before checking for substrings.
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('multiple matching BAM files') },
+                { assert combined.contains('HG001') && combined.contains('HG002') }
+            )
+        }
+    }
+
+    test("should fail - missing samplesheet") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/missing_samplesheet"
+            def inputsDir = "${testDir}/inputs"
+            def bamDir = "${testDir}/bam_dir"
+            new File(inputsDir).mkdirs()
+            new File(bamDir).mkdirs()
+
+            // Create valid BAM placeholders
+            new File("${bamDir}/HG001.bam").text = ""
+            new File("${bamDir}/HG001.bam.bai").text = ""
+
+            // Point to a samplesheet that does not exist
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/nonexistent_samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/missing_samplesheet/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('does not exist') || it.contains('No such file') } ||
+                         workflow.stderr.any { it.contains('does not exist') || it.contains('No such file') } }
+            )
+        }
+    }
+
+    test("should fail - enable_subsample_bam without target_coverage") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/subsample_no_coverage"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            // Samplesheet without target_coverage column
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/subsample_no_coverage/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_subsample_bam = true
+                subsample_bam_coverage_target = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('has no target_coverage in the samplesheet') },
+                { assert combined.contains('HG001') }
+            )
+        }
+    }
+
+    test("should pass - enable_subsample_bam with global fallback") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/subsample_global_fallback"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            // Samplesheet without target_coverage — but global fallback is set
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/subsample_global_fallback/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_subsample_bam = true
+                subsample_bam_coverage_target = 30
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("should fail - somatic_tn without TN and group columns") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/somatic_no_tn"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+            new File("${bamDir}/HG002.bam").text = ''
+            new File("${bamDir}/HG002.bam.bai").text = ''
+
+            // Samplesheet without TN/group columns
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/somatic_no_tn/inputs/input.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("variant_calling_mode is 'somatic_tn'") },
+                { assert combined.contains('TN') && combined.contains('group') }
+            )
+        }
+    }
+
+    test("should fail - somatic_tn with empty TN values") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/somatic_empty_tn"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+            new File("${bamDir}/HG002.bam").text = ''
+            new File("${bamDir}/HG002.bam.bai").text = ''
+
+            // Samplesheet with TN/group columns but empty values
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid,TN,group
+HG001,CTATTGAAGGCT,,
+HG002,GGAGTAACATCC,,
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/somatic_empty_tn/inputs/input.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("variant_calling_mode is 'somatic_tn'") },
+                { assert combined.contains('TN') && combined.contains('group') }
+            )
+        }
+    }
+
+    test("should fail - enable_hs_metrics without capture_bed and target_bed") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/hs_metrics_no_bed"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/hs_metrics_no_bed/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                // reference_fasta comes from the test profile; capture_bed and
+                // target_bed are intentionally absent so the only unmet
+                // enable_hs_metrics requirement is the BED files.
+                enable_hs_metrics = true
+                capture_bed = null
+                target_bed = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('enable_hs_metrics requires reference_fasta, capture_bed, and target_bed') }
+            )
+        }
+    }
+
+    test("should fail - giraffe aligner with somatic_tn mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().giraffeRef().writeResources()
+
+            def testDir = "${outputDir}/giraffe_somatic_tn"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+            new File("${bamDir}/HG002.bam").text = ''
+            new File("${bamDir}/HG002.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid,TN,group
+HG001,CTATTGAAGGCT,T,pair1
+HG002,GGAGTAACATCC,N,pair1
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/giraffe_somatic_tn/inputs/input.csv"
+                aligner = 'pb_giraffe'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("Giraffe aligners (pb_giraffe, vg_giraffe) are not currently supported with variant_calling_mode 'somatic_tn'") }
+            )
+        }
+    }
+
+    test("should fail - enable_merge_vcf with somatic_tn mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/merge_vcf_somatic_tn"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+            new File("${bamDir}/HG002.bam").text = ''
+            new File("${bamDir}/HG002.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid,TN,group
+HG001,CTATTGAAGGCT,T,pair1
+HG002,GGAGTAACATCC,N,pair1
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/merge_vcf_somatic_tn/inputs/input.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_merge_vcf = true
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("cannot be merged into a single VCF") }
+            )
+        }
+    }
+
+    test("should fail - sample_name with disallowed characters") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/bad_sample_name"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            // sample_name contains '/', which is interpolated into shell/sed
+            // commands and must be rejected by the samplesheet schema.
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG/001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/bad_sample_name/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('Validation of samplesheet failed') }
+            )
+        }
+    }
+}

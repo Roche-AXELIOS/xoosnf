@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: xoosnf
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+abstract: >-
+  XOOS (sbX Optimized Open Source) Nextflow pipeline for processing sequencing
+  data produced by the Roche AXELIOS 1 sequencer. For Research Use Only.
+  Not for use in diagnostic procedures.
+url: https://github.com/Roche-AXELIOS/xoosnf
+repository-code: https://github.com/Roche-AXELIOS/xoosnf
+license-url: https://github.com/Roche-AXELIOS/xoosnf/blob/main/LICENSE.md
+authors:
+  - family-names: D'Costa
+    given-names: Alister
+    email: 231282388+dcostaa1-roche@users.noreply.github.com
+    affiliation: Roche
+    orcid: "https://orcid.org/0009-0000-5868-0481"
+  - family-names: Doupnik
+    given-names: Austin
+    email: 42255109+doupnika-roche@users.noreply.github.com
+    affiliation: Roche
+    orcid: "https://orcid.org/0009-0008-6234-9917"
+  - family-names: Gao
+    given-names: Junxuan
+    email: 172086117+gaoj66-roche@users.noreply.github.com
+    affiliation: Roche
+    orcid: "https://orcid.org/0009-0007-0595-3053"
+  - family-names: Kotha
+    given-names: Pavan Kumar
+    affiliation: Roche

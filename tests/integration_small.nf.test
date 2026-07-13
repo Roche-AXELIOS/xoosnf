@@ -1,0 +1,143 @@
+nextflow_pipeline {
+
+    name "Test pipeline - integration small with subsampled inputs"
+    script "../main.nf"
+    tag "pipeline"
+    tag "integration_small"
+
+    test("integration small - germline bwa basecall_fastq") {
+        when {
+            params {
+                def testDataDir = System.getenv('TEST_DATA_DIR') ?: "${projectDir}/test-data"
+                load("${testDataDir}/resources/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${testDataDir}/basecall_fastq/runsheet.csv"
+                aligner                     = 'bwa'
+                dedup_strategy              = 'markdup'
+                variant_calling_mode        = 'germline'
+                use_gatk_haplotype_caller   = true
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = true
+                enable_str_caller           = true
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    test("integration small - germline bwa demultiplexed_fastq") {
+        when {
+            params {
+                def testDataDir = System.getenv('TEST_DATA_DIR') ?: "${projectDir}/test-data"
+                load("${testDataDir}/resources/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${testDataDir}/demultiplexed_fastq/runsheet.csv"
+                aligner                     = 'bwa'
+                dedup_strategy              = 'markdup'
+                variant_calling_mode        = 'germline'
+                use_gatk_haplotype_caller   = true
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    test("integration small - germline giraffe demultiplexed_fastq") {
+        when {
+            params {
+                def testDataDir = System.getenv('TEST_DATA_DIR') ?: "${projectDir}/test-data"
+                load("${testDataDir}/resources/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${testDataDir}/demultiplexed_fastq/runsheet.csv"
+                aligner                     = 'vg_giraffe'
+                dedup_strategy              = 'markdup'
+                variant_calling_mode        = 'germline'
+                use_gatk_haplotype_caller   = true
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    test("integration small - germline bam") {
+        when {
+            params {
+                def testDataDir = System.getenv('TEST_DATA_DIR') ?: "${projectDir}/test-data"
+                load("${testDataDir}/resources/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${testDataDir}/bam/runsheet.csv"
+                aligner                     = 'pb_giraffe'
+                dedup_strategy              = 'markdup'
+                variant_calling_mode        = 'germline'
+                use_gatk_haplotype_caller   = true
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+}

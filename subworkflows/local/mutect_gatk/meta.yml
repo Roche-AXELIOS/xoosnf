@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "MUTECT_GATK"
+description: Run GATK Mutect2 with optional interval partitioning and VCF/stats merging
+keywords:
+  - mutect2
+  - gatk
+  - somatic
+  - variant-calling
+  - partitioning
+components:
+  - gatk4/splitintervals
+  - gatk4/mutect2
+  - gatk4/mergevcfs
+  - gatk4/mergemutectstats
+  - fai/to/bed
+input:
+  - ch_bams:
+      type: channel
+      description: |
+        BAM files with index
+        Structure: [ val(meta), [path(bam), ...], [path(bai), ...] ]
+  - ch_reference:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_reference_dict:
+      type: channel
+      description: |
+        Reference sequence dictionary
+        Structure: [ val(meta), path(dict) ]
+  - ch_splitintervals_reference:
+      type: channel
+      description: |
+        Subset reference FASTA with index, used only to generate variant-calling
+        partitions (GATK4_SPLITINTERVALS and the whole-genome interval fallback).
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_splitintervals_reference_dict:
+      type: channel
+      description: |
+        Sequence dictionary for the subset partitioning reference
+        Structure: [ val(meta), path(dict) ]
+  - ch_intervals:
+      type: channel
+      description: |
+        Interval BED file
+        Structure: [ val(meta), path(bed) ]
+  - enable_mutect_stats:
+      type: boolean
+      description: Enable Mutect2 stats collection
+  - enable_partitioning:
+      type: boolean
+      description: Enable interval partitioning for parallelism
+  - partition_count:
+      type: integer
+      description: Number of partitions to split intervals into
+output:
+  - vcf:
+      type: channel
+      description: |
+        Called VCF files with index
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - bam:
+      type: channel
+      description: |
+        BAM files (passed through)
+        Structure: [ val(meta), [path(bam), ...], [path(bai), ...] ]
+  - stats:
+      type: channel
+      description: |
+        Merged Mutect2 stats
+        Structure: [ val(meta), path(stats) ]
+authors: []
+maintainers: []

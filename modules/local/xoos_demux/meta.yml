@@ -1,0 +1,73 @@
+name: xoos_demux
+description: Demultiplex AXELIOS basecall/FASTQ inputs into per-sample FASTQs with the XOOS demux tool.
+keywords:
+  - demux
+  - demultiplex
+  - fastq
+tools:
+  - demux:
+      description: XOOS demultiplexing tool for AXELIOS sequencing data.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fastq_dir:
+        type: file
+        description: Directory of input FASTQ files
+        ontologies: []
+    - sample_sheet:
+        type: file
+        description: Sample sheet CSV
+        ontologies: []
+output:
+  demux_output:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "demux/*":
+          type: file
+          description: "Output file matching `demux/*`"
+          pattern: "demux/*"
+          ontologies: []
+  demux_metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "demux/metrics":
+          type: file
+          description: "Output file matching `demux/metrics`"
+          pattern: "demux/metrics"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - demux:
+          type: string
+          description: The name of the tool
+      - demux --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - demux:
+          type: string
+          description: The name of the tool
+      - demux --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

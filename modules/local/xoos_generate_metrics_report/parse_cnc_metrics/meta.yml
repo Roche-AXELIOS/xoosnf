@@ -1,0 +1,58 @@
+name: xoos_parse_cnc_metrics
+description: Parse copy number caller results into report JSON.
+keywords:
+  - metrics
+  - copy-number
+  - parse
+tools:
+  - generate-metrics-report:
+      description: XOOS tool that parses and aggregates per-sample metrics into report JSON/TSV.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - results_files:
+        type: file
+        description: Result files
+        ontologies: []
+output:
+  report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.copy_number_caller.json":
+          type: file
+          description: "Output file matching `*.copy_number_caller.json`"
+          pattern: "*.copy_number_caller.json"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

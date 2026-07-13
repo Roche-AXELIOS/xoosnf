@@ -1,0 +1,138 @@
+name: bwa_mem_single_end_multiple_fastqs
+description: Align single-end reads from multiple FASTQ files with BWA-MEM and sort/convert with samtools.
+keywords:
+  - bwa
+  - mem
+  - align
+  - samtools
+  - bam
+tools:
+  - bwa:
+      description: Burrows-Wheeler Aligner for mapping low-divergent sequences against a reference genome.
+      homepage: "http://bio-bwa.sourceforge.net/"
+      documentation: "http://bio-bwa.sourceforge.net/bwa.shtml"
+      doi: 10.1093/bioinformatics/btp324
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+  - samtools:
+      description: Tools for manipulating next-generation sequencing data.
+      homepage: "http://www.htslib.org/"
+      documentation: "http://www.htslib.org/doc/samtools.html"
+      doi: 10.1093/bioinformatics/btp352
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reads:
+        type: file
+        description: Input FASTQ read files
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - index:
+        type: file
+        description: Reference index files
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+output:
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bam":
+          type: file
+          description: "Output file matching `*.bam`"
+          pattern: "*.bam"
+          ontologies: []
+  cram:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.cram":
+          type: file
+          description: "Output file matching `*.cram`"
+          pattern: "*.cram"
+          ontologies: []
+  csi:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.csi":
+          type: file
+          description: "Output file matching `*.csi`"
+          pattern: "*.csi"
+          ontologies: []
+  crai:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.crai":
+          type: file
+          description: "Output file matching `*.crai`"
+          pattern: "*.crai"
+          ontologies: []
+  versions_bwa:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - bwa:
+          type: string
+          description: The name of the tool
+      - 'bwa 2>&1 | sed -n "s/^Version: //p"':
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_samtools:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - samtools:
+          type: string
+          description: The name of the tool
+      - "samtools version | sed '1!d;s/.* //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - bwa:
+          type: string
+          description: The name of the tool
+      - 'bwa 2>&1 | sed -n "s/^Version: //p"':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - samtools:
+          type: string
+          description: The name of the tool
+      - "samtools version | sed '1!d;s/.* //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

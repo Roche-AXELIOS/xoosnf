@@ -1,0 +1,79 @@
+name: xoos_small_variant_caller_compute_bam_features
+description: Compute BAM-derived features for the XOOS small variant caller model.
+keywords:
+  - small-variant-caller
+  - features
+  - bam
+tools:
+  - compute_bam_features:
+      description: XOOS small variant caller component.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bams:
+        type: file
+        description: BAM alignment files
+        ontologies: []
+    - bam_indexes:
+        type: file
+        description: BAM index files
+        ontologies: []
+    - target_regions_bed:
+        type: file
+        description: Target regions BED file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_index:
+        type: file
+        description: Reference FASTA index file
+        ontologies: []
+output:
+  bam_features:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*.bam_features.txt":
+          type: file
+          description: "Output file matching `small_variant_caller/*.bam_features.txt`"
+          pattern: "small_variant_caller/*.bam_features.txt"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - compute_bam_features:
+          type: string
+          description: The name of the tool
+      - compute_bam_features --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - compute_bam_features:
+          type: string
+          description: The name of the tool
+      - compute_bam_features --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

@@ -1,0 +1,70 @@
+{
+    "stub - alignment metrics only": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup",
+                        "metrics_region": "autosomes"
+                    },
+                    "HG001.alignment_metrics_dedup_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-28T17:26:37.843930089",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - all metrics enabled": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup",
+                        "metrics_region": "autosomes"
+                    },
+                    "HG001.alignment_metrics_dedup_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ],
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup",
+                        "metrics_region": "targets"
+                    },
+                    "HG001.alignment_metrics_dedup_targets.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ],
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D"
+                    },
+                    "HG001.gc_bias_dedup.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ],
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D"
+                    },
+                    "HG001.hs_metrics_dedup.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-28T17:26:48.648001533",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

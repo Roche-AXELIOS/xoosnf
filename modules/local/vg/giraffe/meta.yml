@@ -1,0 +1,82 @@
+name: vg_giraffe
+description: "Map reads to a pangenome graph and emit a sorted, indexed BAM with vg giraffe."
+keywords:
+  - vg
+  - giraffe
+  - pangenome
+  - align
+  - bam
+tools:
+  - vg:
+      description: Tools for working with genome variation graphs.
+      homepage: "https://github.com/vgteam/vg"
+      documentation: "https://github.com/vgteam/vg/wiki"
+      doi: 10.1038/nbt.4227
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fastqs:
+        type: file
+        description: Input FASTQ read files
+        ontologies: []
+    - graph:
+        type: file
+        description: Pangenome graph (GBZ) file
+        ontologies: []
+    - zipcodes:
+        type: file
+        description: Giraffe zipcodes index
+        ontologies: []
+    - minimizers:
+        type: file
+        description: Giraffe minimizer index
+        ontologies: []
+    - dist:
+        type: file
+        description: Giraffe distance index
+        ontologies: []
+output:
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bam":
+          type: file
+          description: "Output file matching `*.bam`"
+          pattern: "*.bam"
+          ontologies: []
+      - "*.bam.bai":
+          type: file
+          description: "Output file matching `*.bam.bai`"
+          pattern: "*.bam.bai"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - vg:
+          type: string
+          description: The name of the tool
+      - "vg version | head -1 | sed 's/vg version //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - vg:
+          type: string
+          description: The name of the tool
+      - "vg version | head -1 | sed 's/vg version //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

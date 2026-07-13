@@ -1,0 +1,128 @@
+name: minimap2_align
+description: Align single-end reads from multiple FASTQ files with minimap2 and sort/convert with samtools.
+keywords:
+  - minimap2
+  - align
+  - samtools
+  - bam
+tools:
+  - minimap2:
+      description: A versatile pairwise aligner for genomic and spliced nucleotide sequences.
+      homepage: "https://github.com/lh3/minimap2"
+      documentation: "https://lh3.github.io/minimap2/minimap2.html"
+      doi: 10.1093/bioinformatics/bty191
+      licence: ["MIT"]
+      identifier: ""
+  - samtools:
+      description: Tools for manipulating next-generation sequencing data.
+      homepage: "http://www.htslib.org/"
+      documentation: "http://www.htslib.org/doc/samtools.html"
+      doi: 10.1093/bioinformatics/btp352
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reads:
+        type: file
+        description: Input FASTQ read files
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+output:
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bam":
+          type: file
+          description: "Output file matching `*.bam`"
+          pattern: "*.bam"
+          ontologies: []
+  cram:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.cram":
+          type: file
+          description: "Output file matching `*.cram`"
+          pattern: "*.cram"
+          ontologies: []
+  csi:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.csi":
+          type: file
+          description: "Output file matching `*.csi`"
+          pattern: "*.csi"
+          ontologies: []
+  crai:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.crai":
+          type: file
+          description: "Output file matching `*.crai`"
+          pattern: "*.crai"
+          ontologies: []
+  versions_minimap2:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - minimap2:
+          type: string
+          description: The name of the tool
+      - minimap2 --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_samtools:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - samtools:
+          type: string
+          description: The name of the tool
+      - "samtools version | sed '1!d;s/.* //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - minimap2:
+          type: string
+          description: The name of the tool
+      - minimap2 --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - samtools:
+          type: string
+          description: The name of the tool
+      - "samtools version | sed '1!d;s/.* //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

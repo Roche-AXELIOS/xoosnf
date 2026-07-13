@@ -1,0 +1,61 @@
+name: xoos_parse_gc_bias_metrics
+description: Parse Picard GC bias metrics into report JSON.
+keywords:
+  - metrics
+  - gc-bias
+  - parse
+tools:
+  - generate-metrics-report:
+      description: XOOS tool that parses and aggregates per-sample metrics into report JSON/TSV.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - source:
+        type: string
+        description: Source/stage label
+    - gc_bias:
+        type: file
+        description: GC bias metrics
+        ontologies: []
+output:
+  report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.gc_bias_*.json":
+          type: file
+          description: "Output file matching `*.gc_bias_*.json`"
+          pattern: "*.gc_bias_*.json"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

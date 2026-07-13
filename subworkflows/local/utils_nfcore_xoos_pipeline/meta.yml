@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "pipeline_initialisation"
+description: Pipeline-specific utility subworkflow for initialization, input validation, and completion handling
+keywords:
+  - utility
+  - pipeline
+  - initialisation
+  - completion
+components:
+  - utils_nfschema_plugin
+  - utils_nfcore_pipeline
+  - utils_nextflow_pipeline
+  - completionemail
+  - completionsummary
+
+input:
+  - version:
+      type: boolean
+      description: Display version and exit
+  - validate_params:
+      type: boolean
+      description: Validate parameters against the schema at runtime
+  - monochrome_logs:
+      type: boolean
+      description: Disable coloured log outputs
+  - nextflow_cli_args:
+      type: list
+      description: List of positional nextflow CLI args
+  - outdir:
+      type: string
+      description: Output directory path
+  - input:
+      type: string
+      description: Path to input samplesheet
+  - help:
+      type: boolean
+      description: Display help message and exit
+  - help_full:
+      type: boolean
+      description: Show full help message
+  - show_hidden:
+      type: boolean
+      description: Show hidden parameters in help
+output:
+  - samplesheet:
+      type: channel
+      description: Validated samplesheet channel
+  - versions:
+      type: channel
+      description: Software versions channel
+authors: []
+maintainers: []

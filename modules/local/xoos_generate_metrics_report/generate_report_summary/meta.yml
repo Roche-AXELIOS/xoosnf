@@ -1,0 +1,61 @@
+name: xoos_generate_report_summary
+description: Produce a filtered metrics-report-summary.tsv from the full metrics report using summary patterns.
+keywords:
+  - metrics
+  - report
+  - summary
+tools:
+  - generate-metrics-report:
+      description: XOOS tool that parses and aggregates per-sample metrics into report JSON/TSV.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - metrics:
+        type: file
+        description: Metrics inputs
+        ontologies: []
+  - summary_patterns:
+      type: string
+      description: Patterns selecting summary metrics
+output:
+  summary_report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "metrics-report-summary.tsv":
+          type: file
+          description: "Output file matching `metrics-report-summary.tsv`"
+          pattern: "metrics-report-summary.tsv"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

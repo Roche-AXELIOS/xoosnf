@@ -1,0 +1,23 @@
+Changes in component 'nf-core/utils_nfcore_pipeline'
+Changes in 'utils_nfcore_pipeline/main.nf':
+--- subworkflows/nf-core/utils_nfcore_pipeline/main.nf
++++ subworkflows/nf-core/utils_nfcore_pipeline/main.nf
+@@ -310,7 +310,14 @@
+             // Try to send HTML e-mail using sendmail
+             def sendmail_tf = new File(workflow.launchDir.toString(), ".sendmail_tmp.html")
+             sendmail_tf.withWriter { w -> w << sendmail_html }
+-            ['sendmail', '-t'].execute() << sendmail_html
++            def sp = new ProcessBuilder('sendmail', '-t').redirectInput(sendmail_tf).start()
++            def serr = new StringBuilder()
++            def sout = new StringBuilder()
++            sp.consumeProcessOutput(sout, serr)
++            sp.waitFor()
++            if (sp.exitValue() != 0) {
++                throw new RuntimeException("sendmail exited ${sp.exitValue()}: ${serr.toString().trim()}")
++            }
+             log.info("-${colors.purple}[${workflow.manifest.name}]${colors.green} Sent summary e-mail to ${email_address} (sendmail)-")
+         }
+         catch (Exception msg) {
+
+'subworkflows/nf-core/utils_nfcore_pipeline/meta.yml' is unchanged
+************************************************************

@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "SUBSAMPLE_BASECALL_RUNS"
+description: Subsample basecall runs (RDB and FASTQ) before demultiplexing
+keywords:
+  - subsampling
+  - basecalling
+  - fastq
+  - rdb
+components:
+  - subsample/run
+input:
+  - ch_basecall_rdb:
+      type: channel
+      description: |
+        RDB basecall run directories with samplesheet
+        Structure: [ val(meta), path(rdb_dir), path(samplesheet) ]
+  - ch_basecall_fastq:
+      type: channel
+      description: |
+        FASTQ basecall run directories with samplesheet
+        Structure: [ val(meta), path(fastq_dir), path(samplesheet) ]
+output:
+  - basecalls:
+      type: channel
+      description: |
+        Subsampled basecall directories with samplesheet
+        Structure: [ val(meta), path(dir), path(samplesheet) ]
+authors: []
+maintainers: []

@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "EVALUATE_SMALL_VARIANT_CALLS"
+description: Evaluate small variant calls against truth VCFs using RTG vcfeval and generate reports
+keywords:
+  - vcfeval
+  - rtgtools
+  - benchmarking
+  - variant-evaluation
+components:
+  - rtgtools/format
+  - rtgtools/vcfeval
+  - xoos/parse/vcf/eval/metrics
+  - xoos/vcfeval/metrics/to/multiqc
+input:
+  - ch_vcf_tbi:
+      type: channel
+      description: |
+        VCF files with index to evaluate
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - ch_reference:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_truth_vcf_dir:
+      type: channel
+      description: |
+        Truth VCF directory
+        Structure: [ val(meta), path(dir) ]
+  - ch_eval_bed_dir:
+      type: channel
+      description: |
+        Evaluation regions BED directory
+        Structure: [ val(meta), path(dir) ]
+  - reference_sdf:
+      type: string
+      description: Path to pre-built SDF directory or null
+output:
+  - report:
+      type: channel
+      description: |
+        Vcfeval evaluation report
+        Structure: [ val(meta), path(report) ]
+  - custom_multiqc_files:
+      type: channel
+      description: |
+        MultiQC input files
+        Structure: [ val(meta), path(multiqc_report_dir) ]
+  - vcfeval_output:
+      type: channel
+      description: |
+        Raw RTG vcfeval output directory
+        Structure: [ val(meta), path(vcfeval_dir) ]
+authors: []
+maintainers: []

@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "ALIGN"
+description: Dispatch reads to the configured aligner (BWA, minimap2, Parabricks fq2bam/minimap2/giraffe, or vg giraffe)
+keywords:
+  - alignment
+  - bwa
+  - minimap2
+  - parabricks
+  - giraffe
+components:
+  - align_bwa
+  - align_minimap2
+  - align_pb_fq2bam
+  - align_pb_minimap2
+  - align_pb_giraffe
+  - align_vg_giraffe
+input:
+  - aligner:
+      type: string
+      description: Aligner to use (bwa, minimap2, pb_fq2bam, pb_minimap2, pb_giraffe, vg_giraffe)
+  - ch_fastq:
+      type: channel
+      description: |
+        Channel of FASTQ reads
+        Structure: [ val(meta), path(reads) ]
+  - ch_reference:
+      type: channel
+      description: |
+        Reference FASTA
+        Structure: [ val(meta), path(fasta) ]
+  - ch_bwa_idx:
+      type: channel
+      description: |
+        BWA index directory
+        Structure: [ val(meta), path(idx_dir) ]
+  - ch_giraffe_idx:
+      type: channel
+      description: |
+        Giraffe index directory
+        Structure: [ val(meta), path(idx_dir) ]
+output:
+  - bams:
+      type: channel
+      description: |
+        Aligned BAM files with index
+        Structure: [ val(meta), path(bam), path(bai) ]
+authors: []
+maintainers: []

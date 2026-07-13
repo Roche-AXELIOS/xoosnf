@@ -1,0 +1,502 @@
+nextflow_pipeline {
+
+    name "Test pipeline - sectioned samplesheet conversion"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "samplesheet_conversion"
+
+    test("stub - sectioned samplesheet with [Samples] header") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/sectioned_basic"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            // Create FASTQ placeholders
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Create a sectioned samplesheet
+            new File("${inputsDir}/samplesheet.csv").text = """\
+[Samples]
+Sample ID, Sample Index
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/sectioned_basic/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - sectioned samplesheet with multiple sections and comments") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/sectioned_extras"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Samplesheet with comments, [Header], [Settings], and [Samples]
+            new File("${inputsDir}/samplesheet.csv").text = """\
+# Example samplesheet
+# Date: 2026-06-06
+
+[Header]
+Experiment Name, Test Experiment
+Date, 2026-06-06
+
+[Settings]
+Adapter, AGATCGGAAGAGC
+
+[Samples]
+Sample ID, Sample Index
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/sectioned_extras/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - sectioned samplesheet with case-insensitive column names") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/sectioned_case"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Use underscore-separated, lowercase column names and uppercase section header
+            new File("${inputsDir}/samplesheet.csv").text = """\
+[SAMPLES]
+sample_id, sample_index
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/sectioned_case/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - flat CSV samplesheet still works (backward compatibility)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/flat_csv"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Standard flat CSV format
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/flat_csv/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - flat CSV samplesheet with comment lines") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/flat_csv_comments"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Flat CSV with comment lines
+            new File("${inputsDir}/samplesheet.csv").text = """\
+# Generated on 2026-06-06
+# Experiment: Test Run
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/flat_csv_comments/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - sectioned samplesheet with optional columns") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/sectioned_optional_cols"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Sectioned samplesheet with optional columns (group and TN)
+            new File("${inputsDir}/samplesheet.csv").text = """\
+[Samples]
+Sample ID, Sample Index, Group, TN
+HG001,CTATTGAAGGCT,pair1,T
+HG002,GGAGTAACATCC,pair1,N
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/sectioned_optional_cols/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - sectioned samplesheet with CRLF line endings") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/sectioned_crlf"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            // Sectioned samplesheet with CRLF line endings
+            new File("${inputsDir}/samplesheet.csv").text =
+                "[Samples]\r\nSample ID, Sample Index\r\nHG001,CTATTGAAGGCT\r\nHG002,GGAGTAACATCC\r\n"
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/sectioned_crlf/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+
+    test("stub - sectioned samplesheet produces correct canonical output") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/sectioned_content_check"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+            new File("${fastqDir}/HG002_001.fastq.gz").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+# Comment line
+[Header]
+Experiment, Test
+
+[Samples]
+Sample ID, Sample Index
+HG001,CTATTGAAGGCT
+HG002,GGAGTAACATCC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/sectioned_content_check/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            // Locate the converted file by its deterministic hash (md5 of original content).
+            def originalContent = new File("${outputDir}/sectioned_content_check/inputs/samplesheet.csv").text
+            def hash = originalContent.md5()
+            def convertedFile = new File(System.getProperty('java.io.tmpdir'), "xoos-converted-samplesheets/${hash}.csv")
+            assertAll(
+                { assert workflow.success },
+                { assert convertedFile.exists() : "Converted file not found at expected path: ${convertedFile}" },
+                { assert convertedFile.readLines()[0] == 'sample_name,sample_sid' : "Header mismatch: ${convertedFile.readLines()[0]}" },
+                { assert convertedFile.text.contains('HG001') },
+                { assert convertedFile.text.contains('HG002') }
+            )
+        }
+    }
+
+    test("should fail - sectioned samplesheet without [Samples] section") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/no_samples_section"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+[Header]
+Experiment Name, Test Experiment
+
+[Settings]
+Adapter, AGATCGGAAGAGC
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/no_samples_section/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('no [Samples] section') }
+            )
+        }
+    }
+
+    test("should fail - sectioned samplesheet missing Sample Index column") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/missing_column"
+            def fastqDir = "${testDir}/fastq_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(fastqDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${fastqDir}/HG001_001.fastq.gz").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+[Samples]
+Sample ID, Some Other Column
+HG001, foo
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/missing_column/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("missing a 'Sample Index' column") }
+            )
+        }
+    }
+}

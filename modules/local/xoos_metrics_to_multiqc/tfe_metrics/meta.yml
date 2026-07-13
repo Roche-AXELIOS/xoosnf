@@ -1,0 +1,58 @@
+name: xoos_tfe_metrics_to_multiqc
+description: Convert tumor fraction estimation metrics into MultiQC input files.
+keywords:
+  - multiqc
+  - tumor-fraction
+  - metrics
+tools:
+  - xoos_to_multiqc:
+      description: XOOS tool that converts metrics into MultiQC-compatible input files.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - tfe_results_dir:
+        type: file
+        description: Tumor fraction results directory
+        ontologies: []
+output:
+  multiqc_report_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_tfe_metrics_multiqc_input":
+          type: file
+          description: "Output file matching `*_tfe_metrics_multiqc_input`"
+          pattern: "*_tfe_metrics_multiqc_input"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xoos_to_multiqc:
+          type: string
+          description: The name of the tool
+      - xoos_to_multiqc.py --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xoos_to_multiqc:
+          type: string
+          description: The name of the tool
+      - xoos_to_multiqc.py --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

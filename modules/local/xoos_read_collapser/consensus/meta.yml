@@ -1,0 +1,78 @@
+name: xoos_read_collapser_consensus
+description: Generate consensus reads from a BAM with the XOOS read_collapser and emit per-sample FASTQs.
+keywords:
+  - read-collapser
+  - consensus
+  - umi
+  - dedup
+tools:
+  - read_collapser:
+      description: "XOOS tool for UMI-aware read collapsing, deduplication, and consensus."
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+    - bed:
+        type: file
+        description: BED file of genomic regions
+        ontologies: []
+output:
+  fastq:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*/*.fastq.gz":
+          type: file
+          description: "Output file matching `*/*.fastq.gz`"
+          pattern: "*/*.fastq.gz"
+          ontologies: []
+  metrics_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*":
+          type: file
+          description: "Output file matching `*`"
+          pattern: "*"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - read_collapser:
+          type: string
+          description: The name of the tool
+      - read_collapser --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - read_collapser:
+          type: string
+          description: The name of the tool
+      - read_collapser --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

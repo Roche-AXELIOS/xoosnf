@@ -1,0 +1,108 @@
+nextflow_pipeline {
+
+    name "Test pipeline - pre-subsample BAM publishing (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "subsample_bam"
+
+    test("should publish pre_subsample BAM when enable_publish_pre_subsample_bam is true") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/pre_subsample_on"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                           = "$outputDir/results"
+                input                            = "${outputDir}/pre_subsample_on/inputs/input.csv"
+                aligner                          = 'bwa'
+                enable_small_variant_caller      = false
+                dedup_strategy                   = 'markdup'
+                enable_subsample_bam             = true
+                subsample_bam_coverage_target    = 30
+                enable_publish_pre_subsample_bam = true
+            }
+        }
+
+        then {
+            def preSubsampleDir = new File("$outputDir/results/test_run/HG001/pre_subsample")
+            def preSubsampleBams = preSubsampleDir.exists() ? preSubsampleDir.listFiles().findAll { it.name.endsWith('.bam') } : []
+            assertAll(
+                { assert workflow.success },
+                { assert preSubsampleDir.exists() },
+                { assert preSubsampleBams.size() > 0 },
+            )
+        }
+    }
+
+    test("should not publish pre_subsample BAM when enable_publish_pre_subsample_bam is false") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/pre_subsample_off"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                           = "$outputDir/results"
+                input                            = "${outputDir}/pre_subsample_off/inputs/input.csv"
+                aligner                          = 'bwa'
+                enable_small_variant_caller      = false
+                dedup_strategy                   = 'markdup'
+                enable_subsample_bam             = true
+                subsample_bam_coverage_target    = 30
+                enable_publish_pre_subsample_bam = false
+            }
+        }
+
+        then {
+            def preSubsampleDir = new File("$outputDir/results/test_run/HG001/pre_subsample")
+            assertAll(
+                { assert workflow.success },
+                { assert !preSubsampleDir.exists() },
+            )
+        }
+    }
+}

@@ -1,0 +1,472 @@
+{
+    "integration small - germline bwa demultiplexed_fastq": {
+        "content": [
+            {
+                "ADD_RUN_INFO_TO_MULTIQC_HEADER": [
+                    "add-run-info-to-multiqc-header"
+                ],
+                "BCFTOOLS_REHEADER_GERMLINE_SAMPLE": [
+                    "bcftools"
+                ],
+                "BWA_MEM_SINGLE_END_MULTIPLE_FASTQS": [
+                    "bwa",
+                    "samtools"
+                ],
+                "GATK4_HAPLOTYPECALLER": [
+                    "gatk4"
+                ],
+                "SAMTOOLS_INDEX": [
+                    "samtools"
+                ],
+                "XOOS_COMBINE_MULTIQC_REPORTS": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_GENERATE_REPORT": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_GENERATE_REPORT_SUMMARY": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_READ_COLLAPSER_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_READ_COLLAPSER_MARK_DUPLICATES": [
+                    "read_collapser"
+                ],
+                "XOOS_READ_COLLAPSER_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_GERMLINE_WGS": [
+                    "filter_variants"
+                ]
+            },
+            [
+                "index",
+                "index/alignment_metrics_files.json",
+                "index/bam.json",
+                "index/cnc_output.json",
+                "index/combined_report.json",
+                "index/combined_report_summary.json",
+                "index/contamination_output.json",
+                "index/demux_metrics_files.json",
+                "index/demuxed_fastqs.json",
+                "index/gc_bias_metrics_files.json",
+                "index/hs_metrics_files.json",
+                "index/multiqc_report.json",
+                "index/pre_subsample_bam.json",
+                "index/raw_vc_vcf.json",
+                "index/read_collapser_metrics_files.json",
+                "index/str_output.json",
+                "index/svc_pretrained_vcf.json",
+                "index/svc_retrained_vcf.json",
+                "index/tfe_output.json",
+                "index/vcf.json",
+                "index/vcfeval_output.json",
+                "pipeline_info",
+                "pipeline_info/xoos_software_mqc_versions.yml",
+                "test_run",
+                "test_run/HG001",
+                "test_run/HG001/HG001_markdup.bam",
+                "test_run/HG001/HG001_markdup.bam.bai",
+                "test_run/HG001/HG001_reheadered.vcf.gz",
+                "test_run/HG001/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG001/haplotype_caller",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz.tbi",
+                "test_run/HG001/read_collapser",
+                "test_run/HG001/read_collapser/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/summary_stats.tsv",
+                "test_run/HG001/small_variant_caller",
+                "test_run/HG001/small_variant_caller/pretrained",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG002",
+                "test_run/HG002/HG002_markdup.bam",
+                "test_run/HG002/HG002_markdup.bam.bai",
+                "test_run/HG002/HG002_reheadered.vcf.gz",
+                "test_run/HG002/HG002_reheadered.vcf.gz.tbi",
+                "test_run/HG002/haplotype_caller",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz.tbi",
+                "test_run/HG002/read_collapser",
+                "test_run/HG002/read_collapser/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/summary_stats.tsv",
+                "test_run/HG002/small_variant_caller",
+                "test_run/HG002/small_variant_caller/pretrained",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz.tbi",
+                "test_run/metrics-report-summary.tsv",
+                "test_run/metrics-report.tsv",
+                "test_run/multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-06-29T19:17:38.659381947",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "integration small - germline giraffe demultiplexed_fastq": {
+        "content": [
+            {
+                "ADD_RUN_INFO_TO_MULTIQC_HEADER": [
+                    "add-run-info-to-multiqc-header"
+                ],
+                "BCFTOOLS_REHEADER_GERMLINE_SAMPLE": [
+                    "bcftools"
+                ],
+                "GATK4_HAPLOTYPECALLER": [
+                    "gatk4"
+                ],
+                "VG_GIRAFFE": [
+                    "vg"
+                ],
+                "XOOS_COMBINE_MULTIQC_REPORTS": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_GENERATE_REPORT": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_GENERATE_REPORT_SUMMARY": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_READ_COLLAPSER_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_READ_COLLAPSER_MARK_DUPLICATES": [
+                    "read_collapser"
+                ],
+                "XOOS_READ_COLLAPSER_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_GERMLINE_WGS": [
+                    "filter_variants"
+                ]
+            },
+            [
+                "index",
+                "index/alignment_metrics_files.json",
+                "index/bam.json",
+                "index/cnc_output.json",
+                "index/combined_report.json",
+                "index/combined_report_summary.json",
+                "index/contamination_output.json",
+                "index/demux_metrics_files.json",
+                "index/demuxed_fastqs.json",
+                "index/gc_bias_metrics_files.json",
+                "index/hs_metrics_files.json",
+                "index/multiqc_report.json",
+                "index/pre_subsample_bam.json",
+                "index/raw_vc_vcf.json",
+                "index/read_collapser_metrics_files.json",
+                "index/str_output.json",
+                "index/svc_pretrained_vcf.json",
+                "index/svc_retrained_vcf.json",
+                "index/tfe_output.json",
+                "index/vcf.json",
+                "index/vcfeval_output.json",
+                "pipeline_info",
+                "pipeline_info/xoos_software_mqc_versions.yml",
+                "test_run",
+                "test_run/HG001",
+                "test_run/HG001/HG001_markdup.bam",
+                "test_run/HG001/HG001_markdup.bam.bai",
+                "test_run/HG001/HG001_reheadered.vcf.gz",
+                "test_run/HG001/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG001/haplotype_caller",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz.tbi",
+                "test_run/HG001/read_collapser",
+                "test_run/HG001/read_collapser/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/summary_stats.tsv",
+                "test_run/HG001/small_variant_caller",
+                "test_run/HG001/small_variant_caller/pretrained",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG002",
+                "test_run/HG002/HG002_markdup.bam",
+                "test_run/HG002/HG002_markdup.bam.bai",
+                "test_run/HG002/HG002_reheadered.vcf.gz",
+                "test_run/HG002/HG002_reheadered.vcf.gz.tbi",
+                "test_run/HG002/haplotype_caller",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz.tbi",
+                "test_run/HG002/read_collapser",
+                "test_run/HG002/read_collapser/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/summary_stats.tsv",
+                "test_run/HG002/small_variant_caller",
+                "test_run/HG002/small_variant_caller/pretrained",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz.tbi",
+                "test_run/metrics-report-summary.tsv",
+                "test_run/metrics-report.tsv",
+                "test_run/multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-06-29T19:19:11.979593359",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "integration small - germline bam": {
+        "content": [
+            {
+                "BCFTOOLS_REHEADER_GERMLINE_SAMPLE": [
+                    "bcftools"
+                ],
+                "GATK4_HAPLOTYPECALLER": [
+                    "gatk4"
+                ],
+                "XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_GERMLINE_WGS": [
+                    "filter_variants"
+                ]
+            },
+            [
+                "index",
+                "index/alignment_metrics_files.json",
+                "index/bam.json",
+                "index/cnc_output.json",
+                "index/combined_report.json",
+                "index/combined_report_summary.json",
+                "index/contamination_output.json",
+                "index/demux_metrics_files.json",
+                "index/demuxed_fastqs.json",
+                "index/gc_bias_metrics_files.json",
+                "index/hs_metrics_files.json",
+                "index/multiqc_report.json",
+                "index/pre_subsample_bam.json",
+                "index/raw_vc_vcf.json",
+                "index/read_collapser_metrics_files.json",
+                "index/str_output.json",
+                "index/svc_pretrained_vcf.json",
+                "index/svc_retrained_vcf.json",
+                "index/tfe_output.json",
+                "index/vcf.json",
+                "index/vcfeval_output.json",
+                "pipeline_info",
+                "pipeline_info/xoos_software_mqc_versions.yml",
+                "test_run",
+                "test_run/HG001",
+                "test_run/HG001/HG001_reheadered.vcf.gz",
+                "test_run/HG001/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG001/haplotype_caller",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz.tbi",
+                "test_run/HG001/small_variant_caller",
+                "test_run/HG001/small_variant_caller/pretrained",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG002",
+                "test_run/HG002/HG002_reheadered.vcf.gz",
+                "test_run/HG002/HG002_reheadered.vcf.gz.tbi",
+                "test_run/HG002/haplotype_caller",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz.tbi",
+                "test_run/HG002/small_variant_caller",
+                "test_run/HG002/small_variant_caller/pretrained",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz.tbi"
+            ]
+        ],
+        "timestamp": "2026-06-29T19:20:19.933942322",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "integration small - germline bwa basecall_fastq": {
+        "content": [
+            {
+                "ADD_RUN_INFO_TO_MULTIQC_HEADER": [
+                    "add-run-info-to-multiqc-header"
+                ],
+                "BCFTOOLS_INDEX": [
+                    "bcftools"
+                ],
+                "BCFTOOLS_REHEADER_GERMLINE_SAMPLE": [
+                    "bcftools"
+                ],
+                "BWA_MEM_SINGLE_END_MULTIPLE_FASTQS": [
+                    "bwa",
+                    "samtools"
+                ],
+                "GATK4_HAPLOTYPECALLER": [
+                    "gatk4"
+                ],
+                "SAMTOOLS_INDEX": [
+                    "samtools"
+                ],
+                "XOOS_CNC_METRICS_TO_MULTIQC_GERMLINE": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_COMBINE_MULTIQC_REPORTS": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_COPY_NUMBER_CALLER_GERMLINE_WGS": [
+                    "copy_number_caller"
+                ],
+                "XOOS_DEMUX": [
+                    "demux"
+                ],
+                "XOOS_DEMUX_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_GENERATE_REPORT": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_GENERATE_REPORT_SUMMARY": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_CNC_METRICS_GERMLINE": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_DEMUX_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_READ_COLLAPSER_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_STR_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_READ_COLLAPSER_MARK_DUPLICATES": [
+                    "read_collapser"
+                ],
+                "XOOS_READ_COLLAPSER_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_GERMLINE_WGS": [
+                    "filter_variants"
+                ],
+                "XOOS_STR_CALLER": [
+                    "str_caller"
+                ],
+                "XOOS_STR_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ]
+            },
+            [
+                "index",
+                "index/alignment_metrics_files.json",
+                "index/bam.json",
+                "index/cnc_output.json",
+                "index/combined_report.json",
+                "index/combined_report_summary.json",
+                "index/contamination_output.json",
+                "index/demux_metrics_files.json",
+                "index/demuxed_fastqs.json",
+                "index/gc_bias_metrics_files.json",
+                "index/hs_metrics_files.json",
+                "index/multiqc_report.json",
+                "index/pre_subsample_bam.json",
+                "index/raw_vc_vcf.json",
+                "index/read_collapser_metrics_files.json",
+                "index/str_output.json",
+                "index/svc_pretrained_vcf.json",
+                "index/svc_retrained_vcf.json",
+                "index/tfe_output.json",
+                "index/vcf.json",
+                "index/vcfeval_output.json",
+                "pipeline_info",
+                "pipeline_info/xoos_software_mqc_versions.yml",
+                "test_run",
+                "test_run/HG001",
+                "test_run/HG001/HG001_germline_copy_number_callset.vcf.gz.tbi",
+                "test_run/HG001/HG001_markdup.bam",
+                "test_run/HG001/HG001_markdup.bam.bai",
+                "test_run/HG001/HG001_reheadered.vcf.gz",
+                "test_run/HG001/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG001/copy_number_caller",
+                "test_run/HG001/copy_number_caller/HG001_augmented_intervals.bed",
+                "test_run/HG001/copy_number_caller/HG001_bafs.bed",
+                "test_run/HG001/copy_number_caller/HG001_bafs.bw",
+                "test_run/HG001/copy_number_caller/HG001_corrected_coverage.bed",
+                "test_run/HG001/copy_number_caller/HG001_coverage.bed",
+                "test_run/HG001/copy_number_caller/HG001_germline_copy_number_callset.seg",
+                "test_run/HG001/copy_number_caller/HG001_germline_copy_number_callset.vcf.gz",
+                "test_run/HG001/copy_number_caller/HG001_germline_copy_number_callset.vcf.gz.tbi",
+                "test_run/HG001/copy_number_caller/HG001_igv_visualization.xml",
+                "test_run/HG001/copy_number_caller/HG001_log_ratios.bed",
+                "test_run/HG001/copy_number_caller/HG001_log_ratios.bw",
+                "test_run/HG001/copy_number_caller/HG001_mapping_quality.bed",
+                "test_run/HG001/copy_number_caller/HG001_metrics.tsv",
+                "test_run/HG001/haplotype_caller",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz",
+                "test_run/HG001/haplotype_caller/HG001.vcf.gz.tbi",
+                "test_run/HG001/read_collapser",
+                "test_run/HG001/read_collapser/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/summary_stats.tsv",
+                "test_run/HG001/small_variant_caller",
+                "test_run/HG001/small_variant_caller/pretrained",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG001/str_caller",
+                "test_run/HG001/str_caller/HG001_str.json",
+                "test_run/HG001/str_caller/HG001_str.vcf.gz",
+                "test_run/HG001/str_caller/HG001_str.vcf.gz.tbi",
+                "test_run/HG001/str_caller/metrics.tsv",
+                "test_run/HG002",
+                "test_run/HG002/HG002_germline_copy_number_callset.vcf.gz.tbi",
+                "test_run/HG002/HG002_markdup.bam",
+                "test_run/HG002/HG002_markdup.bam.bai",
+                "test_run/HG002/HG002_reheadered.vcf.gz",
+                "test_run/HG002/HG002_reheadered.vcf.gz.tbi",
+                "test_run/HG002/copy_number_caller",
+                "test_run/HG002/copy_number_caller/HG002_augmented_intervals.bed",
+                "test_run/HG002/copy_number_caller/HG002_bafs.bed",
+                "test_run/HG002/copy_number_caller/HG002_bafs.bw",
+                "test_run/HG002/copy_number_caller/HG002_corrected_coverage.bed",
+                "test_run/HG002/copy_number_caller/HG002_coverage.bed",
+                "test_run/HG002/copy_number_caller/HG002_germline_copy_number_callset.seg",
+                "test_run/HG002/copy_number_caller/HG002_germline_copy_number_callset.vcf.gz",
+                "test_run/HG002/copy_number_caller/HG002_germline_copy_number_callset.vcf.gz.tbi",
+                "test_run/HG002/copy_number_caller/HG002_igv_visualization.xml",
+                "test_run/HG002/copy_number_caller/HG002_log_ratios.bed",
+                "test_run/HG002/copy_number_caller/HG002_log_ratios.bw",
+                "test_run/HG002/copy_number_caller/HG002_mapping_quality.bed",
+                "test_run/HG002/copy_number_caller/HG002_metrics.tsv",
+                "test_run/HG002/haplotype_caller",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz",
+                "test_run/HG002/haplotype_caller/HG002.vcf.gz.tbi",
+                "test_run/HG002/read_collapser",
+                "test_run/HG002/read_collapser/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/summary_stats.tsv",
+                "test_run/HG002/small_variant_caller",
+                "test_run/HG002/small_variant_caller/pretrained",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz.tbi",
+                "test_run/HG002/str_caller",
+                "test_run/HG002/str_caller/HG002_str.json",
+                "test_run/HG002/str_caller/HG002_str.vcf.gz",
+                "test_run/HG002/str_caller/HG002_str.vcf.gz.tbi",
+                "test_run/HG002/str_caller/metrics.tsv",
+                "test_run/demux",
+                "test_run/demux/metrics",
+                "test_run/demux/metrics/endadapter_position_distr.tsv",
+                "test_run/demux/metrics/full_duplex_read_length_distr.tsv",
+                "test_run/demux/metrics/no_hairpin_read_length_distr.tsv",
+                "test_run/demux/metrics/partial_duplex_read_length_distr.tsv",
+                "test_run/demux/metrics/passing_read_length_distr.tsv",
+                "test_run/demux/metrics/run_stats.tsv",
+                "test_run/demux/metrics/sample_stats.tsv",
+                "test_run/demux/metrics/total_read_length_distr.tsv",
+                "test_run/demux/metrics/unassigned_read_length_distr.tsv",
+                "test_run/metrics-report-summary.tsv",
+                "test_run/metrics-report.tsv",
+                "test_run/multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-07-08T14:20:40.779842113",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

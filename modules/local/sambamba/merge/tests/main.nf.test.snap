@@ -1,0 +1,56 @@
+{
+    "stub - merge two BAMs": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE1"
+                    },
+                    "SAMPLE1.merged.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "SAMPLE1.merged.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T17:50:53.302859487",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - custom prefix via ext.prefix": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE3"
+                    },
+                    "custom_prefix.merged.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "custom_prefix.merged.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T18:14:54.410210917",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - merge three BAMs": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE2"
+                    },
+                    "SAMPLE2.merged.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "SAMPLE2.merged.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T17:59:19.538531925",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

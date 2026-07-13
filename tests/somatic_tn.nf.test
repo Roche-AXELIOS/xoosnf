@@ -1,0 +1,50 @@
+nextflow_pipeline {
+
+    name "Test pipeline - somatic tumor-normal (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "somatic_tn"
+
+    test("stub - somatic tumor-normal with gatk mutect2") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_somatic_tn.csv"
+                aligner                     = 'bwa'
+                variant_calling_mode        = 'somatic_tn'
+                enable_small_variant_caller = true
+                use_gatk_mutect2            = true
+                dedup_strategy              = 'markdup'
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+}

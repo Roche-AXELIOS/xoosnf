@@ -1,0 +1,54 @@
+nextflow_process {
+
+    name "Test Process GATK4_MERGEMUTECTSTATS"
+    script "../main.nf"
+    process "GATK4_MERGEMUTECTSTATS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "gatk4"
+    tag "gatk4/mergemutectstats"
+
+    test("stub - single stats file") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'], file('test.vcf.gz.stats') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.stats }
+            )
+        }
+    }
+
+    test("stub - multiple stats files") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'],
+                      [file('chr1.vcf.gz.stats'), file('chr2.vcf.gz.stats'), file('chr3.vcf.gz.stats')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.stats }
+            )
+        }
+    }
+}

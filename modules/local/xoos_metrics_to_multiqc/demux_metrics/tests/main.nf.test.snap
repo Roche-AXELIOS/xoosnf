@@ -1,0 +1,57 @@
+{
+    "stub - generates demux metrics multiqc input": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "RUN1"
+                    },
+                    [
+                        "xoos_demux_run_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_demux_sample_counts_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_demux_sample_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_DEMUX_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-28T17:23:04.733786944",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - preserves meta in output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "RUN2",
+                        "run_type": "sbx-d"
+                    },
+                    [
+                        "xoos_demux_run_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_demux_sample_counts_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_demux_sample_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_DEMUX_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-28T17:23:13.253695176",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

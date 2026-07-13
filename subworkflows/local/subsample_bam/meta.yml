@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "SUBSAMPLE_BAM"
+description: Downsample BAM files to a target coverage using coverage metrics and samtools view
+keywords:
+  - subsampling
+  - downsampling
+  - coverage
+  - samtools
+components:
+  - xoos/alignment/metrics/coverage
+  - samtools/view
+input:
+  - ch_bam_bai:
+      type: channel
+      description: |
+        BAM files with index
+        Structure: [ val(meta), path(bam), path(bai) ]
+  - ch_fasta:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_bed:
+      type: channel
+      description: |
+        Regions BED file
+        Structure: [ val(meta), path(bed) ]
+  - target_coverage:
+      type: value
+      description: Target coverage depth for downsampling
+  - metrics_name:
+      type: value
+      description: Tuple of (metrics_row_name, metrics_column_name) for coverage lookup
+output:
+  - bam_subsampled:
+      type: channel
+      description: |
+        Downsampled BAM files with index
+        Structure: [ val(meta), path(bam), path(bai) ]
+authors: []
+maintainers: []

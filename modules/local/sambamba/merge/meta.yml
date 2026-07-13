@@ -1,0 +1,69 @@
+name: sambamba_merge
+description: Merge multiple BAM files into one and index with sambamba.
+keywords:
+  - sambamba
+  - merge
+  - bam
+  - index
+tools:
+  - sambamba:
+      description: Tools for working with SAM/BAM data with parallelized processing.
+      homepage: "https://lomereiter.github.io/sambamba/"
+      documentation: "https://lomereiter.github.io/sambamba/docs/sambamba-view.html"
+      doi: 10.1093/bioinformatics/btv098
+      licence: ["GPL-2.0-or-later"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bams:
+        type: file
+        description: BAM alignment files
+        ontologies: []
+    - bais:
+        type: file
+        description: BAM index files
+        ontologies: []
+output:
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.merged.bam":
+          type: file
+          description: "Output file matching `*.merged.bam`"
+          pattern: "*.merged.bam"
+          ontologies: []
+      - "*.merged.bam.bai":
+          type: file
+          description: "Output file matching `*.merged.bam.bai`"
+          pattern: "*.merged.bam.bai"
+          ontologies: []
+  versions_sambamba:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - sambamba:
+          type: string
+          description: The name of the tool
+      - "sambamba --version 2>&1 | head -1 | sed 's/sambamba //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - sambamba:
+          type: string
+          description: The name of the tool
+      - "sambamba --version 2>&1 | head -1 | sed 's/sambamba //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

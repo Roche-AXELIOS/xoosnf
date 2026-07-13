@@ -1,0 +1,110 @@
+nextflow_process {
+
+    name "Test Process PICARD_COLLECT_GC_BIAS_METRICS"
+    script "../main.nf"
+    process "PICARD_COLLECT_GC_BIAS_METRICS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "picard"
+    tag "picard/collectgcbiasmetrics"
+
+    test("stub - produces CollectGcBiasMetrics directory") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'HG001' ],
+                    file('HG001.bam'),
+                    file('HG001.bam.bai')
+                ]
+                input[1] = [
+                    [ id: 'reference' ],
+                    file('reference.fasta'),
+                    file('reference.fasta.fai')
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gc_bias,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.gc_bias.size() == 1 },
+                { assert process.out.gc_bias[0][1].toString().endsWith('CollectGcBiasMetrics') },
+            )
+        }
+    }
+
+    test("stub - output directory contains expected files") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'HG002' ],
+                    file('HG002.bam'),
+                    file('HG002.bam.bai')
+                ]
+                input[1] = [
+                    [ id: 'reference' ],
+                    file('reference.fasta'),
+                    file('reference.fasta.fai')
+                ]
+                """
+            }
+        }
+
+        then {
+            def outDir = file(process.out.gc_bias[0][1])
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gc_bias,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert outDir.list().sort() == ['HG002.gc_bias.pdf', 'HG002.gc_bias.tsv', 'HG002.gc_bias_summary.tsv'] },
+            )
+        }
+    }
+
+    test("stub - preserves meta") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'SAMPLE_X', run_name: 'run1' ],
+                    file('SAMPLE_X.bam'),
+                    file('SAMPLE_X.bam.bai')
+                ]
+                input[1] = [
+                    [ id: 'reference' ],
+                    file('reference.fasta'),
+                    file('reference.fasta.fai')
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gc_bias,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.gc_bias[0][0].id == 'SAMPLE_X' },
+                { assert process.out.gc_bias[0][0].run_name == 'run1' },
+            )
+        }
+    }
+}

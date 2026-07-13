@@ -1,0 +1,193 @@
+nextflow_workflow {
+
+    name "Test partitionFastqs"
+    script "./partition_fastqs_test_wrapper.nf"
+    workflow "PARTITION_FASTQS_TEST"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "partition_fastqs"
+
+    test("4 files into 2 partitions") {
+
+        when {
+            workflow {
+                """
+                // Create temporary FASTQ files with different sizes
+                def tmpDir = java.nio.file.Files.createTempDirectory("partition_test").toFile()
+                def f1 = new File(tmpDir, "a.fastq.gz"); f1.text = "x" * 100
+                def f2 = new File(tmpDir, "b.fastq.gz"); f2.text = "x" * 80
+                def f3 = new File(tmpDir, "c.fastq.gz"); f3.text = "x" * 60
+                def f4 = new File(tmpDir, "d.fastq.gz"); f4.text = "x" * 40
+
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE1', run_name: 'run1', run_type: 'SBX-D'],
+                      [file(f1.path), file(f2.path), file(f3.path), file(f4.path)] ]
+                )
+                input[1] = 2
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // Exactly 2 partitions emitted
+                { assert workflow.out.partitions.size() == 2 },
+                // Each partition meta has correct fields
+                { assert workflow.out.partitions.every { it[0].original_id == 'SAMPLE1' } },
+                { assert workflow.out.partitions.every { it[0].partition != null } },
+                // sample_id preserves the true sample name for read groups
+                { assert workflow.out.partitions.every { it[0].sample_id == 'SAMPLE1' } },
+                // Partition ids are SAMPLE1_0 and SAMPLE1_1
+                { assert workflow.out.partitions.collect { it[0].id }.sort() == ['SAMPLE1_0', 'SAMPLE1_1'] },
+                // All 4 files distributed across the 2 partitions
+                { assert workflow.out.partitions.collect { it[1].size() }.sum() == 4 },
+                // No empty partitions
+                { assert workflow.out.partitions.every { it[1].size() > 0 } }
+            )
+        }
+    }
+
+    test("fewer files than partitions emits empty partitions") {
+
+        when {
+            workflow {
+                """
+                def tmpDir = java.nio.file.Files.createTempDirectory("partition_test_few").toFile()
+                def f1 = new File(tmpDir, "a.fastq.gz"); f1.text = "x" * 100
+
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE2', run_name: 'run1', run_type: 'SBX-D'],
+                      [file(f1.path)] ]
+                )
+                input[1] = 3
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // Exactly 3 partitions emitted (even though only 1 file)
+                { assert workflow.out.partitions.size() == 3 },
+                // All share the same original_id and sample_id
+                { assert workflow.out.partitions.every { it[0].original_id == 'SAMPLE2' } },
+                { assert workflow.out.partitions.every { it[0].sample_id == 'SAMPLE2' } },
+                // Partition ids are SAMPLE2_0, SAMPLE2_1, SAMPLE2_2
+                { assert workflow.out.partitions.collect { it[0].id }.sort() == ['SAMPLE2_0', 'SAMPLE2_1', 'SAMPLE2_2'] },
+                // Only 1 file total across all partitions
+                { assert workflow.out.partitions.collect { it[1].size() }.sum() == 1 },
+                // Exactly 2 empty partitions
+                { assert workflow.out.partitions.count { it[1].size() == 0 } == 2 }
+            )
+        }
+    }
+
+    test("directory input resolves fastq.gz files") {
+
+        when {
+            workflow {
+                """
+                def tmpDir = java.nio.file.Files.createTempDirectory("partition_test_dir").toFile()
+                def f1 = new File(tmpDir, "read1.fastq.gz"); f1.text = "x" * 50
+                def f2 = new File(tmpDir, "read2.fastq.gz"); f2.text = "x" * 50
+                // Non-fastq file should be ignored
+                def f3 = new File(tmpDir, "readme.txt"); f3.text = "ignore me"
+
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE3', run_name: 'run1', run_type: 'SBX-D'], tmpDir.path ]
+                )
+                input[1] = 2
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // 2 partitions
+                { assert workflow.out.partitions.size() == 2 },
+                // Only .fastq.gz files picked up (not readme.txt)
+                { assert workflow.out.partitions.collect { it[1].size() }.sum() == 2 },
+                { assert workflow.out.partitions.every { it[0].original_id == 'SAMPLE3' } }
+            )
+        }
+    }
+
+    test("multiple samples partitioned independently") {
+
+        when {
+            workflow {
+                """
+                def tmpDir1 = java.nio.file.Files.createTempDirectory("partition_test_s1").toFile()
+                def f1 = new File(tmpDir1, "a.fastq.gz"); f1.text = "x" * 100
+                def f2 = new File(tmpDir1, "b.fastq.gz"); f2.text = "x" * 80
+
+                def tmpDir2 = java.nio.file.Files.createTempDirectory("partition_test_s2").toFile()
+                def f3 = new File(tmpDir2, "c.fastq.gz"); f3.text = "x" * 60
+                def f4 = new File(tmpDir2, "d.fastq.gz"); f4.text = "x" * 40
+                def f5 = new File(tmpDir2, "e.fastq.gz"); f5.text = "x" * 20
+
+                input[0] = Channel.of(
+                    [ [id: 'S1', run_name: 'run1', run_type: 'SBX-D'], [file(f1.path), file(f2.path)] ],
+                    [ [id: 'S2', run_name: 'run1', run_type: 'SBX-D'], [file(f3.path), file(f4.path), file(f5.path)] ]
+                )
+                input[1] = 2
+                """
+            }
+        }
+
+        then {
+            def s1_partitions = workflow.out.partitions.findAll { it[0].original_id == 'S1' }
+            def s2_partitions = workflow.out.partitions.findAll { it[0].original_id == 'S2' }
+            assertAll(
+                { assert workflow.success },
+                // 2 partitions per sample = 4 total
+                { assert workflow.out.partitions.size() == 4 },
+                { assert s1_partitions.size() == 2 },
+                { assert s2_partitions.size() == 2 },
+                // S1: 2 files across 2 partitions
+                { assert s1_partitions.collect { it[1].size() }.sum() == 2 },
+                // S2: 3 files across 2 partitions
+                { assert s2_partitions.collect { it[1].size() }.sum() == 3 }
+            )
+        }
+    }
+
+    test("size-balanced distribution") {
+
+        when {
+            workflow {
+                """
+                // Files with very different sizes to verify bin-packing
+                def tmpDir = java.nio.file.Files.createTempDirectory("partition_test_balance").toFile()
+                def f1 = new File(tmpDir, "big.fastq.gz");    f1.text = "x" * 1000
+                def f2 = new File(tmpDir, "small1.fastq.gz"); f2.text = "x" * 100
+                def f3 = new File(tmpDir, "small2.fastq.gz"); f3.text = "x" * 100
+                def f4 = new File(tmpDir, "small3.fastq.gz"); f4.text = "x" * 100
+
+                input[0] = Channel.of(
+                    [ [id: 'BALANCED', run_name: 'run1', run_type: 'SBX-D'],
+                      [file(f1.path), file(f2.path), file(f3.path), file(f4.path)] ]
+                )
+                input[1] = 2
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.partitions.size() == 2 },
+                // The big file (1000) should be alone in one partition,
+                // the three small files (300 total) in the other.
+                // Greedy bin-packing: big→P0, small1→P1, small2→P1, small3→P1
+                {
+                    def sizes = workflow.out.partitions.collect { it[1].size() }.sort()
+                    assert sizes == [1, 3]
+                }
+            )
+        }
+    }
+}

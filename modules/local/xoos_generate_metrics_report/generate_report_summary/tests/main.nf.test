@@ -1,0 +1,74 @@
+nextflow_process {
+
+    name "Test Process XOOS_GENERATE_REPORT_SUMMARY"
+    script "../main.nf"
+    process "XOOS_GENERATE_REPORT_SUMMARY"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_generate_metrics_report/generate_report_summary"
+
+    // NOTE: These are stub-only tests that verify Nextflow channel wiring and
+    // meta propagation. They do not exercise the real generate-metrics-report
+    // CLI or validate that --pattern flags with shell metacharacters are passed
+    // through correctly at runtime. Integration tests with the container image
+    // and representative input data would be needed to cover that.
+
+    test("stub - generates summary report with patterns") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'RUN1', run_type: 'sbx-d'], [file('metrics1.json'), file('metrics2.json')] ]
+                )
+                input[1] = [
+                    '^alignment_metrics/dedup(_subsample)?_autosomes/accuracy/all_errors_with_indel_bases/phred\$',
+                    '^demux/(total_reads|passing_reads%)\$',
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.summary_report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.summary_report.size() == 1 },
+                { assert process.out.summary_report[0][1].toString().endsWith('metrics-report-summary.tsv') },
+            )
+        }
+    }
+
+    test("stub - preserves meta in summary report output") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'RUN2', run_type: 'sbx-s'], [file('metrics1.json')] ]
+                )
+                input[1] = ['^demux/total_reads\$']
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.summary_report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.summary_report[0][0].id == 'RUN2' },
+                { assert process.out.summary_report[0][0].run_type == 'sbx-s' },
+            )
+        }
+    }
+}

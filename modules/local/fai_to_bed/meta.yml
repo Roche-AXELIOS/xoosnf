@@ -1,0 +1,59 @@
+name: fai_to_bed
+description: Convert a FASTA index (.fai) into a BED file covering each contig fully.
+keywords:
+  - bed
+  - fai
+  - reference
+  - awk
+tools:
+  - awk:
+      description: GNU implementation of the AWK programming language (gawk).
+      homepage: "https://www.gnu.org/software/gawk/"
+      documentation: "https://www.gnu.org/software/gawk/manual/"
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta_fai:
+        type: file
+        description: FASTA index (.fai) file
+        ontologies: []
+output:
+  bed:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bed":
+          type: file
+          description: "Output file matching `*.bed`"
+          pattern: "*.bed"
+          ontologies: []
+  versions_awk:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - awk:
+          type: string
+          description: The name of the tool
+      - "awk -Wversion | sed '1!d; s/.*Awk //; s/,.*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - awk:
+          type: string
+          description: The name of the tool
+      - "awk -Wversion | sed '1!d; s/.*Awk //; s/,.*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

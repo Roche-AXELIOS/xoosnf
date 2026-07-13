@@ -1,0 +1,81 @@
+name: xoos_small_variant_caller_train_model
+description: Train XOOS small variant caller SNV and indel models from computed features and a truth VCF.
+keywords:
+  - small-variant-caller
+  - train
+  - model
+tools:
+  - train_model:
+      description: XOOS small variant caller component.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam_features:
+        type: file
+        description: Computed BAM features file
+        ontologies: []
+    - vcf_features:
+        type: file
+        description: Computed VCF features file
+        ontologies: []
+    - truth_vcf:
+        type: file
+        description: Truth VCF
+        ontologies: []
+    - truth_vcf_index:
+        type: file
+        description: Truth VCF index
+        ontologies: []
+output:
+  model_snv:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*.model_snv.txt":
+          type: file
+          description: "Output file matching `small_variant_caller/*.model_snv.txt`"
+          pattern: "small_variant_caller/*.model_snv.txt"
+          ontologies: []
+  model_indel:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*.model_indel.txt":
+          type: file
+          description: "Output file matching `small_variant_caller/*.model_indel.txt`"
+          pattern: "small_variant_caller/*.model_indel.txt"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - train_model:
+          type: string
+          description: The name of the tool
+      - train_model --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - train_model:
+          type: string
+          description: The name of the tool
+      - train_model --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

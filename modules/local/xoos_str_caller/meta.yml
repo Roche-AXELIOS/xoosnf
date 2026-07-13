@@ -1,0 +1,100 @@
+name: xoos_str_caller
+description: Call short tandem repeat (STR) variants from a BAM with the XOOS str_caller.
+keywords:
+  - str
+  - short-tandem-repeat
+  - variant-calling
+tools:
+  - str_caller:
+      description: XOOS short tandem repeat variant caller.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_index:
+        type: file
+        description: Reference FASTA index file
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - repeat_catalog:
+        type: file
+        description: STR repeat catalog JSON (optional)
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "str_caller/*_str.vcf.gz":
+          type: file
+          description: "Output file matching `str_caller/*_str.vcf.gz`"
+          pattern: "str_caller/*_str.vcf.gz"
+          ontologies: []
+      - "str_caller/*_str.vcf.gz.tbi":
+          type: file
+          description: "Output file matching `str_caller/*_str.vcf.gz.tbi`"
+          pattern: "str_caller/*_str.vcf.gz.tbi"
+          ontologies: []
+  results_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "str_caller/*":
+          type: file
+          description: "Output file matching `str_caller/*`"
+          pattern: "str_caller/*"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - str_caller:
+          type: string
+          description: The name of the tool
+      - str_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - str_caller:
+          type: string
+          description: The name of the tool
+      - str_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

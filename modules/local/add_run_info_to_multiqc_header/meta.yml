@@ -1,0 +1,58 @@
+name: add_run_info_to_multiqc_header
+description: Inject run name and run type into a MultiQC config header.
+keywords:
+  - multiqc
+  - report
+  - config
+tools:
+  - add-run-info-to-multiqc-header:
+      description: XOOS helper that adds run metadata to a MultiQC config header.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - multiqc_config:
+        type: file
+        description: MultiQC config YAML
+        ontologies: []
+output:
+  multiqc_config_with_run_info:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "multiqc_config_with_run_info.yml":
+          type: file
+          description: "Output file matching `multiqc_config_with_run_info.yml`"
+          pattern: "multiqc_config_with_run_info.yml"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - add-run-info-to-multiqc-header:
+          type: string
+          description: The name of the tool
+      - add-run-info-to-multiqc-header --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - add-run-info-to-multiqc-header:
+          type: string
+          description: The name of the tool
+      - add-run-info-to-multiqc-header --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process PARABRICKS_FQ2BAM_SINGLE_END_MULTIPLE_FASTQS"
+    script "../main.nf"
+    process "PARABRICKS_FQ2BAM_SINGLE_END_MULTIPLE_FASTQS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "parabricks"
+    tag "parabricks/fq2bam"
+
+    test("stub - no known_sites, no intervals") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test', sample_id: 'SAMPLE1'], file('reads.fastq.gz') ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = [ [id: 'ref'], file('bwa_index') ]
+                input[3] = [ [id: 'ref'], [] ]
+                input[4] = [ [id: 'ref'], [] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam }
+            )
+        }
+    }
+
+    test("stub - multiple known_sites and multiple intervals") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test', sample_id: 'SAMPLE1'], file('reads.fastq.gz') ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = [ [id: 'ref'], file('bwa_index') ]
+                input[3] = [ [id: 'ref'], [file('chr1.bed'), file('chr2.bed')] ]
+                input[4] = [ [id: 'ref'], [file('dbsnp.vcf'), file('mills.vcf'), file('known_indels.vcf')] ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam },
+                { assert process.out.bqsr_table }
+            )
+        }
+    }
+}

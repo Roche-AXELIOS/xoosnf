@@ -1,0 +1,143 @@
+name: gatk4_mutect2
+description: Call somatic SNVs and indels with GATK4 Mutect2.
+keywords:
+  - gatk4
+  - mutect2
+  - somatic
+  - variant-calling
+tools:
+  - gatk4:
+      description: Genome Analysis Toolkit for variant discovery in high-throughput sequencing data.
+      homepage: "https://gatk.broadinstitute.org/hc/en-us"
+      documentation: "https://gatk.broadinstitute.org/hc/en-us/categories/360002369672s"
+      doi: 10.1158/1538-7445.AM2017-3590
+      licence: ["Apache-2.0"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - input:
+        type: file
+        description: Input alignment file
+        ontologies: []
+    - input_index:
+        type: file
+        description: Input alignment index file
+        ontologies: []
+    - intervals:
+        type: file
+        description: Genomic intervals BED file (optional)
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fai:
+        type: file
+        description: FASTA index (.fai) file
+        ontologies: []
+    - gzi:
+        type: file
+        description: BGZF index (.gzi) file
+        ontologies: []
+  - - meta4:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - dict:
+        type: file
+        description: Sequence dictionary file
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.vcf.gz":
+          type: file
+          description: "Output file matching `*.vcf.gz`"
+          pattern: "*.vcf.gz"
+          ontologies: []
+  tbi:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.tbi":
+          type: file
+          description: "Output file matching `*.tbi`"
+          pattern: "*.tbi"
+          ontologies: []
+  stats:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.stats":
+          type: file
+          description: "Output file matching `*.stats`"
+          pattern: "*.stats"
+          ontologies: []
+  f1r2:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.f1r2.tar.gz":
+          type: file
+          description: "Output file matching `*.f1r2.tar.gz`"
+          pattern: "*.f1r2.tar.gz"
+          ontologies: []
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.realigned.bam":
+          type: file
+          description: "Output file matching `*.realigned.bam`"
+          pattern: "*.realigned.bam"
+          ontologies: []
+  versions_gatk4:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gatk4:
+          type: string
+          description: The name of the tool
+      - "gatk --version | sed -n '/GATK.*v/s/.*v//p'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gatk4:
+          type: string
+          description: The name of the tool
+      - "gatk --version | sed -n '/GATK.*v/s/.*v//p'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

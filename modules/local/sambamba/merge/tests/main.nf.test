@@ -1,0 +1,91 @@
+nextflow_process {
+
+    name "Test Process SAMBAMBA_MERGE"
+    script "../main.nf"
+    process "SAMBAMBA_MERGE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "sambamba"
+    tag "sambamba/merge"
+
+    test("stub - merge two BAMs") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE1'],
+                      [file('sample1_0.bam'), file('sample1_1.bam')],
+                      [file('sample1_0.bam.bai'), file('sample1_1.bam.bai')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam },
+                { assert new File(process.out.bam[0][1]).name == 'SAMPLE1.merged.bam' },
+                { assert new File(process.out.bam[0][2]).name == 'SAMPLE1.merged.bam.bai' },
+                { assert snapshot(process.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - merge three BAMs") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE2'],
+                      [file('s2_0.bam'), file('s2_1.bam'), file('s2_2.bam')],
+                      [file('s2_0.bam.bai'), file('s2_1.bam.bai'), file('s2_2.bam.bai')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam },
+                { assert new File(process.out.bam[0][1]).name == 'SAMPLE2.merged.bam' },
+                { assert new File(process.out.bam[0][2]).name == 'SAMPLE2.merged.bam.bai' },
+                { assert snapshot(process.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - custom prefix via ext.prefix") {
+        options "-stub"
+
+        config "./nextflow.config"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE3'],
+                      [file('s3_0.bam'), file('s3_1.bam')],
+                      [file('s3_0.bam.bai'), file('s3_1.bam.bai')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam },
+                { assert new File(process.out.bam[0][1]).name == 'custom_prefix.merged.bam' },
+                { assert new File(process.out.bam[0][2]).name == 'custom_prefix.merged.bam.bai' },
+                { assert snapshot(process.out.bam).match() }
+            )
+        }
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "stub - generates metrics report": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "RUN1",
+                        "run_type": "sbx-d"
+                    },
+                    "metrics-report.tsv:md5,b9f69004490c31ec97731e45592a03a1"
+                ]
+            ],
+            [
+                [
+                    "XOOS_GENERATE_REPORT",
+                    "generate-metrics-report"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:06:27.50618678",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - preserves meta in report output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "RUN2",
+                        "run_type": "sbx-s"
+                    },
+                    "metrics-report.tsv:md5,b9f69004490c31ec97731e45592a03a1"
+                ]
+            ],
+            [
+                [
+                    "XOOS_GENERATE_REPORT",
+                    "generate-metrics-report"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:06:36.409756221",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

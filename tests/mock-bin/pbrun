@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Mock pbrun for stub tests — prints a minimal version block
+cat <<'EOF'
+Please visit https://docs.nvidia.com/clara/parabricks/latest for detailed documentation.
+pbrun: 4.7.0-1
+---
+Compatible With:
+  BWA: 0.7.15
+  GATK: 4.3.0.0
+  minimap2: 2.24
+---
+EOF

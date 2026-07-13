@@ -1,0 +1,114 @@
+name: parabricks_haplotypecaller
+description: GPU-accelerated germline variant calling with NVIDIA Parabricks HaplotypeCaller.
+keywords:
+  - parabricks
+  - gpu
+  - haplotypecaller
+  - germline
+  - variant-calling
+tools:
+  - parabricks:
+      description: NVIDIA Clara Parabricks GPU-accelerated genomics toolkit.
+      homepage: "https://www.nvidia.com/en-us/clara/genomics/"
+      documentation: "https://docs.nvidia.com/clara/parabricks/"
+      licence: ["proprietary"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - input:
+        type: file
+        description: Input alignment file
+        ontologies: []
+    - input_index:
+        type: file
+        description: Input alignment index file
+        ontologies: []
+    - intervals:
+        type: file
+        description: Genomic intervals BED file (optional)
+        ontologies: []
+  - - ref_meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - fai:
+        type: file
+        description: FASTA index (.fai) file
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.vcf":
+          type: file
+          description: "Output file matching `*.vcf`"
+          pattern: "*.vcf"
+          ontologies: []
+  gvcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.g.vcf.gz":
+          type: file
+          description: "Output file matching `*.g.vcf.gz`"
+          pattern: "*.g.vcf.gz"
+          ontologies: []
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_hc*.bam":
+          type: file
+          description: "Output file matching `*_hc*.bam`"
+          pattern: "*_hc*.bam"
+          ontologies: []
+      - "*_hc*.bam.bai":
+          type: file
+          description: "Output file matching `*_hc*.bam.bai`"
+          pattern: "*_hc*.bam.bai"
+          ontologies: []
+  compatible_versions:
+    - "compatible_versions.yml":
+        type: file
+        description: "Output file matching `compatible_versions.yml`"
+        pattern: "compatible_versions.yml"
+        ontologies: []
+  versions_parabricks:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

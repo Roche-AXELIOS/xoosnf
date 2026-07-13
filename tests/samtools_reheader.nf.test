@@ -1,0 +1,70 @@
+nextflow_process {
+
+    name "Test process - SAMTOOLS_REHEADER @RG rewrite (enable_bam_reheader)"
+    script "../modules/nf-core/samtools/reheader/main.nf"
+    process "SAMTOOLS_REHEADER"
+    config "tests/samtools_reheader.config"
+    tag "process"
+    tag "bam_reheader"
+
+    // Verifies the actual header transform configured for enable_bam_reheader
+    // (conf/modules.config) rather than just that the process is wired in.
+    // The input fixture carries @RG ID:HG001 SM:HG001; passing meta.id=RENAMED
+    // must rewrite both tags to RENAMED and leave no trace of the old value,
+    // while @HD/@SQ/@PG records stay untouched.
+    test("rewrites @RG ID and SM to meta.id, leaves other records unchanged") {
+        setup {
+            // Build a minimal BAM using htsjdk, which is bundled with the nft-bam plugin
+            // and therefore already on the nf-test classpath.
+            new File("${projectDir}/tests/data").mkdirs()
+            def bamFile = new File("${projectDir}/tests/data/reheader_input.bam")
+
+            def header = new htsjdk.samtools.SAMFileHeader()
+            header.setSortOrder(htsjdk.samtools.SAMFileHeader.SortOrder.coordinate)
+            header.setSequenceDictionary(new htsjdk.samtools.SAMSequenceDictionary([
+                new htsjdk.samtools.SAMSequenceRecord("chr1", 1000)
+            ]))
+            def pg = new htsjdk.samtools.SAMProgramRecord("test")
+            pg.setProgramName("test")
+            header.addProgramRecord(pg)
+            def rg = new htsjdk.samtools.SAMReadGroupRecord("HG001")
+            rg.setSample("HG001")
+            header.addReadGroup(rg)
+
+            new htsjdk.samtools.SAMFileWriterFactory()
+                .makeBAMWriter(header, true, bamFile)
+                .close()
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'RENAMED' ],
+                    file("\${projectDir}/tests/data/reheader_input.bam", checkIfExists: true),
+                    []
+                ]
+                """
+            }
+        }
+
+        then {
+            def header = bam(process.out.bam[0][1]).getHeader()
+            def rgLines = header.findAll { it.startsWith('@RG') }
+            assertAll(
+                { assert process.success },
+                // exactly the original single @RG line, now renamed
+                { assert rgLines.size() == 1 },
+                { assert rgLines[0].contains('\tID:RENAMED') },
+                { assert rgLines[0].contains('\tSM:RENAMED') },
+                // old identity is fully gone from every @RG tag
+                { assert !rgLines[0].contains('ID:HG001') },
+                { assert !rgLines[0].contains('SM:HG001') },
+                // non-@RG header records are preserved verbatim
+                { assert header.any { it.startsWith('@HD') } },
+                { assert header.any { it == '@SQ\tSN:chr1\tLN:1000' } },
+                { assert header.any { it.startsWith('@PG\tID:test') } }
+            )
+        }
+    }
+}

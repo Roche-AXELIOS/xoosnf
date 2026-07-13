@@ -1,0 +1,58 @@
+name: xoos_combine_multiqc_reports
+description: Combine multiple MultiQC report directories into a single directory.
+keywords:
+  - multiqc
+  - combine
+  - report
+tools:
+  - xoos_to_multiqc:
+      description: XOOS tool that converts metrics into MultiQC-compatible input files.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - report_dirs:
+        type: file
+        description: MultiQC report directories
+        ontologies: []
+output:
+  multiqc_report_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "combined_multiqc_reports":
+          type: file
+          description: "Output file matching `combined_multiqc_reports`"
+          pattern: "combined_multiqc_reports"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xoos_to_multiqc:
+          type: string
+          description: The name of the tool
+      - combine_reports.py --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xoos_to_multiqc:
+          type: string
+          description: The name of the tool
+      - combine_reports.py --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

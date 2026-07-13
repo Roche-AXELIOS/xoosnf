@@ -1,0 +1,73 @@
+name: xoos_read_collapser_rescue_secondary
+description: Rescue secondary alignments in a BAM with the XOOS read_collapser.
+keywords:
+  - read-collapser
+  - rescue-secondary
+  - bam
+tools:
+  - read_collapser:
+      description: "XOOS tool for UMI-aware read collapsing, deduplication, and consensus."
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+output:
+  rescued_bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bam":
+          type: file
+          description: "Output file matching `*.bam`"
+          pattern: "*.bam"
+          ontologies: []
+  metrics_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "rescue_secondary_metrics":
+          type: file
+          description: "Output file matching `rescue_secondary_metrics`"
+          pattern: "rescue_secondary_metrics"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - read_collapser:
+          type: string
+          description: The name of the tool
+      - read_collapser --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - read_collapser:
+          type: string
+          description: The name of the tool
+      - read_collapser --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

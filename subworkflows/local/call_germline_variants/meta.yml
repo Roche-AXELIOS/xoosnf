@@ -1,0 +1,142 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "CALL_GERMLINE_VARIANTS"
+description: Orchestrate germline variant calling including small variants, copy number, and STR calling with optional vcfeval evaluation
+keywords:
+  - germline
+  - variant-calling
+  - haplotypecaller
+  - copy-number
+  - str
+components:
+  - call_germline_small_variants
+  - evaluate_small_variant_calls
+  - xoos/copy/number/caller/germline/wgs
+  - bcftools/index
+  - bcftools/concat
+  - xoos/str/caller
+input:
+  - ch_bam:
+      type: channel
+      description: Aligned BAM files with index
+  - ch_reference:
+      type: channel
+      description: Reference FASTA with index
+  - ch_reference_dict:
+      type: channel
+      description: Reference sequence dictionary
+  - ch_splitintervals_reference:
+      type: channel
+      description: |
+        Subset reference FASTA with index, used only to generate variant-calling
+        partitions (GATK4_SPLITINTERVALS and the whole-genome interval fallback).
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_splitintervals_reference_dict:
+      type: channel
+      description: Sequence dictionary for the subset partitioning reference
+  - ch_intervals:
+      type: channel
+      description: Interval BED file
+  - ch_par_beds:
+      type: channel
+      description: PAR region BED files
+  - ch_pop_af_vcf_with_tbi:
+      type: channel
+      description: Population allele frequency VCF with index
+  - ch_svc_models:
+      type: channel
+      description: Small variant caller model files
+  - ch_truth_vcf_dir:
+      type: channel
+      description: Truth VCF directory for vcfeval
+  - ch_train_bed_dir:
+      type: channel
+      description: Training BED directory
+  - ch_test_bed_dir:
+      type: channel
+      description: Test BED directory
+  - ch_eval_bed_dir:
+      type: channel
+      description: Evaluation BED directory
+  - ch_mappability_bw:
+      type: channel
+      description: Mappability bigwig file
+  - ch_cnv_seed_file:
+      type: channel
+      description: CNV caller seed file
+  - ch_repeat_catalog_json:
+      type: channel
+      description: STR repeat catalog JSON
+  - enable_small_variant_caller:
+      type: boolean
+      description: Enable pretrained small variant calling
+  - use_gatk_haplotype_caller:
+      type: boolean
+      description: Use GATK HaplotypeCaller
+  - use_multisample_model:
+      type: boolean
+      description: Use multisample model for variant calling
+  - aligner:
+      type: string
+      description: Aligner used for alignment
+  - enable_small_variant_caller_retrain:
+      type: boolean
+      description: Enable retrained small variant calling
+  - enable_vcfeval:
+      type: boolean
+      description: Enable vcfeval evaluation
+  - enable_copy_number_caller:
+      type: boolean
+      description: Enable copy number calling
+  - enable_str_caller:
+      type: boolean
+      description: Enable STR calling
+  - enable_merge_vcf:
+      type: boolean
+      description: Merge VCFs from multiple callers
+  - reference_sdf:
+      type: string
+      description: Path to pre-built SDF directory or null
+  - enable_partitioning:
+      type: boolean
+      description: Enable interval partitioning
+  - partition_count:
+      type: integer
+      description: Number of partitions
+output:
+  - merged_vcf:
+      type: channel
+      description: |
+        Merged VCF files
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - raw_vc_vcf:
+      type: channel
+      description: |
+        Raw variant caller VCF before SVC filtering
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - svc_pretrained_vcf:
+      type: channel
+      description: |
+        Pretrained small variant caller filtered VCF
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - svc_retrained_vcf:
+      type: channel
+      description: |
+        Retrained small variant caller filtered VCF
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - copy_number_caller_output:
+      type: channel
+      description: Copy number caller output
+  - str_caller_output:
+      type: channel
+      description: STR caller output
+  - small_variant_vcfeval_report:
+      type: channel
+      description: Vcfeval evaluation report
+  - small_variant_vcfeval_output:
+      type: channel
+      description: Raw RTG vcfeval output directory
+  - custom_multiqc_files:
+      type: channel
+      description: MultiQC input files
+authors: []
+maintainers: []

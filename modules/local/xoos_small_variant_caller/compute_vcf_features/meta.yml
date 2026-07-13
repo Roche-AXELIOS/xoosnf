@@ -1,0 +1,103 @@
+name: xoos_small_variant_caller_compute_vcf_features
+description: Compute VCF-derived features for the XOOS small variant caller model.
+keywords:
+  - small-variant-caller
+  - features
+  - vcf
+tools:
+  - compute_vcf_features:
+      description: XOOS small variant caller component.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - vcf:
+        type: file
+        description: VCF variant file
+        ontologies: []
+    - vcf_index:
+        type: file
+        description: VCF index file
+        ontologies: []
+    - target_regions_bed:
+        type: file
+        description: Target regions BED file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_index:
+        type: file
+        description: Reference FASTA index file
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - popaf:
+        type: file
+        description: Population allele frequency track
+        ontologies: []
+    - popaf_index:
+        type: file
+        description: Population allele frequency index
+        ontologies: []
+output:
+  vcf_features:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*.vcf_features.txt":
+          type: file
+          description: "Output file matching `small_variant_caller/*.vcf_features.txt`"
+          pattern: "small_variant_caller/*.vcf_features.txt"
+          ontologies: []
+  vcf_bed:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*.vcf.bed":
+          type: file
+          description: "Output file matching `small_variant_caller/*.vcf.bed`"
+          pattern: "small_variant_caller/*.vcf.bed"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - compute_vcf_features:
+          type: string
+          description: The name of the tool
+      - compute_vcf_features --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - compute_vcf_features:
+          type: string
+          description: The name of the tool
+      - compute_vcf_features --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

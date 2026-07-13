@@ -1,0 +1,83 @@
+nextflow_workflow {
+
+    name "Test DEMULTIPLEX subworkflow"
+    script "../main.nf"
+    workflow "DEMULTIPLEX"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "demultiplex"
+    tag "xoos_demux"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_metrics_to_multiqc"
+
+    test("stub - demultiplex duplex basecall run") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").fastqs().samplesheets().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'test_run', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/raw_fastq/duplex"), file("\${testDataDir}/inputs/samplesheet_stub.csv") ]
+                )
+                input[1] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.demultiplexed_fastqs.size() > 0 },
+                { assert workflow.out.demultiplexed_fastqs_all.size() > 0 },
+                { assert workflow.out.report.size() > 0 },
+                { assert workflow.out.metrics_files.size() > 0 },
+                { assert workflow.out.multiqc_files.size() > 0 }
+            )
+        }
+    }
+
+    test("stub - demultiplex simplex basecall run with exclude_partial_reads") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").fastqs().samplesheets().root()
+        }
+
+        when {
+            params {
+                exclude_partial_reads = true
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'test_run', run_name: 'test_run', run_type: 'YSU'], file("\${testDataDir}/inputs/raw_fastq/simplex"), file("\${testDataDir}/inputs/samplesheet_stub.csv") ]
+                )
+                input[1] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            // With all-split mode, demultiplexed_fastqs should point to the
+            // full/ subdirectory while demultiplexed_fastqs_all should point
+            // to the parent sample directory containing both full/ and partial/.
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.demultiplexed_fastqs.size() > 0 },
+                { assert workflow.out.demultiplexed_fastqs_all.size() > 0 },
+                { assert workflow.out.demultiplexed_fastqs.every { meta, path -> new File(path).name == 'full' } },
+                { assert workflow.out.demultiplexed_fastqs_all.every { meta, path -> new File(path).name != 'full' } },
+                { assert workflow.out.report.size() > 0 },
+                { assert workflow.out.metrics_files.size() > 0 },
+                { assert workflow.out.multiqc_files.size() > 0 }
+            )
+        }
+    }
+}

@@ -1,0 +1,425 @@
+{
+    "homo_sapiens - [vcf, tbi, truth, truth_tbi, truth_bed, regions_bed], sdf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp.vcf.gz:md5,3e4f437e35bed7754980ca5f2524dd23"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fn.vcf.gz:md5,62a2db7d7f8592e08b43c585b8c50884"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fn.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fp.vcf.gz:md5,3e4f437e35bed7754980ca5f2524dd23"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fp.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp-baseline.vcf.gz:md5,62a2db7d7f8592e08b43c585b8c50884"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp-baseline.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.snp_roc.tsv.gz:md5,110c8fa9f902aa2b1e3c250f4ddf787b"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.non_snp_roc.tsv.gz:md5,9e8759fe2860976f41d83903562d3a56"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.weighted_roc.tsv.gz:md5,085fd185097db28c00fc6c075809e281"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.summary.txt:md5,f4c8df93c8bdab603036bbc27b4a28c3"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.phasing.txt:md5,31988234bee208cacb3de90dabe1797f"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    [
+                        "test.fn.vcf.gz:md5,62a2db7d7f8592e08b43c585b8c50884",
+                        "test.fn.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284",
+                        "test.fp.vcf.gz:md5,3e4f437e35bed7754980ca5f2524dd23",
+                        "test.fp.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284",
+                        "test.non_snp_roc.tsv.gz:md5,9e8759fe2860976f41d83903562d3a56",
+                        "test.phasing.txt:md5,31988234bee208cacb3de90dabe1797f",
+                        "test.snp_roc.tsv.gz:md5,110c8fa9f902aa2b1e3c250f4ddf787b",
+                        "test.summary.txt:md5,f4c8df93c8bdab603036bbc27b4a28c3",
+                        "test.tp-baseline.vcf.gz:md5,62a2db7d7f8592e08b43c585b8c50884",
+                        "test.tp-baseline.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284",
+                        "test.tp.vcf.gz:md5,3e4f437e35bed7754980ca5f2524dd23",
+                        "test.tp.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284",
+                        "test.weighted_roc.tsv.gz:md5,085fd185097db28c00fc6c075809e281"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "RTGTOOLS_VCFEVAL",
+                    "rtgtools"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-26T22:48:39.958713544",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "homo_sapiens - [vcf, [], truth, [], [], []], sdf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp.vcf.gz:md5,800fe0cc31fc326acf603ea841027ffa"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp.vcf.gz.tbi:md5,43f3858d48658544567d0f54640a867c"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fn.vcf.gz:md5,0ee752a9c087957db66cf5a198bd974a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fn.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fp.vcf.gz:md5,d5db2894ce457176b1146aead903b54a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fp.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp-baseline.vcf.gz:md5,d61f678c509b02a68ba27c60ddf83062"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp-baseline.vcf.gz.tbi:md5,252f4dae793929a830143cf21a1cf765"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.snp_roc.tsv.gz:md5,7c724f34a9daa21f1acce1a67383adc2"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.non_snp_roc.tsv.gz:md5,4dc0aa2682783a70b5144db4f3e65431"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.weighted_roc.tsv.gz:md5,1f17ab505d921641bfd5af4157590ae5"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.summary.txt:md5,f33feb32f84958fb931063044fba369b"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.phasing.txt:md5,133677dbd8be657439ea2b03fdfb8795"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    [
+                        "test.fn.vcf.gz:md5,0ee752a9c087957db66cf5a198bd974a",
+                        "test.fn.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284",
+                        "test.fp.vcf.gz:md5,d5db2894ce457176b1146aead903b54a",
+                        "test.fp.vcf.gz.tbi:md5,092a7a3162e7cff25d273525751eb284",
+                        "test.non_snp_roc.tsv.gz:md5,4dc0aa2682783a70b5144db4f3e65431",
+                        "test.phasing.txt:md5,133677dbd8be657439ea2b03fdfb8795",
+                        "test.snp_roc.tsv.gz:md5,7c724f34a9daa21f1acce1a67383adc2",
+                        "test.summary.txt:md5,f33feb32f84958fb931063044fba369b",
+                        "test.tp-baseline.vcf.gz:md5,d61f678c509b02a68ba27c60ddf83062",
+                        "test.tp-baseline.vcf.gz.tbi:md5,252f4dae793929a830143cf21a1cf765",
+                        "test.tp.vcf.gz:md5,800fe0cc31fc326acf603ea841027ffa",
+                        "test.tp.vcf.gz.tbi:md5,43f3858d48658544567d0f54640a867c",
+                        "test.weighted_roc.tsv.gz:md5,1f17ab505d921641bfd5af4157590ae5"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "RTGTOOLS_VCFEVAL",
+                    "rtgtools"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-26T22:48:53.87501143",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "homo_sapiens - [vcf, tbi, truth, truth_tbi, truth_bed, regions_bed], sdf - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fn.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fn.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fp.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.fp.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp-baseline.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.tp-baseline.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.snp_roc.tsv.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.non_snp_roc.tsv.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.weighted_roc.tsv.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.summary.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test.phasing.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    [
+                        "test.fn.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test.fn.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "test.fp.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test.fp.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "test.non_snp_roc.tsv.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test.phasing.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "test.snp_roc.tsv.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test.summary.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "test.tp-baseline.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test.tp-baseline.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "test.tp.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test.tp.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "test.weighted_roc.tsv.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "RTGTOOLS_VCFEVAL",
+                    "rtgtools"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-22T22:23:44.505583958",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

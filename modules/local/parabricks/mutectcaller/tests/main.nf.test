@@ -1,0 +1,70 @@
+nextflow_process {
+
+    name "Test Process PARABRICKS_MUTECTCALLER"
+    script "../main.nf"
+    process "PARABRICKS_MUTECTCALLER"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "parabricks"
+    tag "parabricks/mutectcaller"
+
+    test("stub - no intervals") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test', tumor_id: 'TUMOR'],
+                      file('tumor.bam'), file('tumor.bam.bai'),
+                      file('normal.bam'), file('normal.bam.bai'),
+                      [] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf },
+                { assert process.out.stats },
+                { assert process.out.bam }
+            )
+        }
+    }
+
+    test("stub - multiple interval files") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test', tumor_id: 'TUMOR'],
+                      file('tumor.bam'), file('tumor.bam.bai'),
+                      file('normal.bam'), file('normal.bam.bai'),
+                      [file('chr1.bed'), file('chr2.bed'), file('chr3.bed')] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf },
+                { assert process.out.stats },
+                { assert process.out.bam }
+            )
+        }
+    }
+}

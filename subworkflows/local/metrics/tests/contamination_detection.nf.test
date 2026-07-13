@@ -1,0 +1,106 @@
+nextflow_workflow {
+
+    name "Test CONTAMINATION_DETECTION subworkflow"
+    script "../contamination_detection.nf"
+    workflow "CONTAMINATION_DETECTION"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "contamination_detection"
+    tag "xoos_tumor_fraction_estimator"
+    tag "xoos_metrics_to_multiqc"
+
+    test("stub - contamination detection with external vcf") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'contamination_vcf'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz") ])
+                input[3] = Channel.value([ [], [] ])  // contamination_included_regions
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results },
+                { assert workflow.out.custom_multiqc_files },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - contamination detection without external vcf (binary default)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'contamination_vcf'], [] ])  // no external VCF
+                input[3] = Channel.value([ [], [] ])  // contamination_included_regions
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results },
+                { assert workflow.out.custom_multiqc_files },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - contamination detection with multiple samples") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ],
+                    [ [id: 'HG002', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG002.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'contamination_vcf'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz") ])
+                input[3] = Channel.value([ [], [] ])  // contamination_included_regions
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results.size() == 2 },
+                { assert workflow.out.custom_multiqc_files.size() == 2 },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+}

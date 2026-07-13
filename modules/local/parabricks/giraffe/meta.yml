@@ -1,0 +1,85 @@
+name: parabricks_giraffe_single_end_multiple_fastqs
+description: GPU-accelerated pangenome alignment of reads with NVIDIA Parabricks Giraffe.
+keywords:
+  - parabricks
+  - gpu
+  - giraffe
+  - pangenome
+  - align
+tools:
+  - parabricks:
+      description: NVIDIA Clara Parabricks GPU-accelerated genomics toolkit.
+      homepage: "https://www.nvidia.com/en-us/clara/genomics/"
+      documentation: "https://docs.nvidia.com/clara/parabricks/"
+      licence: ["proprietary"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reads:
+        type: file
+        description: Input FASTQ read files
+        ontologies: []
+    - graph:
+        type: file
+        description: Pangenome graph (GBZ) file
+        ontologies: []
+    - zipcodes:
+        type: file
+        description: Giraffe zipcodes index
+        ontologies: []
+    - minimizers:
+        type: file
+        description: Giraffe minimizer index
+        ontologies: []
+    - dist:
+        type: file
+        description: Giraffe distance index
+        ontologies: []
+  - ref_paths:
+      type: file
+      description: Reference paths file
+      ontologies: []
+output:
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bam":
+          type: file
+          description: "Output file matching `*.bam`"
+          pattern: "*.bam"
+          ontologies: []
+      - "*.bam.bai":
+          type: file
+          description: "Output file matching `*.bam.bai`"
+          pattern: "*.bam.bai"
+          ontologies: []
+  versions_parabricks:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

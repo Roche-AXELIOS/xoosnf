@@ -1,0 +1,137 @@
+name: parabricks_minimap2
+description: GPU-accelerated minimap2 alignment of single-end reads to BAM with NVIDIA Parabricks.
+keywords:
+  - parabricks
+  - gpu
+  - minimap2
+  - align
+  - bam
+tools:
+  - parabricks:
+      description: NVIDIA Clara Parabricks GPU-accelerated genomics toolkit.
+      homepage: "https://www.nvidia.com/en-us/clara/genomics/"
+      documentation: "https://docs.nvidia.com/clara/parabricks/"
+      licence: ["proprietary"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reads:
+        type: file
+        description: Input FASTQ read files
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+  - - meta4:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - intervals:
+        type: file
+        description: Genomic intervals BED file (optional)
+        ontologies: []
+  - - meta5:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - known_sites:
+        type: file
+        description: Known sites VCF for BQSR
+        ontologies: []
+output:
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bam":
+          type: file
+          description: "Output file matching `*.bam`"
+          pattern: "*.bam"
+          ontologies: []
+  bai:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.bai":
+          type: file
+          description: "Output file matching `*.bai`"
+          pattern: "*.bai"
+          ontologies: []
+  bqsr_table:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.table":
+          type: file
+          description: "Output file matching `*.table`"
+          pattern: "*.table"
+          ontologies: []
+  qc_metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_qc_metrics":
+          type: file
+          description: "Output file matching `*_qc_metrics`"
+          pattern: "*_qc_metrics"
+          ontologies: []
+  duplicate_metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.duplicate-metrics.txt":
+          type: file
+          description: "Output file matching `*.duplicate-metrics.txt`"
+          pattern: "*.duplicate-metrics.txt"
+          ontologies: []
+  compatible_versions:
+    - "compatible_versions.yml":
+        type: file
+        description: "Output file matching `compatible_versions.yml`"
+        pattern: "compatible_versions.yml"
+        ontologies: []
+  versions_parabricks:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

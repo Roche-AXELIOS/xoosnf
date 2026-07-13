@@ -1,0 +1,49 @@
+{
+    "stub - preserves meta in output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "RUN2",
+                        "run_type": "sbx-s"
+                    },
+                    []
+                ]
+            ],
+            [
+                [
+                    "XOOS_COMBINE_MULTIQC_REPORTS",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:07:24.889554564",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - generates combined multiqc reports": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "RUN1"
+                    },
+                    []
+                ]
+            ],
+            [
+                [
+                    "XOOS_COMBINE_MULTIQC_REPORTS",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:07:17.060803526",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

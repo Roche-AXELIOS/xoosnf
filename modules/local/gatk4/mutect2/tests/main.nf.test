@@ -1,0 +1,81 @@
+nextflow_process {
+
+    name "Test Process GATK4_MUTECT2"
+    script "../main.nf"
+    process "GATK4_MUTECT2"
+
+    tag "modules"
+    tag "modules_local"
+    tag "gatk4"
+    tag "gatk4/mutect2"
+
+    test("stub - single input BAM") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'],
+                      [file('tumor.bam')],
+                      [file('tumor.bam.bai')],
+                      [] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = [ [id: 'ref'], file('genome.fa.fai'), file('genome.fa.gzi') ]
+                input[3] = [ [id: 'ref'], file('genome.dict') ]
+                input[4] = []
+                input[5] = []
+                input[6] = []
+                input[7] = []
+                input[8] = []
+                input[9] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf },
+                { assert process.out.tbi },
+                { assert process.out.stats }
+            )
+        }
+    }
+
+    test("stub - multiple input BAMs") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'],
+                      [file('tumor1.bam'), file('tumor2.bam'), file('tumor3.bam')],
+                      [file('tumor1.bam.bai'), file('tumor2.bam.bai'), file('tumor3.bam.bai')],
+                      [] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = [ [id: 'ref'], file('genome.fa.fai'), file('genome.fa.gzi') ]
+                input[3] = [ [id: 'ref'], file('genome.dict') ]
+                input[4] = []
+                input[5] = []
+                input[6] = []
+                input[7] = []
+                input[8] = []
+                input[9] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf },
+                { assert process.out.tbi },
+                { assert process.out.stats }
+            )
+        }
+    }
+}

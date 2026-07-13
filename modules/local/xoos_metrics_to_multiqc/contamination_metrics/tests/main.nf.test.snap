@@ -1,0 +1,53 @@
+{
+    "stub - generates contamination metrics multiqc input": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE1"
+                    },
+                    [
+                        "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_CONTAMINATION_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T17:50:55.624891606",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - preserves meta in output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE2",
+                        "run_type": "sbx-d"
+                    },
+                    [
+                        "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_CONTAMINATION_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:07:40.434747975",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

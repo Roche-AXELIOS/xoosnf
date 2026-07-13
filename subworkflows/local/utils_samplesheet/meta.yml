@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "utils_samplesheet"
+description: Samplesheet format detection and conversion utilities. Supports flat CSV and sectioned ([Samples]) formats with comment stripping.
+keywords:
+  - samplesheet
+  - utility
+  - conversion
+components: []
+
+input:
+  - samplesheet_path:
+      type: string
+      description: Path to the samplesheet file (flat CSV or sectioned format)
+
+output:
+  - samplesheet:
+      type: string
+      description: Path to canonical flat CSV samplesheet (original or converted)
+
+authors: []
+maintainers: []

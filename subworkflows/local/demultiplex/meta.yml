@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "DEMULTIPLEX"
+description: Demultiplex basecall runs and produce per-sample FASTQ directories with metrics
+keywords:
+  - demultiplexing
+  - fastq
+  - metrics
+  - multiqc
+components:
+  - xoos/demux
+  - xoos/parse/demux/metrics
+  - xoos/demux/metrics/to/multiqc
+input:
+  - ch_input:
+      type: channel
+      description: |
+        Basecall run input
+        Structure: [ val(run_level_meta), path(fastq_dir), path(samplesheet) ]
+  - ch_strand_detect_index:
+      type: channel
+      description: Strand detection index file
+output:
+  - demultiplexed_fastqs:
+      type: channel
+      description: |
+        Per-sample demultiplexed FASTQ directories
+        Structure: [ val(meta), path(sample_dir) ]
+  - report:
+      type: channel
+      description: |
+        Demux metrics JSON report
+        Structure: [ val(meta), path(report) ]
+  - metrics_files:
+      type: channel
+      description: |
+        Raw demux metrics directory
+        Structure: [ val(meta), path(metrics_dir) ]
+  - multiqc_files:
+      type: channel
+      description: |
+        MultiQC input files
+        Structure: [ val(meta), path(multiqc_report_dir) ]
+authors: []
+maintainers: []

@@ -1,0 +1,77 @@
+nextflow_workflow {
+
+    name "Test ALIGN subworkflow"
+    script "../main.nf"
+    workflow "ALIGN"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "align"
+    tag "bwa/mem"
+    tag "samtools/index"
+    tag "vg/giraffe"
+
+    test("stub - bwa aligner") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'bwa'
+                input[1] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[2] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[3] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[4] = Channel.value([ [], [], [] ])
+                input[5] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - vg_giraffe aligner") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'vg_giraffe'
+                input[1] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[2] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[3] = Channel.value([ [], [] ])
+                input[4] = Channel.value([ [id: 'giraffe_idx'], file("\${testDataDir}/resources/giraffe_ref") ])
+                input[5] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+}

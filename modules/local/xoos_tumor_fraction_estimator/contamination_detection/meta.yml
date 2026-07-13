@@ -1,0 +1,83 @@
+name: xoos_tumor_fraction_estimator_contamination_detection
+description: Detect sample contamination from a BAM with the XOOS tumor_fraction_estimator.
+keywords:
+  - contamination
+  - tumor-fraction
+  - qc
+tools:
+  - tumor_fraction_estimator:
+      description: XOOS tumor fraction and contamination estimation tool.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bai:
+        type: file
+        description: BAM index file
+        ontologies: []
+  - - meta_ref:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - fai:
+        type: file
+        description: FASTA index (.fai) file
+        ontologies: []
+  - vcf:
+      type: file
+      description: VCF variant file
+      ontologies: []
+  - included_regions:
+      type: file
+      description: Included regions BED (optional)
+      ontologies: []
+output:
+  results:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "contamination_detection":
+          type: file
+          description: "Output file matching `contamination_detection`"
+          pattern: "contamination_detection"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - tumor_fraction_estimator:
+          type: string
+          description: The name of the tool
+      - tumor_fraction_estimator --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - tumor_fraction_estimator:
+          type: string
+          description: The name of the tool
+      - tumor_fraction_estimator --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

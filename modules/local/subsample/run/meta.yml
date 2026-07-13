@@ -1,0 +1,67 @@
+name: subsample_run
+description: Subsample a sequencing run directory to a target depth using the XOOS subsample-run tool.
+keywords:
+  - subsample
+  - run
+  - downsample
+tools:
+  - subsample-run:
+      description: XOOS tool to subsample a sequencing run directory.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - input_dir:
+        type: file
+        description: Input run directory
+        ontologies: []
+    - samplesheet:
+        type: file
+        description: Sample sheet CSV
+        ontologies: []
+output:
+  subsampled:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "subsampled/*":
+          type: file
+          description: "Output file matching `subsampled/*`"
+          pattern: "subsampled/*"
+          ontologies: []
+      - "*":
+          type: file
+          description: "Output file matching `*`"
+          pattern: "*"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - subsample-run:
+          type: string
+          description: The name of the tool
+      - subsample-run --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - subsample-run:
+          type: string
+          description: The name of the tool
+      - subsample-run --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

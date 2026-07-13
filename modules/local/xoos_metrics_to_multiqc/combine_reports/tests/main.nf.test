@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process XOOS_COMBINE_MULTIQC_REPORTS"
+    script "../main.nf"
+    process "XOOS_COMBINE_MULTIQC_REPORTS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_metrics_to_multiqc"
+    tag "xoos_metrics_to_multiqc/combine_reports"
+
+    test("stub - generates combined multiqc reports") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'RUN1'], [file('report_dir_a'), file('report_dir_b')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.multiqc_report_dir,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.multiqc_report_dir.size() == 1 },
+                { assert process.out.multiqc_report_dir[0][1].toString().endsWith('combined_multiqc_reports') },
+            )
+        }
+    }
+
+    test("stub - preserves meta in output") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'RUN2', run_type: 'sbx-s'], [file('report_dir_a')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.multiqc_report_dir,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.multiqc_report_dir[0][0].id == 'RUN2' },
+                { assert process.out.multiqc_report_dir[0][0].run_type == 'sbx-s' },
+            )
+        }
+    }
+}

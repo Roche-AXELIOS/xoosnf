@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Mock bgzip for stub tests — reads stdin and writes to stdout or file
+if [[ "$1" == "-c" ]]; then
+    cat > /dev/null
+    echo ""
+else
+    cat > /dev/null
+fi

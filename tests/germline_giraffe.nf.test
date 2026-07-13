@@ -1,0 +1,56 @@
+nextflow_pipeline {
+
+    name "Test pipeline - germline with vg_giraffe aligner (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "germline"
+    tag "vg_giraffe"
+
+    test("stub - germline vg_giraffe with variant calling") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .giraffeRef()
+                .variantCallingResources()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                         = "$outputDir"
+                input                          = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                        = 'vg_giraffe'
+                variant_calling_mode           = 'germline'
+                enable_small_variant_caller    = true
+                use_gatk_haplotype_caller      = true
+                dedup_strategy                 = 'markdup'
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            def logOutput = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.success },
+                // vg_giraffe supports --max-multimaps, so it must NOT trigger the
+                // pb_giraffe secondary-alignment warning even with CNV-style runs.
+                { assert !logOutput.contains("Copy number calling is enabled with the 'pb_giraffe' aligner") },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+}

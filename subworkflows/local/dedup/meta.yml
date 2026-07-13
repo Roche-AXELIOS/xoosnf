@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "DEDUP"
+description: Dispatch to markdup or consensus-based deduplication depending on strategy and aligner
+keywords:
+  - deduplication
+  - markdup
+  - consensus
+  - read-collapser
+components:
+  - markdup
+  - consensus_and_realign
+input:
+  - dedup_strategy:
+      type: string
+      description: Deduplication strategy (markdup or consensus)
+  - aligner:
+      type: string
+      description: Aligner used (bwa, minimap2, vg_giraffe, pb_fq2bam, pb_minimap2, pb_giraffe)
+  - enable_read_collapser_dedup:
+      type: boolean
+      description: Force markdup regardless of aligner
+  - rescue_policy:
+      type: boolean
+      description: |
+        Whether this run's configuration wants secondary-alignment rescue. The
+        actual per-BAM decision is made inside MARKDUP, which skips BAMs already
+        carrying bam_secondary_rescued (rescue is not idempotent).
+  - ch_bam:
+      type: channel
+      description: |
+        Aligned BAM files with index
+        Structure: [ val(meta), path(bam), path(bai) ]
+  - ch_bed:
+      type: channel
+      description: |
+        BED file for regions
+        Structure: [ val(meta), path(bed) ]
+  - ch_fasta:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_bwa_idx:
+      type: channel
+      description: |
+        BWA index directory
+        Structure: [ val(meta), path(idx_dir) ]
+  - ch_giraffe_idx:
+      type: channel
+      description: |
+        Giraffe index directory
+        Structure: [ val(meta), path(idx_dir), val(idx_name) ]
+output:
+  - bam:
+      type: channel
+      description: |
+        Deduplicated BAM files with index
+        Structure: [ val(meta), path(bam), path(bai) ]
+  - report:
+      type: channel
+      description: |
+        Deduplication report
+        Structure: [ val(meta), path(json_report) ]
+  - read_collapser_metrics_dir:
+      type: channel
+      description: |
+        Read collapser metrics directory (for MultiQC conversion)
+        Structure: [ val(meta), path(metrics_dir) ]
+authors: []
+maintainers: []

@@ -1,0 +1,69 @@
+name: vg_haplotypes
+description: Construct a personalized pangenome graph from a k-mer set and a Giraffe index with vg haplotypes.
+keywords:
+  - vg
+  - haplotypes
+  - pangenome
+  - graph
+tools:
+  - vg:
+      description: Tools for working with genome variation graphs.
+      homepage: "https://github.com/vgteam/vg"
+      documentation: "https://github.com/vgteam/vg/wiki"
+      doi: 10.1038/nbt.4227
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - kmer_dict:
+        type: file
+        description: KMC k-mer set file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - giraffe_index_dir:
+        type: file
+        description: Directory of Giraffe index files
+        ontologies: []
+output:
+  graphs:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_personalized_graph.gbz":
+          type: file
+          description: "Output file matching `*_personalized_graph.gbz`"
+          pattern: "*_personalized_graph.gbz"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - vg:
+          type: string
+          description: The name of the tool
+      - "vg version | head -1 | sed 's/vg version //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - vg:
+          type: string
+          description: The name of the tool
+      - "vg version | head -1 | sed 's/vg version //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

@@ -1,0 +1,53 @@
+{
+    "stub - generates tfe metrics multiqc input": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE1"
+                    },
+                    [
+                        "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_TFE_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:08:20.545421044",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - preserves meta in output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE2",
+                        "run_type": "sbx-d"
+                    },
+                    [
+                        "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_TFE_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:08:28.343745232",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

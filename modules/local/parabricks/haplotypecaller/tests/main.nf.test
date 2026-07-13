@@ -1,0 +1,81 @@
+nextflow_process {
+
+    name "Test Process PARABRICKS_HAPLOTYPECALLER"
+    script "../main.nf"
+    process "PARABRICKS_HAPLOTYPECALLER"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "parabricks"
+    tag "parabricks/haplotypecaller"
+
+    test("stub - no intervals") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'], file('sample.bam'), file('sample.bam.bai'), [] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa'), file('genome.fa.fai') ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam }
+            )
+        }
+    }
+
+    test("stub - single interval file") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'], file('sample.bam'), file('sample.bam.bai'), file('regions.bed') ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa'), file('genome.fa.fai') ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam }
+            )
+        }
+    }
+
+    test("stub - multiple interval files") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test'],
+                      file('sample.bam'),
+                      file('sample.bam.bai'),
+                      [file('chr1.bed'), file('chr2.bed'), file('chr3.bed')] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa'), file('genome.fa.fai') ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.bam }
+            )
+        }
+    }
+}

@@ -1,0 +1,68 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/Roche-AXELIOS/xoosnf/main/assets/schema_samplesheet.json",
+    "title": "Roche-AXELIOS/xoosnf pipeline - samplesheet schema",
+    "description": "Schema for samplesheet file",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+            "sample_name": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9._-]+$",
+                "errorMessage": "sample_name may only contain letters, digits, dot, underscore, and hyphen. These characters are interpolated into shell/sed commands (e.g. BAM @RG reheadering and alignment read groups), so other characters are disallowed to avoid command injection and corruption."
+            },
+            "sample_sid": {
+                "type": "string",
+                "pattern": "^[ACGT]+$"
+            },
+            "target_bed": {
+                "type": "string",
+                "format": "path",
+                "exists": true
+            },
+            "capture_bed": {
+                "type": "string",
+                "format": "path",
+                "exists": true
+            },
+            "target_coverage": {
+                "type": "number",
+                "minimum": 1
+            },
+            "group": {
+                "type": "string"
+            },
+            "TN": {
+                "type": "string",
+                "enum": ["T", "N"]
+            },
+            "sample_type": {
+                "type": "string",
+                "enum": ["ffpe", "cell-line"]
+            },
+            "reporter_vcf": {
+                "type": "string",
+                "format": "path",
+                "exists": true
+            },
+            "bam_type": {
+                "type": "string",
+                "enum": [
+                    "no_dedup",
+                    "sas_markdup",
+                    "pb_markdup",
+                    "xoos_markdup",
+                    "xoos_secondary_rescue_and_markdup",
+                    "xoos_consensus"
+                ],
+                "meta": ["bam_type"]
+            }
+        },
+        "required": ["sample_name", "sample_sid"],
+        "dependentRequired": {
+            "TN": ["group"]
+        }
+    }
+}

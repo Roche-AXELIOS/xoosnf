@@ -1,0 +1,86 @@
+name: "nf-test Integration-Small Action"
+description: "Checks out a subsampled dataset and runs the integration-small (non-stub) nf-test"
+inputs:
+  profile:
+    description: "Profile to use (e.g. docker,test)"
+    required: false
+    default: "docker,test"
+  paths:
+    description: "Test path(s) to run"
+    required: false
+    default: "tests/integration_small.nf.test"
+  repository:
+    description: "owner/repo of the test-data repository to check out"
+    required: true
+  token:
+    description: "Token for checking out a private test-data repository. Optional; if omitted the repository is assumed public."
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Nextflow
+      uses: nf-core/setup-nextflow@v2
+      with:
+        version: "${{ env.NXF_VERSION }}"
+
+    - name: Set up Python
+      uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+      with:
+        python-version: "3.14"
+
+    - name: Install nf-test
+      uses: nf-core/setup-nf-test@v1
+      with:
+        version: "${{ env.NFT_VER }}"
+        install-pdiff: true
+
+    - name: Checkout test datasets (shallow, with LFS)
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repository }}
+        ref: main
+        path: ${{ env.TEST_DATA_DIR }}
+        lfs: true
+        fetch-depth: 1
+        # Use the provided token for private repos; fall back to the default
+        # workflow token (sufficient to clone a public repo) when none is given.
+        token: ${{ inputs.token || github.token }}
+
+    - name: Run nf-test
+      shell: bash
+      env:
+        NFT_WORKDIR: ${{ env.NFT_WORKDIR }}
+        NXF_FILE_ROOT: ${{ env.TEST_DATA_DIR }}
+        TEST_DATA_DIR: ${{ env.TEST_DATA_DIR }}
+      run: |
+        nf-test test \
+          ${{ inputs.paths }} \
+          -c nf-test-integration-small.config \
+          --profile=+${{ inputs.profile }} \
+          --verbose \
+          --tap=test.tap
+
+    - name: Generate test summary
+      if: always()
+      shell: bash
+      run: |
+        echo "# Integration-small nf-test results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Status | Test Name |" >> $GITHUB_STEP_SUMMARY
+        echo "|:------:|-----------|" >> $GITHUB_STEP_SUMMARY
+        if [ -f test.tap ]; then
+          while IFS= read -r line; do
+            if [[ $line =~ ^ok ]]; then
+              test_name="${line#ok }"
+              test_name="${test_name#* }"
+              echo "| ✅ | ${test_name} |" >> $GITHUB_STEP_SUMMARY
+            elif [[ $line =~ ^not\ ok ]]; then
+              test_name="${line#not ok }"
+              test_name="${test_name#* }"
+              echo "| ❌ | ${test_name} |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done < test.tap
+        else
+          echo "| ⚠️ | No test results found |" >> $GITHUB_STEP_SUMMARY
+        fi

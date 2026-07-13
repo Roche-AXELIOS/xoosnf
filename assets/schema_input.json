@@ -1,0 +1,63 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/Roche-AXELIOS/xoosnf/main/assets/schema_input.json",
+    "title": "Roche-AXELIOS/xoosnf pipeline - params.input schema",
+    "description": "Schema for the file provided with params.input",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+            "run_name": {
+                "type": "string",
+                "pattern": "^(?!index$)\\S+$",
+                "meta": ["run_name"]
+            },
+            "run_type": {
+                "type": "string",
+                "enum": [
+                    "SBX-D",
+                    "SBX-FAST",
+                    "SBX-DM",
+                    "I2X_HPSID_v0.01",
+                    "I2X_HPSID_v0.00",
+                    "I2X_HPU_v0.11",
+                    "I2X_HPU_v0.10",
+                    "YS",
+                    "YSU",
+                    "YS-NEW"
+                ],
+                "meta": ["run_type"]
+            },
+            "file_type": {
+                "type": "string",
+                "enum": ["basecall_rdb", "basecall_fastq", "demultiplexed_fastq", "bam"],
+                "meta": ["file_type"]
+            },
+            "run_dir": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true
+            },
+            "samplesheet": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true
+            },
+            "bam_type": {
+                "type": "string",
+                "enum": [
+                    "no_dedup",
+                    "sas_markdup",
+                    "pb_markdup",
+                    "xoos_markdup",
+                    "xoos_secondary_rescue_and_markdup",
+                    "xoos_consensus"
+                ],
+                "meta": ["bam_type"],
+                "description": "State of pre-aligned input BAMs (file_type = 'bam'). Declares which deduplication and secondary-rescue steps have already been applied so the pipeline can skip steps that would be redundant or non-idempotent (notably secondary rescue). Defaults to 'sas_markdup' when omitted. Ignored for non-BAM input types."
+            }
+        },
+        "required": ["run_name", "run_type", "file_type", "run_dir", "samplesheet"]
+    }
+}

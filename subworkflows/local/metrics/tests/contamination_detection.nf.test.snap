@@ -1,0 +1,227 @@
+{
+    "stub - contamination detection with multiple samples": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "HG002",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "HG002",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "HG002",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "results": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "HG002",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-20T17:59:31.5360264",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - contamination detection with external vcf": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "results": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-25T19:03:40.888599194",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - contamination detection without external vcf (binary default)": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "xoos_tfe_contamination_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "results": [
+                    [
+                        {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        },
+                        [
+                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-25T19:03:49.376594956",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

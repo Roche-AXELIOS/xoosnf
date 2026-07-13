@@ -1,0 +1,121 @@
+name: Run nf-test (integration small)
+on:
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/meta.yml"
+      - "**/*.md"
+      - "**/*.png"
+      - "**/*.svg"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel if a newer run is started
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NFT_VER: "0.9.5"
+  NFT_WORKDIR: "~"
+  NXF_ANSI_LOG: false
+
+jobs:
+  nf-test-integration-small:
+    name: "integration-small | ${{ matrix.NXF_VER }}"
+    if: ${{ vars.TEST_DATA_REPO != '' }}
+    runs-on: # use GitHub runners
+      - "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        NXF_VER:
+          - "25.10.4"
+    env:
+      NXF_ANSI_LOG: false
+      TEST_DATA_DIR: ${{ github.workspace }}/test-data
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.0
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Docker login
+        env:
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+        if: ${{ vars.DOCKER_REGISTRY != '' && vars.DOCKER_REGISTRY_USERNAME != '' && env.DOCKER_REGISTRY_PASSWORD != '' }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ vars.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: Run integration-small nf-test
+        id: run_nf_test
+        uses: ./.github/actions/nf-test-integration-small
+        env:
+          NFT_WORKDIR: ${{ env.NFT_WORKDIR }}
+          NXF_VERSION: ${{ matrix.NXF_VER }}
+        with:
+          profile: "docker,test"
+          paths: "tests/integration_small.nf.test"
+          repository: ${{ vars.TEST_DATA_REPO }}
+          token: ${{ secrets.TEST_DATA_TOKEN }}
+
+      - name: Report test status
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ steps.run_nf_test.outcome }}" == "failure" ]]; then
+            echo "::error::Test with ${{ matrix.NXF_VER }} failed"
+            # Add to workflow summary
+            echo "## ❌ Test failed: ${{ matrix.profile }} | ${{ matrix.NXF_VER }} | Shard ${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}" >> $GITHUB_STEP_SUMMARY
+            if [[ "${{ matrix.NXF_VER }}" == "latest-everything" ]]; then
+              echo "::warning::Test with latest-everything failed but will not cause workflow failure. Please check if the error is expected or if it needs fixing."
+            fi
+            if [[ "${{ matrix.NXF_VER }}" != "latest-everything" ]]; then
+              exit 1
+            fi
+          fi
+
+  confirm-pass:
+    needs: [nf-test-integration-small]
+    # When enabling self-hosted runner, add nf-test-self-hosted:
+    # needs: [nf-test-integration-small, nf-test-self-hosted]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: One or more tests failed
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: exit 1
+
+      - name: One or more tests cancelled
+        if: ${{ contains(needs.*.result, 'cancelled') }}
+        run: exit 1
+
+      - name: All tests ok
+        if: ${{ contains(needs.*.result, 'success') }}
+        run: exit 0
+
+      - name: debug-print
+        if: always()
+        run: |
+          echo "::group::DEBUG: `needs` Contents"
+          echo "DEBUG: toJSON(needs) = ${{ toJSON(needs) }}"
+          echo "DEBUG: toJSON(needs.*.result) = ${{ toJSON(needs.*.result) }}"
+          echo "::endgroup::"

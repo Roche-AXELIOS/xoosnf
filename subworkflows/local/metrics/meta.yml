@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "METRICS"
+description: Collect alignment, GC bias, and hybrid selection metrics for BAM files
+keywords:
+  - metrics
+  - alignment
+  - gc-bias
+  - hybrid-selection
+  - multiqc
+components:
+  - metrics_alignment
+  - metrics_gc_bias
+  - metrics_hs
+input:
+  - name:
+      type: string
+      description: Metrics run name
+  - ch_bam:
+      type: channel
+      description: Aligned BAM files with index
+  - ch_reference:
+      type: channel
+      description: Reference FASTA with index
+  - ch_autosomes_bed:
+      type: channel
+      description: Autosomes BED file
+  - ch_target_bed:
+      type: channel
+      description: Target regions BED file
+  - ch_capture_bed:
+      type: channel
+      description: Capture regions BED file
+  - ch_high_confidence_bed_dir:
+      type: channel
+      description: High confidence regions BED directory
+  - ch_fallback_high_confidence_bed:
+      type: channel
+      description: Fallback high confidence BED file
+  - ch_picard_reference:
+      type: channel
+      description: Picard-compatible reference files
+  - enable_alignment_metrics_autosomes:
+      type: boolean
+      description: Enable alignment metrics on autosomes
+  - enable_alignment_metrics_targets:
+      type: boolean
+      description: Enable alignment metrics on targets
+  - enable_alignment_metrics_high_confidence:
+      type: boolean
+      description: Enable alignment metrics on high confidence regions
+  - enable_gc_bias_metrics:
+      type: boolean
+      description: Enable GC bias metrics collection
+  - enable_hs_metrics:
+      type: boolean
+      description: Enable hybrid selection metrics collection
+output:
+  - report:
+      type: channel
+      description: Combined metrics report
+  - custom_multiqc_files:
+      type: channel
+      description: Custom MultiQC input files
+  - multiqc_files:
+      type: channel
+      description: Standard MultiQC input files
+authors: []
+maintainers: []

@@ -1,0 +1,54 @@
+nextflow_pipeline {
+
+    name "Test pipeline - WGS simplex with minimap2 (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "wgs_simplex"
+    tag "minimap2"
+
+    test("stub - wgs simplex with minimap2 markdup") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                          = "$outputDir"
+                input                           = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                         = 'minimap2'
+                variant_calling_mode            = 'none'
+                dedup_strategy                  = 'markdup'
+                read_collapser_preset           = 'wgs-simplex'
+                read_collapser_cluster_by_umi   = true
+                enable_small_variant_caller     = false
+                enable_copy_number_caller       = false
+                enable_str_caller               = false
+                enable_alignment_metrics_autosomes = true
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+}

@@ -1,0 +1,59 @@
+{
+    "stub - generates alignment metrics multiqc input": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE1"
+                    },
+                    [
+                        "xoos_accuracy_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_coverage_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_read_metrics_base_counts_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_read_metrics_read_counts_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_ALIGNMENT_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:07:01.335511715",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - preserves meta in output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "SAMPLE2",
+                        "run_type": "sbx-d"
+                    },
+                    [
+                        "xoos_accuracy_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_coverage_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_read_metrics_base_counts_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "xoos_read_metrics_read_counts_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_ALIGNMENT_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T20:07:09.22504195",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

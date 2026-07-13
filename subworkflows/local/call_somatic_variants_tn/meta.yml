@@ -1,0 +1,111 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "CALL_SOMATIC_VARIANTS_TN"
+description: Orchestrate tumor-normal somatic variant calling with Mutect2, copy number calling, and optional vcfeval evaluation
+keywords:
+  - somatic
+  - tumor-normal
+  - mutect2
+  - variant-calling
+  - copy-number
+components:
+  - call_somatic_small_variants_tn
+  - evaluate_small_variant_calls
+  - bcftools/concat
+  - bcftools/reheader
+  - bcftools/index
+  - xoos/copy/number/caller/tumor/normal/wgs
+input:
+  - ch_bam:
+      type: channel
+      description: Aligned BAM files with index
+  - ch_reference:
+      type: channel
+      description: Reference FASTA with index
+  - ch_reference_dict:
+      type: channel
+      description: Reference sequence dictionary
+  - ch_splitintervals_reference:
+      type: channel
+      description: |
+        Subset reference FASTA with index, used only to generate variant-calling
+        partitions (GATK4_SPLITINTERVALS and the whole-genome interval fallback).
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_splitintervals_reference_dict:
+      type: channel
+      description: Sequence dictionary for the subset partitioning reference
+  - ch_intervals:
+      type: channel
+      description: Interval BED file
+  - ch_pop_af_vcf_with_tbi:
+      type: channel
+      description: Population allele frequency VCF with index
+  - ch_svc_models:
+      type: channel
+      description: Small variant caller model files
+  - ch_truth_vcf_dir:
+      type: channel
+      description: Truth VCF directory for vcfeval
+  - ch_eval_bed_dir:
+      type: channel
+      description: Evaluation BED directory
+  - ch_mappability_bw:
+      type: channel
+      description: Mappability bigwig file
+  - ch_cnv_seed_file:
+      type: channel
+      description: CNV caller seed file
+  - enable_small_variant_caller:
+      type: boolean
+      description: Enable somatic small variant calling
+  - aligner:
+      type: string
+      description: Aligner used for alignment
+  - enable_vcfeval:
+      type: boolean
+      description: Enable vcfeval evaluation
+  - enable_copy_number_caller:
+      type: boolean
+      description: Enable copy number calling
+  - enable_merge_vcf:
+      type: boolean
+      description: Merge VCFs from multiple callers
+  - reference_sdf:
+      type: string
+      description: Path to pre-built SDF directory or null
+  - enable_partitioning:
+      type: boolean
+      description: Enable interval partitioning
+  - partition_count:
+      type: integer
+      description: Number of partitions
+  - use_parabricks:
+      type: boolean
+      description: Use Parabricks GPU-accelerated Mutect2
+output:
+  - merged_vcf:
+      type: channel
+      description: |
+        Merged VCF files
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - svc_vcf:
+      type: channel
+      description: |
+        Filtered small variant caller VCF (SVC only, excludes CNC VCFs)
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - small_variant_vcfeval_report:
+      type: channel
+      description: Vcfeval evaluation report
+  - small_variant_vcfeval_output:
+      type: channel
+      description: Raw RTG vcfeval output directory
+  - small_variant_caller_output:
+      type: channel
+      description: Small variant caller output
+  - copy_number_caller_output:
+      type: channel
+      description: Copy number caller output
+  - custom_multiqc_files:
+      type: channel
+      description: MultiQC input files
+authors: []
+maintainers: []

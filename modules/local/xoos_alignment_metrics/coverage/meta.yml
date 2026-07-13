@@ -1,0 +1,85 @@
+name: xoos_alignment_metrics_coverage
+description: Compute coverage metrics from a BAM with the XOOS alignment_metrics tool.
+keywords:
+  - alignment
+  - metrics
+  - coverage
+  - qc
+tools:
+  - alignment_metrics:
+      description: "XOOS tool to compute alignment, coverage, and accuracy metrics."
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta1:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - fai:
+        type: file
+        description: FASTA index (.fai) file
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bed:
+        type: file
+        description: BED file of genomic regions
+        ontologies: []
+output:
+  coverage_metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "coverage":
+          type: file
+          description: "Output file matching `coverage`"
+          pattern: "coverage"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - alignment_metrics:
+          type: string
+          description: The name of the tool
+      - alignment_metrics --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - alignment_metrics:
+          type: string
+          description: The name of the tool
+      - alignment_metrics --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

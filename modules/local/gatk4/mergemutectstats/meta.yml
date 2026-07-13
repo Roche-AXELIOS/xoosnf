@@ -1,0 +1,60 @@
+name: gatk4_mergemutectstats
+description: Merge Mutect2 stats files across scattered intervals into a single stats file.
+keywords:
+  - gatk4
+  - mutect2
+  - stats
+  - merge
+tools:
+  - gatk4:
+      description: Genome Analysis Toolkit for variant discovery in high-throughput sequencing data.
+      homepage: "https://gatk.broadinstitute.org/hc/en-us"
+      documentation: "https://gatk.broadinstitute.org/hc/en-us/categories/360002369672s"
+      doi: 10.1158/1538-7445.AM2017-3590
+      licence: ["Apache-2.0"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - stats:
+        type: file
+        description: Mutect2 stats file
+        ontologies: []
+output:
+  stats:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.stats":
+          type: file
+          description: "Output file matching `*.stats`"
+          pattern: "*.stats"
+          ontologies: []
+  versions_gatk4:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gatk4:
+          type: string
+          description: The name of the tool
+      - "gatk --version | sed -n '/GATK.*v/s/.*v//p'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - gatk4:
+          type: string
+          description: The name of the tool
+      - "gatk --version | sed -n '/GATK.*v/s/.*v//p'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

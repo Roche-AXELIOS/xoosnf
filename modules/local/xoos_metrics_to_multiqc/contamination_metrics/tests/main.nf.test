@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process XOOS_CONTAMINATION_METRICS_TO_MULTIQC"
+    script "../main.nf"
+    process "XOOS_CONTAMINATION_METRICS_TO_MULTIQC"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_metrics_to_multiqc"
+    tag "xoos_metrics_to_multiqc/contamination_metrics"
+
+    test("stub - generates contamination metrics multiqc input") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE1'], file('contamination_results') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.multiqc_report_dir,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.multiqc_report_dir.size() == 1 },
+                { assert process.out.multiqc_report_dir[0][1].toString().endsWith('_contamination_metrics_multiqc_input') },
+            )
+        }
+    }
+
+    test("stub - preserves meta in output") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE2', run_type: 'sbx-d'], file('contamination_results') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.multiqc_report_dir,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.multiqc_report_dir[0][0].id == 'SAMPLE2' },
+                { assert process.out.multiqc_report_dir[0][0].run_type == 'sbx-d' },
+            )
+        }
+    }
+}

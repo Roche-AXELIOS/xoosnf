@@ -1,0 +1,94 @@
+nextflow_workflow {
+
+    name "Test METRICS subworkflow"
+    script "../main.nf"
+    workflow "METRICS"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "metrics"
+    tag "xoos_alignment_metrics"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_metrics_to_multiqc"
+    tag "picard"
+
+    test("stub - alignment metrics only") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = 'dedup'
+                input[1]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[2]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[3]  = Channel.value([ [id: 'autosomes_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[4]  = Channel.value([ [], [] ])
+                input[5]  = Channel.value([ [], [] ])
+                input[6]  = Channel.value([ [], [], [], [] ])
+                input[7]  = Channel.value([ [], [] ])
+                input[8]  = Channel.value([ [id: 'picard_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[9]  = true   // enable_alignment_metrics_autosomes
+                input[10] = false  // enable_alignment_metrics_targets
+                input[11] = false  // enable_alignment_metrics_high_confidence
+                input[12] = false  // enable_gc_bias_metrics
+                input[13] = false  // enable_hs_metrics
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.report },
+                { assert snapshot(workflow.out.report).match() }
+            )
+        }
+    }
+
+    test("stub - all metrics enabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = 'dedup'
+                input[1]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[2]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[3]  = Channel.value([ [id: 'autosomes_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[4]  = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5]  = Channel.value([ [id: 'capture_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6]  = Channel.value([ [], [], [], [] ])
+                input[7]  = Channel.value([ [], [] ])
+                input[8]  = Channel.value([ [id: 'picard_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[9]  = true   // enable_alignment_metrics_autosomes
+                input[10] = true   // enable_alignment_metrics_targets
+                input[11] = false  // enable_alignment_metrics_high_confidence
+                input[12] = true   // enable_gc_bias_metrics
+                input[13] = true   // enable_hs_metrics
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.report },
+                { assert snapshot(workflow.out.report).match() }
+            )
+        }
+    }
+}

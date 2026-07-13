@@ -1,0 +1,123 @@
+name: parabricks_mutectcaller
+description: GPU-accelerated somatic variant calling (tumor/normal) with NVIDIA Parabricks Mutect.
+keywords:
+  - parabricks
+  - gpu
+  - mutect
+  - somatic
+  - variant-calling
+tools:
+  - parabricks:
+      description: NVIDIA Clara Parabricks GPU-accelerated genomics toolkit.
+      homepage: "https://www.nvidia.com/en-us/clara/genomics/"
+      documentation: "https://docs.nvidia.com/clara/parabricks/"
+      licence: ["proprietary"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - tumor_bam:
+        type: file
+        description: Tumor BAM file
+        ontologies: []
+    - tumor_bam_index:
+        type: file
+        description: Tumor BAM index
+        ontologies: []
+    - normal_bam:
+        type: file
+        description: Normal BAM file
+        ontologies: []
+    - normal_bam_index:
+        type: file
+        description: Normal BAM index
+        ontologies: []
+    - intervals:
+        type: file
+        description: Genomic intervals BED file (optional)
+        ontologies: []
+  - - ref_meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.vcf.gz":
+          type: file
+          description: "Output file matching `*.vcf.gz`"
+          pattern: "*.vcf.gz"
+          ontologies: []
+      - "*.vcf.gz.tbi":
+          type: file
+          description: "Output file matching `*.vcf.gz.tbi`"
+          pattern: "*.vcf.gz.tbi"
+          ontologies: []
+  stats:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.vcf.gz.stats":
+          type: file
+          description: "Output file matching `*.vcf.gz.stats`"
+          pattern: "*.vcf.gz.stats"
+          ontologies: []
+  bam:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_mutect.bam":
+          type: file
+          description: "Output file matching `*_mutect.bam`"
+          pattern: "*_mutect.bam"
+          ontologies: []
+      - "*_mutect.bam.bai":
+          type: file
+          description: "Output file matching `*_mutect.bam.bai`"
+          pattern: "*_mutect.bam.bai"
+          ontologies: []
+  compatible_versions:
+    - "compatible_versions.yml":
+        type: file
+        description: "Output file matching `compatible_versions.yml`"
+        pattern: "compatible_versions.yml"
+        ontologies: []
+  versions_parabricks:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - parabricks:
+          type: string
+          description: The name of the tool
+      - "pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

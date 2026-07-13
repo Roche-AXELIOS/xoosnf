@@ -1,0 +1,386 @@
+nextflow_workflow {
+
+    name "Test CALL_SOMATIC_VARIANTS_TN subworkflow"
+    script "../main.nf"
+    workflow "CALL_SOMATIC_VARIANTS_TN"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "call_somatic_variants_tn"
+    tag "gatk4/mutect2"
+    tag "xoos_small_variant_caller"
+    tag "bcftools/concat"
+    tag "bcftools/view"
+    tag "bcftools/reheader"
+
+    test("stub - somatic small variant caller with gatk mutect2") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [id: 'svc_model_tn'], file("\${testDataDir}/resources/variantCaller/svc_model_somatic_tn.bin") ])
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = true   // enable_small_variant_caller
+                input[14] = true   // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = true   // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = true   // enable_partitioning
+                input[21] = 2      // partition_count
+                input[22] = 'bwa'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.raw_vc_vcf.size() > 0 },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - somatic small variant caller with parabricks mutectcaller") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [id: 'svc_model_tn'], file("\${testDataDir}/resources/variantCaller/svc_model_somatic_tn.bin") ])
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = true   // enable_small_variant_caller
+                input[14] = false  // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = true   // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = true   // enable_partitioning
+                input[21] = 2      // partition_count
+                input[22] = 'pb_fq2bam'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - gatk mutect2 with intervals") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [id: 'svc_model_tn'], file("\${testDataDir}/resources/variantCaller/svc_model_somatic_tn.bin") ])
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = true   // enable_small_variant_caller
+                input[14] = true   // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = true   // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = true   // enable_partitioning
+                input[21] = 2      // partition_count
+                input[22] = 'bwa'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - parabricks mutectcaller with intervals") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [id: 'svc_model_tn'], file("\${testDataDir}/resources/variantCaller/svc_model_somatic_tn.bin") ])
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = true   // enable_small_variant_caller
+                input[14] = false  // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = true   // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = true   // enable_partitioning
+                input[21] = 2      // partition_count
+                input[22] = 'pb_fq2bam'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - somatic small variant caller disabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [], [] ])  // svc_model_tumor_normal
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = false  // enable_small_variant_caller
+                input[14] = false  // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = false  // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = true   // enable_partitioning
+                input[21] = 2      // partition_count
+                input[22] = 'bwa'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.raw_vc_vcf.size() == 0 }
+            )
+        }
+    }
+
+    test("stub - merge vcf disabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [id: 'svc_model_tn'], file("\${testDataDir}/resources/variantCaller/svc_model_somatic_tn.bin") ])
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = true   // enable_small_variant_caller
+                input[14] = true   // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = false  // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = true   // enable_partitioning
+                input[21] = 2      // partition_count
+                input[22] = 'bwa'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.merged_vcf },
+                // With 1 caller enabled and merge disabled, expect one VCF tuple
+                { assert workflow.out.merged_vcf.size() == 1 },
+                { assert workflow.out.svc_vcf },
+                { assert workflow.out.svc_vcf.size() == 1 },
+                { assert snapshot(workflow.out.merged_vcf, workflow.out.svc_vcf).match() }
+            )
+        }
+    }
+
+    test("stub - somatic TN with partitioning disabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[7]  = Channel.value([ [id: 'svc_model_tn'], file("\${testDataDir}/resources/variantCaller/svc_model_somatic_tn.bin") ])
+                input[8]  = Channel.value([ [], [] ])  // truth_vcf_dir_tumor_normal
+                input[9]  = Channel.value([ [], [] ])  // eval_bed_dir_tumor_normal
+                input[10]  = Channel.value([ [], [] ])  // mappability_bw
+                input[11]  = Channel.value([ [], [] ])  // cnv_seed_file
+                input[12]  = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[13] = true   // enable_small_variant_caller
+                input[14] = true   // use_gatk_mutect2
+                input[15] = false  // enable_mutect_stats
+                input[16] = false  // enable_vcfeval
+                input[17] = false  // enable_copy_number_caller
+                input[18] = true   // enable_merge_vcf
+                input[19] = null   // reference_sdf
+                input[20] = false  // enable_partitioning
+                input[21] = 1      // partition_count
+                input[22] = 'bwa'  // aligner
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.merged_vcf },
+                { assert snapshot(workflow.out.merged_vcf).match() }
+            )
+        }
+    }
+}

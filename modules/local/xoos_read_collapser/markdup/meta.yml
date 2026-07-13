@@ -1,0 +1,83 @@
+name: xoos_read_collapser_mark_duplicates
+description: Mark duplicate reads in a BAM with the XOOS read_collapser.
+keywords:
+  - read-collapser
+  - markdup
+  - dedup
+tools:
+  - read_collapser:
+      description: "XOOS tool for UMI-aware read collapsing, deduplication, and consensus."
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+output:
+  markdup_bams:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_markdup.bam":
+          type: file
+          description: "Output file matching `*_markdup.bam`"
+          pattern: "*_markdup.bam"
+          ontologies: []
+      - "*_markdup.bam.bai":
+          type: file
+          description: "Output file matching `*_markdup.bam.bai`"
+          pattern: "*_markdup.bam.bai"
+          ontologies: []
+      - "read_collapser":
+          type: file
+          description: "Output file matching `read_collapser`"
+          pattern: "read_collapser"
+          ontologies: []
+  metrics_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "read_collapser":
+          type: file
+          description: "Output file matching `read_collapser`"
+          pattern: "read_collapser"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - read_collapser:
+          type: string
+          description: The name of the tool
+      - read_collapser --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - read_collapser:
+          type: string
+          description: The name of the tool
+      - read_collapser --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

@@ -1,0 +1,37 @@
+process XOOS_VCFEVAL_METRICS_TO_MULTIQC {
+    conda false
+    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.1.0'
+
+    label 'process_single'
+    tag "${meta.id}"
+
+    input:
+    tuple val(meta), path(summary_txt), path(snp_roc), path(non_snp_roc)
+
+    output:
+    tuple val(meta), path("*_vcfeval_multiqc_input"), emit: multiqc_report_dir
+    tuple val("${task.process}"), val('xoos_to_multiqc'), eval('xoos_to_multiqc.py --version'), emit: versions, topic: versions
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: meta.id
+    """
+    mkdir -p '${prefix}_vcfeval_multiqc_input'
+    xoos_to_multiqc.py \\
+        --sample-name ${prefix} \\
+        --vcfeval-summary ${summary_txt} \\
+        --vcfeval-snp-roc ${snp_roc} \\
+        --vcfeval-indel-roc ${non_snp_roc} \\
+        --output-dir '${prefix}_vcfeval_multiqc_input' \\
+        ${args}
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: meta.id
+    """
+    mkdir -p '${prefix}_vcfeval_multiqc_input'
+    """
+}

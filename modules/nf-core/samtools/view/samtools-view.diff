@@ -1,0 +1,20 @@
+Changes in component 'nf-core/samtools/view'
+Changes in 'samtools/view/main.nf':
+--- modules/nf-core/samtools/view/main.nf
++++ modules/nf-core/samtools/view/main.nf
+@@ -8,7 +8,7 @@
+         : 'community.wave.seqera.io/library/htslib_samtools:1.23.1--5b6bb4ede7e612e5'}"
+ 
+     input:
+-    tuple val(meta), path(input), path(index)
++    tuple val(meta), path(input, stageAs: "input/*"), path(index, stageAs: "input/*")
+     tuple val(meta2), path(fasta), path(fai)
+     tuple val(meta3), path(qname)
+     tuple val(meta4), path(bed)
+
+'modules/nf-core/samtools/view/environment.yml' is unchanged
+'modules/nf-core/samtools/view/meta.yml' is unchanged
+'modules/nf-core/samtools/view/tests/main.nf.test' is unchanged
+'modules/nf-core/samtools/view/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/samtools/view/tests/nextflow.config' is unchanged
+************************************************************

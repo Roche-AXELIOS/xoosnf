@@ -1,0 +1,1605 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/Roche-AXELIOS/xoosnf/main/nextflow_schema.json",
+    "title": "Roche-AXELIOS/xoosnf pipeline parameters",
+    "description": "An end-to-end bioinformatics pipeline for processing sequencing data generated on Roche's AXELIOS platform",
+    "type": "object",
+    "$defs": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": ["input", "outdir"],
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "schema": "assets/schema_input.json",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "multiqc_title": {
+                    "type": "string",
+                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
+                    "fa_icon": "fas fa-file-signature"
+                },
+                "workflow_config": {
+                    "type": "string",
+                    "description": "Path to a workflow configuration YAML. Stored for provenance; not parsed by the pipeline.",
+                    "fa_icon": "fas fa-file-alt"
+                },
+                "enable_bam_reheader": {
+                    "type": "boolean",
+                    "description": "Reheader pre-aligned BAM inputs so each @RG line's ID and SM tags are set to the samplesheet sample_name. Only applies to BAM-start inputs (file_type 'bam'); freshly aligned BAMs are unaffected.",
+                    "fa_icon": "fas fa-tag"
+                }
+            }
+        },
+        "resource_files": {
+            "title": "Resource files",
+            "type": "object",
+            "description": "Resources required for various analysis steps.",
+            "default": "",
+            "properties": {
+                "resources_base": {
+                    "type": "string",
+                    "description": "Base path for resource files. This is used as the base path for resource files specified through default_resources.config. It does not affect resource files specified directly as parameters on the command line.",
+                    "format": "path",
+                    "default": ".",
+                    "exists": true
+                },
+                "demux_strand_detect_index": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the Strand Detect index for demultiplexing.",
+                    "exists": true
+                },
+                "reference_fasta": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the reference genome FASTA file.",
+                    "exists": true
+                },
+                "reference_fai": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the index file for the reference genome FASTA.",
+                    "exists": true
+                },
+                "reference_dict": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the sequence dictionary file for the reference genome.",
+                    "exists": true
+                },
+                "giraffe_index_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to the directory containing Giraffe reference files.",
+                    "exists": true
+                },
+                "giraffe_reference_linearized": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the linearized FASTA file for the Giraffe reference.",
+                    "exists": true
+                },
+                "unfiltered_giraffe_index_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to the directory containing unfiltered Giraffe reference files used for pangenome personalization.",
+                    "exists": true
+                },
+                "unfiltered_giraffe_reference_linearized": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the linearized FASTA file for the unfiltered Giraffe reference used for pangenome personalization.",
+                    "exists": true
+                },
+                "bwa_index_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to the directory containing BWA index files for the reference genome.",
+                    "exists": true
+                },
+                "autosomes_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the BED file defining autosomal regions.",
+                    "exists": true
+                },
+                "pop_af_vcf": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the population allele frequency VCF file.",
+                    "exists": true
+                },
+                "pop_af_tbi": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the index file for the population allele frequency VCF.",
+                    "exists": true
+                },
+                "contamination_vcf": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to a population SNV VCF for contamination detection. When not provided the binary uses its bundled default."
+                },
+                "contamination_included_regions_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the included regions BED file for contamination detection. When not provided the binary uses its bundled default."
+                },
+                "tfe_included_regions_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the included regions BED file for the tumor fraction estimator. When not provided the binary uses its bundled default.",
+                    "exists": true
+                },
+                "svc_model_germline_snv": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the small variant caller model for SNVs.",
+                    "exists": true
+                },
+                "svc_model_germline_indel": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the small variant caller model for indels.",
+                    "exists": true
+                },
+                "svc_model_somatic_tumor_normal": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the small variant caller model for somatic tumor-normal variant calling.",
+                    "exists": true
+                },
+                "svc_model_somatic_tumor_only": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the small variant caller model for somatic tumor-only variant calling.",
+                    "exists": true
+                },
+                "chr_x_par_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the BED file defining chrX PAR regions.",
+                    "exists": true
+                },
+                "chr_y_par_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the BED file defining chrY PAR regions.",
+                    "exists": true
+                },
+                "mappability_bw": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the mappability bigWig file.",
+                    "exists": true
+                },
+                "cnv_seed_seg": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to pre-generated segments file from which to start segmentation. The seed segments file must be in SEG format.",
+                    "exists": true
+                },
+                "cnv_blocklist_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to a BED file of regions to exclude from copy number analysis before generating intervals. If not provided, the container-packaged default (hg38_blocklist.bed) is used for somatic tumor-normal calling.",
+                    "exists": true
+                },
+                "repeat_catalog": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the repeat catalog file for STR calling. If not provided, the container-packaged default (hg38.full_repeat_catalog.json) is used.",
+                    "exists": true
+                },
+                "target_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the target BED file.",
+                    "exists": true
+                },
+                "capture_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the capture (bait) BED file.",
+                    "exists": true
+                },
+                "high_confidence_bed_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing high confidence BED files used in alignment metrics. The pipeline will look for a BED file whose name contains the sample name as a substring."
+                },
+                "fallback_high_confidence_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Fallback BED file to use for high confidence regions in alignment metrics if the specified high confidence BED file is not found in the high confidence BED directory."
+                },
+                "germline_small_variant_truth_vcf_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing truth VCF files used for small variant caller model retraining and evaluation. The pipeline will look for a VCF file whose name contains the sample name as a substring."
+                },
+                "germline_small_variant_train_bed_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing BED files defining training regions for small variant caller model retraining. The pipeline will look for a BED file whose name contains the sample name as a substring."
+                },
+                "germline_small_variant_test_bed_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing BED files defining test regions for small variant caller model retraining. The pipeline will look for a BED file whose name contains the sample name as a substring."
+                },
+                "germline_small_variant_eval_bed_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing BED files defining evaluation regions for small variant caller model retraining. The pipeline will look for a BED file whose name contains the sample name as a substring."
+                },
+                "somatic_tumor_normal_small_variant_truth_vcf_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing truth VCF files used for somatic tumor-normal small variant caller model retraining and evaluation. The pipeline will look for a VCF file whose name contains the sample name as a substring."
+                },
+                "somatic_tumor_normal_small_variant_eval_bed_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing BED files defining evaluation regions for somatic tumor-normal small variant caller model retraining. The pipeline will look for a BED file whose name contains the sample name as a substring."
+                },
+                "reference_sdf": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Pre-built RTG SDF directory for the reference genome. Must correspond to the same reference build as reference_fasta (identical contigs and lengths), otherwise vcfeval results will be incorrect. When provided, RTGTOOLS_FORMAT is skipped during vcfeval. Generate with 'rtg format -o <output.sdf> <reference.fasta>'."
+                }
+            }
+        },
+        "subsampling_options": {
+            "title": "Subsampling options",
+            "type": "object",
+            "description": "Options for subsampling data at various stages of the pipeline.",
+            "default": "",
+            "properties": {
+                "enable_subsample_run": {
+                    "type": "boolean",
+                    "description": "Enable subsampling of the run directory."
+                },
+                "subsample_run_ratio": {
+                    "type": "number",
+                    "default": 1.0,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Ratio of data to retain when subsampling the run directory."
+                },
+                "subsample_run_absolute_size": {
+                    "type": "integer",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Absolute number of reads to retain when subsampling the run directory. When set to 0, the ratio-based strategy is used instead."
+                },
+                "subsample_run_copy_mode": {
+                    "type": "string",
+                    "enum": ["copy", "symlink", "hardlink"],
+                    "default": "copy",
+                    "description": "Method to use when creating the subsampled run directory."
+                },
+                "subsample_run_strategy": {
+                    "type": "string",
+                    "enum": ["first", "last", "random-ratio", "random-absolute-size"],
+                    "default": "random-ratio",
+                    "description": "Subsampling strategy to use for selecting reads when subsampling the run directory."
+                },
+                "enable_subsample_demuxed_fastq": {
+                    "type": "boolean",
+                    "description": "Enable subsampling of demultiplexed FASTQ files."
+                },
+                "subsample_demuxed_fastq_read_count": {
+                    "type": "integer",
+                    "default": 200000000,
+                    "minimum": 0,
+                    "description": "Number of reads to retain when subsampling demultiplexed FASTQ files."
+                },
+                "enable_subsample_bam": {
+                    "type": "boolean",
+                    "description": "Enable subsampling of BAM files."
+                },
+                "subsample_bam_coverage_target": {
+                    "type": ["integer", "null"],
+                    "default": null,
+                    "minimum": 1,
+                    "description": "Target coverage for BAM subsampling. When null, the value must be provided per sample via the target_coverage column in the samplesheet."
+                },
+                "subsample_bam_metric_name": {
+                    "type": "string",
+                    "default": "post_filter_coverage",
+                    "description": "Name of the metric to use for subsampling BAM files."
+                },
+                "enable_publish_pre_subsample_bam": {
+                    "type": "boolean",
+                    "description": "Publish the pre-subsample BAM (the BAM that is fed into subsampling) to the output directory. Only applies when enable_subsample_bam is true."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enable_subsample_run": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_subsample_run"]
+                    },
+                    "then": {
+                        "required": [
+                            "subsample_run_ratio",
+                            "subsample_run_strategy",
+                            "subsample_run_copy_mode",
+                            "subsample_run_absolute_size"
+                        ]
+                    },
+                    "errorMessage": "enable_subsample_run requires subsample_run_ratio, subsample_run_strategy, subsample_run_copy_mode, and subsample_run_absolute_size. Provide all four subsampling parameters, or set enable_subsample_run to false."
+                }
+            ]
+        },
+        "demux_options": {
+            "title": "Demultiplexing options",
+            "type": "object",
+            "description": "Options for demultiplexing basecall data.",
+            "default": "",
+            "properties": {
+                "exclude_partial_reads": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Exclude partial reads from downstream processing. For simplex adapters, partial reads are written to a separate directory and preserved when publishing is enabled."
+                },
+                "enable_demux_strand_detect": {
+                    "type": "boolean",
+                    "description": "Enable strand detection during demultiplexing using the strand detect index."
+                },
+                "enable_demux_early_stop": {
+                    "type": "boolean",
+                    "description": "Enable early stopping of demultiplexing based on coverage target."
+                },
+                "demux_early_stop_coverage_target": {
+                    "type": "integer",
+                    "default": 30,
+                    "minimum": 1,
+                    "description": "Coverage target for early stopping during demultiplexing."
+                },
+                "enable_publish_demuxed_fastqs": {
+                    "type": "boolean",
+                    "description": "Publish demultiplexed FASTQ files for each sample to the output directory."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enable_demux_strand_detect": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_demux_strand_detect"]
+                    },
+                    "then": {
+                        "required": ["demux_strand_detect_index"]
+                    },
+                    "errorMessage": "enable_demux_strand_detect requires demux_strand_detect_index. Provide the path to the Strand Detect index, or set enable_demux_strand_detect to false."
+                },
+                {
+                    "if": {
+                        "allOf": [
+                            {
+                                "properties": {
+                                    "exclude_partial_reads": {
+                                        "const": false
+                                    }
+                                },
+                                "required": ["exclude_partial_reads"]
+                            },
+                            {
+                                "properties": {
+                                    "aligner": {
+                                        "type": "string",
+                                        "pattern": "^(pb_fq2bam|pb_giraffe)$"
+                                    }
+                                }
+                            },
+                            {
+                                "properties": {
+                                    "dedup_strategy": {
+                                        "type": "string",
+                                        "const": "markdup"
+                                    }
+                                }
+                            },
+                            {
+                                "not": {
+                                    "properties": {
+                                        "enable_read_collapser_dedup": {
+                                            "const": true
+                                        }
+                                    },
+                                    "required": ["enable_read_collapser_dedup"]
+                                }
+                            }
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "exclude_partial_reads": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "errorMessage": "Partial reads cannot be enabled when using Parabricks integrated deduplication. The Parabricks aligners (`pb_fq2bam`, `pb_giraffe`) with `--dedup_strategy markdup` perform duplicate marking during alignment and do not support partial reads. Set exclude_partial_reads to true, switch to a non-Parabricks aligner or a different dedup_strategy, or set enable_read_collapser_dedup to true to run a separate MARKDUP step."
+                }
+            ]
+        },
+        "alignment_options": {
+            "title": "Alignment options",
+            "type": "object",
+            "description": "Options for read alignment.",
+            "default": "",
+            "properties": {
+                "aligner": {
+                    "type": "string",
+                    "enum": ["bwa", "minimap2", "pb_fq2bam", "pb_minimap2", "vg_giraffe", "pb_giraffe"],
+                    "default": "pb_giraffe",
+                    "description": "Select the aligner to use for read alignment."
+                },
+                "enable_low_gpu_memory_mode": {
+                    "type": "boolean",
+                    "description": "Enable low GPU memory mode for Parabricks aligners and variant callers."
+                },
+                "enable_pangenome_personalization": {
+                    "type": "boolean",
+                    "description": "Enable sample-specific Giraffe graph personalization before alignment. Supported only for `pb_giraffe` and `vg_giraffe`."
+                },
+                "pangenome_personalization_downsample_read_count": {
+                    "type": "integer",
+                    "default": 200000000,
+                    "minimum": 1,
+                    "description": "Number of FASTQ reads to use when building the sample-specific personalized Giraffe graph."
+                },
+                "enable_alignment_partitioning": {
+                    "type": "boolean",
+                    "description": "Enable partitioning of FASTQ files across multiple alignment jobs per sample. Partitions are aligned in parallel and merged before downstream steps. Has no effect when partition count is set to 1."
+                },
+                "alignment_partition_count": {
+                    "type": "integer",
+                    "default": 4,
+                    "minimum": 1,
+                    "description": "Number of partitions to distribute FASTQ files across when alignment partitioning is enabled."
+                },
+                "max_parabricks_alignment_read_length": {
+                    "type": ["integer", "null"],
+                    "default": null,
+                    "minimum": 1,
+                    "description": "Maximum read length for Parabricks fq2bam and giraffe aligners. When set, adds --max-read-length to the aligner arguments. Leave unset to use the Parabricks default (480)."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "aligner": {
+                                "type": "string",
+                                "pattern": "^(pb_giraffe|vg_giraffe)$"
+                            }
+                        }
+                    },
+                    "then": {
+                        "if": {
+                            "properties": {
+                                "enable_pangenome_personalization": {
+                                    "const": true
+                                }
+                            },
+                            "required": ["enable_pangenome_personalization"]
+                        },
+                        "then": {
+                            "required": ["unfiltered_giraffe_index_dir", "unfiltered_giraffe_reference_linearized"]
+                        },
+                        "else": {
+                            "required": ["giraffe_index_dir", "giraffe_reference_linearized"]
+                        },
+                        "errorMessage": "Giraffe aligners require giraffe_index_dir and giraffe_reference_linearized, or unfiltered_giraffe_index_dir and unfiltered_giraffe_reference_linearized when enable_pangenome_personalization is true."
+                    },
+                    "errorMessage": "Giraffe aligners (pb_giraffe, vg_giraffe) require Giraffe index files. Provide giraffe_index_dir and giraffe_reference_linearized, or enable pangenome personalization and provide unfiltered_giraffe_index_dir and unfiltered_giraffe_reference_linearized."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "aligner": {
+                                "type": "string",
+                                "pattern": "^(pb_fq2bam|bwa)$"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": ["bwa_index_dir"]
+                    },
+                    "errorMessage": "bwa_index_dir is required when using the 'pb_fq2bam' or 'bwa' aligner."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "aligner": {
+                                "type": "string",
+                                "pattern": "^(minimap2|pb_minimap2)$"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai"]
+                    },
+                    "errorMessage": "reference_fasta and reference_fai are required when using the 'minimap2' or 'pb_minimap2' aligner."
+                }
+            ]
+        },
+        "dedup_options": {
+            "title": "Deduplication options",
+            "type": "object",
+            "description": "Options for configuring deduplication steps in the pipeline.",
+            "default": "",
+            "properties": {
+                "dedup_strategy": {
+                    "type": "string",
+                    "enum": ["markdup", "consensus", "none"],
+                    "default": "markdup",
+                    "description": "Strategy to use for deduplication of reads."
+                },
+                "enable_read_collapser_dedup": {
+                    "type": "boolean",
+                    "description": "When using `pb_fq2bam` or `pb_giraffe` with `--dedup_strategy markdup`, disable the duplicate marking integrated into the Parabricks aligner and run a separate XOOS read_collapser MARKDUP step instead. Has no effect with other aligners or deduplication strategies."
+                },
+                "read_collapser_preset": {
+                    "type": "string",
+                    "enum": [
+                        "wgs-duplex",
+                        "wgs-duplex-cfdna",
+                        "wgs-simplex",
+                        "te-duplex",
+                        "te-simplex",
+                        "rna-bulk",
+                        "none"
+                    ],
+                    "description": "Preset to use for XOOS read_collapser.",
+                    "$comment": "Special case: read_collapser_preset is intentionally allowed to be set even when the read collapser is not invoked (e.g. Parabricks aligners with --dedup_strategy markdup and without --enable_read_collapser_dedup). In that configuration the preset is not consumed by a read collapser step, but permitting it lets profiles declare the preset uniformly without triggering a validation error."
+                },
+                "read_collapser_cluster_by_umi": {
+                    "type": "boolean",
+                    "description": "Enable UMI-based clustering in XOOS read_collapser (adds --cluster-by-umi flag)."
+                },
+                "read_collapser_ignore_read_name_parsing_errors": {
+                    "type": "boolean",
+                    "description": "Ignore read name parsing errors in XOOS read_collapser (adds --ignore-read-name-parsing-errors flag). When enabled, reads whose names cannot be parsed are treated as full reads with no UMIs instead of failing. Use with caution: if the input BAM does contain UMIs/SIDs in a non-standard read name format, they will be silently ignored."
+                },
+                "rescue_secondary_min_alignment_score_ratio": {
+                    "type": "number",
+                    "description": "Minimum alignment score ratio (AS/read_length) for a secondary alignment to be eligible for rescue. Default used by the tool is 0.8."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enable_read_collapser_dedup": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_read_collapser_dedup"]
+                    },
+                    "then": {
+                        "required": ["dedup_strategy"]
+                    },
+                    "errorMessage": "enable_read_collapser_dedup requires dedup_strategy to be set. Specify dedup_strategy as 'markdup', 'consensus', or 'none'."
+                }
+            ]
+        },
+        "metrics_options": {
+            "title": "Metrics options",
+            "type": "object",
+            "description": "Options for enabling the calculation of various metrics at different stages of the pipeline.",
+            "default": "",
+            "properties": {
+                "enable_alignment_metrics_autosomes": {
+                    "type": "boolean",
+                    "description": "Enable calculation of alignment metrics for autosomal regions."
+                },
+                "enable_alignment_metrics_high_confidence": {
+                    "type": "boolean",
+                    "description": "Enable calculation of alignment metrics for high confidence regions."
+                },
+                "enable_alignment_metrics_targets": {
+                    "type": "boolean",
+                    "description": "Enable calculation of alignment metrics for target regions."
+                },
+                "enable_hp_metrics": {
+                    "type": "boolean",
+                    "description": "Enable calculation of homopolymer metrics."
+                },
+                "enable_gc_bias_metrics": {
+                    "type": "boolean",
+                    "description": "Enable calculation of GC bias metrics."
+                },
+                "enable_hs_metrics": {
+                    "type": "boolean",
+                    "description": "Enable calculation of hybrid selection metrics."
+                },
+                "enable_pre_dedup_metrics": {
+                    "type": "boolean",
+                    "description": "Enable calculation of pre-deduplication (markdup or consensus) metrics."
+                },
+                "enable_pre_subsample_metrics": {
+                    "type": "boolean",
+                    "description": "Enable calculation of metrics on BAM files before subsampling."
+                },
+                "alignment_metrics_min_mapping_quality": {
+                    "type": "integer",
+                    "default": 4,
+                    "minimum": 0,
+                    "description": "Minimum mapping quality threshold for reads to be included in alignment metrics calculations."
+                },
+                "alignment_metrics_min_base_quality": {
+                    "type": "integer",
+                    "default": 30,
+                    "minimum": 0,
+                    "description": "Minimum base quality threshold for bases to be included in alignment metrics calculations."
+                },
+                "alignment_metrics_min_base_quality_pre_dedup": {
+                    "type": "integer",
+                    "default": 30,
+                    "minimum": 0,
+                    "description": "Minimum base quality threshold for bases to be included in alignment metrics calculations before deduplication."
+                },
+                "alignment_metrics_max_alt_allele_fraction": {
+                    "type": "number",
+                    "default": 0.1,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Maximum alternate allele fraction threshold for reads to be included in alignment metrics calculations. This is typically used to exclude positions that may contain germline variants from influencing error rate calculations."
+                },
+                "alignment_metrics_min_depth": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 0,
+                    "description": "Minimum depth threshold for positions to be included in alignment metrics calculations."
+                },
+                "alignment_metrics_coverage_bins": {
+                    "type": "string",
+                    "description": "List of coverage bin cutoffs to report in alignment metrics. Leave empty to use default.",
+                    "pattern": "^$|^\\[\\d+(\\s*,\\s*\\d+)*\\]$"
+                },
+                "metrics_report_summary_patterns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of regex patterns to select metrics for the summary report. Each pattern is matched against metric names. Only matching metrics are included in metrics-report-summary.tsv. When empty, the summary report is not generated."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "dedup_strategy": {
+                                "type": "string",
+                                "const": "none"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_pre_dedup_metrics": {
+                                "const": false
+                            }
+                        }
+                    },
+                    "errorMessage": "enable_pre_dedup_metrics cannot be true when dedup_strategy is 'none'. Pre-deduplication metrics compare reads before and after deduplication, so deduplication must be enabled. Set dedup_strategy to 'markdup' or 'consensus', or set enable_pre_dedup_metrics to false."
+                },
+                {
+                    "if": {
+                        "allOf": [
+                            {
+                                "properties": {
+                                    "dedup_strategy": {
+                                        "type": "string",
+                                        "const": "markdup"
+                                    }
+                                }
+                            },
+                            {
+                                "properties": {
+                                    "aligner": {
+                                        "type": "string",
+                                        "pattern": "^(pb_fq2bam|pb_giraffe)$"
+                                    }
+                                }
+                            },
+                            {
+                                "not": {
+                                    "properties": {
+                                        "enable_read_collapser_dedup": {
+                                            "const": true
+                                        }
+                                    },
+                                    "required": ["enable_read_collapser_dedup"]
+                                }
+                            }
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_pre_dedup_metrics": {
+                                "const": false
+                            }
+                        }
+                    },
+                    "errorMessage": "Parabricks aligners perform duplicate marking during alignment by default, so pre-deduplication metrics cannot be calculated when using `--dedup_strategy markdup` with Parabricks aligners. Use `--enable_read_collapser_dedup true` to disable Parabricks duplicate marking and run a separate MARKDUP step, which enables pre-dedup metrics."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_alignment_metrics_autosomes": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_alignment_metrics_autosomes"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai", "autosomes_bed"]
+                    },
+                    "errorMessage": "enable_alignment_metrics_autosomes requires reference_fasta, reference_fai, and autosomes_bed. Provide all three resource files, or set enable_alignment_metrics_autosomes to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_hp_metrics": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_hp_metrics"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta"]
+                    },
+                    "errorMessage": "enable_hp_metrics requires reference_fasta. Provide the path to the reference genome FASTA, or set enable_hp_metrics to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_hs_metrics": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_hs_metrics"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "capture_bed", "target_bed"]
+                    },
+                    "errorMessage": "enable_hs_metrics requires reference_fasta, capture_bed, and target_bed. Provide all three, or set enable_hs_metrics to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_gc_bias_metrics": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_gc_bias_metrics"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai", "reference_dict"]
+                    },
+                    "errorMessage": "enable_gc_bias_metrics requires reference_fasta, reference_fai, and reference_dict. Provide all three reference files, or set enable_gc_bias_metrics to false."
+                }
+            ]
+        },
+        "tfe_contamination_options": {
+            "title": "TFE/Contamination options",
+            "type": "object",
+            "description": "Options for tumor fraction estimation and contamination detection.",
+            "default": "",
+            "properties": {
+                "enable_tfe": {
+                    "type": "boolean",
+                    "description": "Enable the tumor fraction estimator for targeted variant detection using a reporter VCF."
+                },
+                "enable_contamination_estimation": {
+                    "type": "boolean",
+                    "description": "Enable cross-sample contamination estimation."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enable_tfe": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_tfe"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai"]
+                    },
+                    "errorMessage": "enable_tfe requires reference_fasta and reference_fai. Provide both reference files, or disable enable_tfe."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_contamination_estimation": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_contamination_estimation"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai"]
+                    },
+                    "errorMessage": "enable_contamination_estimation requires reference_fasta and reference_fai. Provide both reference files, or disable enable_contamination_estimation."
+                }
+            ]
+        },
+        "variant_calling_options": {
+            "title": "Variant calling/training options",
+            "type": "object",
+            "description": "Options for configuring variant calling steps in the pipeline and enabling/disabling specific variant callers.",
+            "default": "",
+            "properties": {
+                "variant_calling_mode": {
+                    "type": "string",
+                    "enum": ["germline", "somatic_tn", "none"],
+                    "default": "none",
+                    "description": "Select the mode for variant calling. Use 'none' to skip variant calling entirely."
+                },
+                "enable_small_variant_caller": {
+                    "type": "boolean",
+                    "description": "Enable the small variant caller (SVC) for calling SNVs and indels."
+                },
+                "use_gatk_haplotype_caller": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use GATK HaplotypeCaller for variant calling instead of Parabricks HaplotypeCaller."
+                },
+                "use_gatk_mutect2": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use GATK Mutect2 for somatic variant calling instead of Parabricks MutectCaller."
+                },
+                "enable_variant_calling_partitioning": {
+                    "type": "boolean",
+                    "description": "Enable scatter-gather partitioning for variant calling. Has no effect when variant_calling_mode is set to 'none' or when partition count is set to 1."
+                },
+                "cpu_variant_calling_partition_count": {
+                    "type": "integer",
+                    "default": 20,
+                    "minimum": 1,
+                    "description": "Number of partitions to use for variant calling when running on CPU. This is used as the default partition count when enable_variant_calling_partitioning is set to true and the pipeline is running on a CPU backend."
+                },
+                "gpu_variant_calling_partition_count": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1,
+                    "description": "Number of partitions to use for variant calling when running on GPU. This is used as the default partition count when enable_variant_calling_partitioning is set to true and the pipeline is running on a GPU backend."
+                },
+                "use_multisample_model": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use multisample model for small variant calling."
+                },
+                "enable_small_variant_caller_retrain": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable retraining of the small variant caller models."
+                },
+                "enable_vcfeval": {
+                    "type": "boolean",
+                    "description": "Enable evaluation of VCF files against truth sets."
+                },
+                "enable_mutect_stats": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable merging of per-interval Mutect2 stats files."
+                },
+                "enable_copy_number_caller": {
+                    "type": "boolean",
+                    "description": "Enable copy number variation caller."
+                },
+                "enable_copy_number_caller_baf": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Pass small variant caller VCF to the copy number caller for B-allele frequency estimation. When false, the copy number caller runs without BAF data."
+                },
+                "enable_str_caller": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable short tandem repeat caller."
+                },
+                "enable_merge_vcf": {
+                    "type": "boolean",
+                    "description": "Merge VCF outputs from different variant callers into a single VCF using bcftools concat. Only supported when variant_calling_mode is 'germline'; somatic tumor-normal calling produces per-caller VCFs that cannot be merged."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "type": "string",
+                                "const": "germline"
+                            },
+                            "enable_vcfeval": {
+                                "const": true
+                            }
+                        },
+                        "required": ["variant_calling_mode", "enable_vcfeval"]
+                    },
+                    "then": {
+                        "required": ["germline_small_variant_truth_vcf_dir", "germline_small_variant_eval_bed_dir"]
+                    },
+                    "errorMessage": "enable_vcfeval with variant_calling_mode 'germline' requires germline_small_variant_truth_vcf_dir and germline_small_variant_eval_bed_dir. Provide directories containing per-sample truth VCFs and evaluation BED files, or disable enable_vcfeval."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "type": "string",
+                                "const": "somatic_tn"
+                            },
+                            "enable_vcfeval": {
+                                "const": true
+                            }
+                        },
+                        "required": ["variant_calling_mode", "enable_vcfeval"]
+                    },
+                    "then": {
+                        "required": [
+                            "somatic_tumor_normal_small_variant_truth_vcf_dir",
+                            "somatic_tumor_normal_small_variant_eval_bed_dir"
+                        ]
+                    },
+                    "errorMessage": "enable_vcfeval with variant_calling_mode 'somatic_tn' requires somatic_tumor_normal_small_variant_truth_vcf_dir and somatic_tumor_normal_small_variant_eval_bed_dir. Provide directories containing per-sample truth VCFs and evaluation BED files, or disable enable_vcfeval."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "type": "string",
+                                "const": "germline"
+                            },
+                            "enable_small_variant_caller_retrain": {
+                                "const": true
+                            }
+                        },
+                        "required": ["variant_calling_mode", "enable_small_variant_caller_retrain"]
+                    },
+                    "then": {
+                        "required": [
+                            "germline_small_variant_truth_vcf_dir",
+                            "germline_small_variant_train_bed_dir",
+                            "germline_small_variant_eval_bed_dir"
+                        ]
+                    },
+                    "errorMessage": "enable_small_variant_caller_retrain with variant_calling_mode 'germline' requires germline_small_variant_truth_vcf_dir, germline_small_variant_train_bed_dir, and germline_small_variant_eval_bed_dir. Provide directories containing per-sample truth VCFs, training BED files, and evaluation BED files, or disable enable_small_variant_caller_retrain."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "type": "string",
+                                "const": "somatic_tn"
+                            },
+                            "enable_copy_number_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["variant_calling_mode", "enable_copy_number_caller"]
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_small_variant_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_small_variant_caller"]
+                    },
+                    "errorMessage": "enable_copy_number_caller with variant_calling_mode 'somatic_tn' requires enable_small_variant_caller to also be true. The somatic copy number caller depends on small variant calls as input. Set enable_small_variant_caller to true, or disable enable_copy_number_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_small_variant_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_small_variant_caller"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai", "reference_dict", "pop_af_vcf", "pop_af_tbi"]
+                    },
+                    "errorMessage": "enable_small_variant_caller requires reference_fasta, reference_fai, reference_dict, pop_af_vcf, and pop_af_tbi. Provide all five resource files, or disable enable_small_variant_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_copy_number_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_copy_number_caller"]
+                    },
+                    "then": {
+                        "required": ["mappability_bw"]
+                    },
+                    "errorMessage": "enable_copy_number_caller requires mappability_bw. Provide the path to a mappability bigWig file, or disable enable_copy_number_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_vcfeval": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_vcfeval"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai", "reference_dict"]
+                    },
+                    "errorMessage": "enable_vcfeval requires reference_fasta, reference_fai, and reference_dict. Provide all three reference files, or disable enable_vcfeval."
+                }
+            ]
+        },
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "custom_config_version": {
+                    "type": "string",
+                    "description": "Git commit id for Institutional configs.",
+                    "default": "master",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "custom_config_base": {
+                    "type": "string",
+                    "description": "Base directory for Institutional configs.",
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+                    "hidden": true,
+                    "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_contact": {
+                    "type": "string",
+                    "description": "Institutional config contact information.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_url": {
+                    "type": "string",
+                    "description": "Institutional config URL link.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                }
+            }
+        },
+        "executor_options": {
+            "title": "Executor options",
+            "type": "object",
+            "fa_icon": "fas fa-server",
+            "description": "Options that control how Nextflow submits and manages jobs.",
+            "properties": {
+                "executor_queue_size": {
+                    "type": "integer",
+                    "default": 1000,
+                    "minimum": 1,
+                    "description": "Maximum number of tasks that can be queued at once by the executor.",
+                    "help_text": "Controls the Nextflow `executor.queueSize` setting. The Nextflow default is 100, which can become a bottleneck when many samples are processed in parallel. Increase this value for large batch runs or decrease it if the scheduler has strict submission limits.",
+                    "fa_icon": "fas fa-layer-group"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+            "properties": {
+                "version": {
+                    "type": "boolean",
+                    "description": "Display version and exit.",
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "hidden": true
+                },
+                "email_on_fail": {
+                    "type": "string",
+                    "description": "Email address for completion summary, only when pipeline fails.",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+                    "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
+                    "hidden": true
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format",
+                    "hidden": true
+                },
+                "max_multiqc_email_size": {
+                    "type": "string",
+                    "description": "File size limit when attaching MultiQC reports to summary emails.",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+                    "default": "25.MB",
+                    "fa_icon": "fas fa-file-upload",
+                    "hidden": true
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true
+                },
+                "multiqc_config": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Custom config file to supply to MultiQC.",
+                    "fa_icon": "fas fa-cog",
+                    "hidden": true
+                },
+                "multiqc_logo": {
+                    "type": "string",
+                    "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
+                    "fa_icon": "fas fa-image",
+                    "hidden": true
+                },
+                "multiqc_methods_description": {
+                    "type": "string",
+                    "description": "Custom MultiQC yaml file containing HTML including a methods description.",
+                    "fa_icon": "fas fa-cog"
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "pipelines_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "hidden": true
+                },
+                "modules_testdata_base_path": {
+                    "type": "string",
+                    "fa_icon": "far fa-check-circle",
+                    "description": "Base URL or local path to location of module test dataset files",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/",
+                    "hidden": true
+                },
+                "trace_report_suffix": {
+                    "type": "string",
+                    "fa_icon": "far calendar",
+                    "description": "Suffix to add to the trace report filename. Default is the date and time in the format yyyy-MM-dd_HH-mm-ss.",
+                    "hidden": true
+                },
+                "help": {
+                    "type": ["boolean", "string"],
+                    "description": "Display the help message."
+                },
+                "help_full": {
+                    "type": "boolean",
+                    "description": "Display the full detailed help message."
+                },
+                "show_hidden": {
+                    "type": "boolean",
+                    "description": "Display hidden parameters in the help message (only works when --help or --help_full are provided)."
+                }
+            }
+        },
+        "xoos_container_options": {
+            "title": "XOOS container options",
+            "type": "object",
+            "fa_icon": "fas fa-box",
+            "description": "Override the container registry and version used by XOOS modules.",
+            "properties": {
+                "xoos_registry": {
+                    "type": "string",
+                    "description": "Container registry for XOOS module images. Defaults to 'navifyplatform-eug-docker.jfrog.io' when not set.",
+                    "fa_icon": "fas fa-server"
+                },
+                "xoos_version": {
+                    "type": "string",
+                    "description": "Container image tag/version for XOOS module images. Defaults to 'latest' when not set.",
+                    "fa_icon": "fas fa-tag"
+                }
+            }
+        },
+        "cross_parameter_validation": {
+            "title": "Cross-parameter validation",
+            "description": "Rules that validate combinations of parameters across different option groups.",
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enable_alignment_metrics_targets": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": ["target_bed"]
+                    },
+                    "errorMessage": "enable_alignment_metrics_targets requires target_bed. Provide the path to a target BED file, or set enable_alignment_metrics_targets to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_read_collapser_dedup": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "dedup_strategy": {
+                                "const": "markdup"
+                            }
+                        },
+                        "required": ["dedup_strategy"]
+                    },
+                    "errorMessage": "enable_read_collapser_dedup requires dedup_strategy 'markdup'. This flag disables Parabricks integrated duplicate marking and runs a separate XOOS read_collapser MARKDUP step instead. Set dedup_strategy to 'markdup', or disable enable_read_collapser_dedup."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "none"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_small_variant_caller": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_copy_number_caller": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_str_caller": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_vcfeval": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_small_variant_caller_retrain": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_merge_vcf": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_mutect_stats": {
+                                "not": {
+                                    "const": true
+                                }
+                            }
+                        }
+                    },
+                    "errorMessage": "Variant caller flags (enable_small_variant_caller, enable_copy_number_caller, enable_str_caller, enable_vcfeval, enable_small_variant_caller_retrain, enable_merge_vcf, enable_mutect_stats) cannot be enabled when variant_calling_mode is 'none'. Set variant_calling_mode to 'germline' or 'somatic_tn' to use variant calling features, or disable all variant caller flags."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "somatic_tn"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "then": {
+                        "properties": {
+                            "aligner": {
+                                "not": {
+                                    "pattern": "^(pb_giraffe|vg_giraffe)$"
+                                }
+                            }
+                        }
+                    },
+                    "errorMessage": "Giraffe aligners (pb_giraffe, vg_giraffe) are not currently supported with variant_calling_mode 'somatic_tn'. Set aligner to a non-Giraffe aligner (e.g. 'bwa', 'minimap2', 'pb_fq2bam', or 'pb_minimap2'), or change variant_calling_mode."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "use_gatk_haplotype_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["use_gatk_haplotype_caller"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "germline"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "use_gatk_haplotype_caller requires variant_calling_mode 'germline'. GATK HaplotypeCaller is a germline-only variant caller. Set variant_calling_mode to 'germline', or disable use_gatk_haplotype_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "use_gatk_mutect2": {
+                                "const": true
+                            }
+                        },
+                        "required": ["use_gatk_mutect2"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "somatic_tn"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "use_gatk_mutect2 requires variant_calling_mode 'somatic_tn'. GATK Mutect2 is a somatic variant caller that requires matched tumor-normal pairs. Set variant_calling_mode to 'somatic_tn', or disable use_gatk_mutect2."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_str_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_str_caller"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "germline"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "enable_str_caller requires variant_calling_mode 'germline'. Short tandem repeat calling is only available in germline mode. Set variant_calling_mode to 'germline', or disable enable_str_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_small_variant_caller_retrain": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_small_variant_caller_retrain"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "germline"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "enable_small_variant_caller_retrain requires variant_calling_mode 'germline'. Model retraining is only available in germline mode. Set variant_calling_mode to 'germline', or disable enable_small_variant_caller_retrain."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_mutect_stats": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_mutect_stats"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "somatic_tn"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "enable_mutect_stats requires variant_calling_mode 'somatic_tn'. Mutect stats are only produced during somatic tumor-normal variant calling. Set variant_calling_mode to 'somatic_tn', or disable enable_mutect_stats."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_pangenome_personalization": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "aligner": {
+                                "enum": ["pb_giraffe", "vg_giraffe"]
+                            }
+                        }
+                    },
+                    "errorMessage": "Pangenome personalization (--enable_pangenome_personalization) requires a Giraffe-based aligner, but a non-Giraffe aligner is selected. Set --aligner to 'pb_giraffe' or 'vg_giraffe', or set --enable_pangenome_personalization to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_subsample_run": {
+                                "const": true
+                            },
+                            "subsample_run_strategy": {
+                                "const": "random-absolute-size"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "subsample_run_absolute_size": {
+                                "minimum": 1
+                            }
+                        }
+                    },
+                    "errorMessage": "subsample_run_absolute_size must be >= 1 when subsample_run_strategy is 'random-absolute-size'. Set subsample_run_absolute_size to a positive integer, or use a different subsample_run_strategy ('first', 'last', or 'random-ratio')."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_pre_subsample_metrics": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_subsample_bam": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_subsample_bam"]
+                    },
+                    "errorMessage": "enable_pre_subsample_metrics requires enable_subsample_bam to be true. Pre-subsample metrics compare BAM files before and after subsampling. Set enable_subsample_bam to true, or set enable_pre_subsample_metrics to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_publish_pre_subsample_bam": {
+                                "const": true
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_subsample_bam": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_subsample_bam"]
+                    },
+                    "errorMessage": "enable_publish_pre_subsample_bam requires enable_subsample_bam to be true. The pre-subsample BAM only exists when subsampling runs. Set enable_subsample_bam to true, or set enable_publish_pre_subsample_bam to false."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_merge_vcf": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_merge_vcf"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "not": {
+                                    "const": "somatic_tn"
+                                }
+                            }
+                        }
+                    },
+                    "errorMessage": "Somatic TN VCFs cannot be merged into a single VCF. enable_merge_vcf is not supported when variant_calling_mode is 'somatic_tn'. Only per-caller VCFs can be produced with somatic TN calling mode."
+                }
+            ],
+            "properties": {}
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/resource_files"
+        },
+        {
+            "$ref": "#/$defs/subsampling_options"
+        },
+        {
+            "$ref": "#/$defs/demux_options"
+        },
+        {
+            "$ref": "#/$defs/alignment_options"
+        },
+        {
+            "$ref": "#/$defs/dedup_options"
+        },
+        {
+            "$ref": "#/$defs/metrics_options"
+        },
+        {
+            "$ref": "#/$defs/tfe_contamination_options"
+        },
+        {
+            "$ref": "#/$defs/variant_calling_options"
+        },
+        {
+            "$ref": "#/$defs/institutional_config_options"
+        },
+        {
+            "$ref": "#/$defs/executor_options"
+        },
+        {
+            "$ref": "#/$defs/xoos_container_options"
+        },
+        {
+            "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/cross_parameter_validation"
+        }
+    ]
+}

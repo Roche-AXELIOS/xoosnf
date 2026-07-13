@@ -1,0 +1,76 @@
+name: picard_collect_gc_bias_metrics
+description: Collect GC bias metrics from an aligned BAM with Picard CollectGcBiasMetrics.
+keywords:
+  - picard
+  - gc-bias
+  - metrics
+  - qc
+tools:
+  - picard:
+      description: A set of command line tools for manipulating high-throughput sequencing data and formats.
+      homepage: "https://broadinstitute.github.io/picard/"
+      documentation: "https://broadinstitute.github.io/picard/"
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_fai:
+        type: file
+        description: Reference FASTA index (.fai) file
+        ontologies: []
+output:
+  gc_bias:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "CollectGcBiasMetrics":
+          type: file
+          description: "Output file matching `CollectGcBiasMetrics`"
+          pattern: "CollectGcBiasMetrics"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - picard:
+          type: string
+          description: The name of the tool
+      - 3.4.0:
+          type: string
+          description: The version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - picard:
+          type: string
+          description: The name of the tool
+      - 3.4.0:
+          type: string
+          description: The version of the tool
+authors: []
+maintainers: []

@@ -1,0 +1,105 @@
+nextflow_workflow {
+
+    name "Test TUMOR_FRACTION_ESTIMATION subworkflow"
+    script "../main.nf"
+    workflow "TUMOR_FRACTION_ESTIMATION"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "tumor_fraction_estimation"
+    tag "xoos_tumor_fraction_estimator"
+    tag "xoos_metrics_to_multiqc"
+
+    test("stub - TFE with reporter VCF from samplesheet") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                // BAM channel with reporter_vcf in meta (cfDNA mode)
+                input[0] = Channel.of(
+                    [ [id: 'cfDNA_sample', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz"], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results },
+                { assert workflow.out.custom_multiqc_files },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - TFE with multiple reporter VCF samples") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                // Two BAMs each with reporter_vcf in meta
+                input[0] = Channel.of(
+                    [ [id: 'cfDNA_sample_1', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz"], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ],
+                    [ [id: 'cfDNA_sample_2', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz"], file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG002.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results.size() == 2 },
+                { assert workflow.out.custom_multiqc_files.size() == 2 },
+                { assert snapshot(workflow.out).match() }
+            )
+        }
+    }
+
+    test("stub - TFE with no VCF input produces empty output") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                // BAM without reporter_vcf — TFE should produce nothing
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results.size() == 0 },
+                { assert workflow.out.custom_multiqc_files.size() == 0 }
+            )
+        }
+    }
+}

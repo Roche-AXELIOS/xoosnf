@@ -1,0 +1,68 @@
+nextflow_process {
+
+    name "Test Process XOOS_PARSE_GC_BIAS_METRICS"
+    script "../main.nf"
+    process "XOOS_PARSE_GC_BIAS_METRICS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_generate_metrics_report/parse_gc_bias"
+
+    test("stub - generates gc_bias JSON output") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'HG001' ],
+                    'dedup',
+                    file('CollectGcBiasMetrics')
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.report.size() == 1 },
+                { assert process.out.report[0][1].toString().endsWith('HG001.gc_bias_dedup.json') },
+            )
+        }
+    }
+
+    test("stub - preserves meta in report output") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'HG002', run_name: 'test_run' ],
+                    'dedup_subsample',
+                    file('CollectGcBiasMetrics')
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.report[0][0].id == 'HG002' },
+                { assert process.out.report[0][0].run_name == 'test_run' },
+                { assert process.out.report[0][1].toString().endsWith('HG002.gc_bias_dedup_subsample.json') },
+            )
+        }
+    }
+}

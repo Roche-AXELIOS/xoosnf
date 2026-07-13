@@ -1,0 +1,302 @@
+nextflow_workflow {
+
+    name "Test PARTITION_ALIGN_MERGE subworkflow"
+    script "../partition_align_merge.nf"
+    workflow "PARTITION_ALIGN_MERGE"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "partition_align_merge"
+    tag "sambamba_merge"
+    tag "bwa/mem"
+
+    test("stub - bwa aligner with 2 partitions") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = true
+                alignment_partition_count        = 2
+                dedup_strategy                   = 'markdup'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'bwa'
+                input[1] = 2
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[5] = Channel.value([ [], [], [] ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - bwa aligner with 4 partitions (more partitions than files — single-BAM passthrough)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = true
+                alignment_partition_count        = 4
+                dedup_strategy                   = 'markdup'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'bwa'
+                input[1] = 4
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[5] = Channel.value([ [], [], [] ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                // Output should have original sample id restored (not partition id)
+                { assert workflow.out.bams.every { it[0].id == 'HG001' } },
+                // sample_id preserved for downstream use
+                { assert workflow.out.bams.every { it[0].sample_id == 'HG001' } },
+                // No partition metadata leaking into output
+                { assert workflow.out.bams.every { it[0].partition == null } },
+                { assert workflow.out.bams.every { it[0].original_id == null } },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - pb_fq2bam aligner with 2 partitions (markdup disabled)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = true
+                alignment_partition_count        = 2
+                dedup_strategy                   = 'markdup'
+                enable_low_gpu_memory_mode       = false
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'pb_fq2bam'
+                input[1] = 2
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [], [] ])
+                input[5] = Channel.value([ [], [], [] ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert workflow.out.bams.every { it[0].id == 'HG001' } },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - pb_fq2bam aligner with enable_read_collapser_dedup (Parabricks markdup disabled)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = false
+                dedup_strategy                   = 'markdup'
+                enable_read_collapser_dedup      = true
+                enable_low_gpu_memory_mode       = false
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'pb_fq2bam'
+                input[1] = 1
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [], [] ])
+                input[5] = Channel.value([ [], [], [] ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert workflow.out.bams.every { it[0].id == 'HG001' } },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - pb_giraffe aligner with enable_read_collapser_dedup (Parabricks markdup disabled)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = false
+                dedup_strategy                   = 'markdup'
+                enable_read_collapser_dedup      = true
+                enable_low_gpu_memory_mode       = false
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'pb_giraffe'
+                input[1] = 1
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [], [] ])
+                input[5] = Channel.value([ [id: 'giraffe_idx'], file("\${testDataDir}/resources/giraffe_ref") ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert workflow.out.bams.every { it[0].id == 'HG001' } },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - vg_giraffe aligner with 2 partitions") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = true
+                alignment_partition_count        = 2
+                dedup_strategy                   = 'markdup'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'vg_giraffe'
+                input[1] = 2
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/fastq/HG001") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [], [] ])
+                input[5] = Channel.value([ [id: 'giraffe_idx'], file("\${testDataDir}/resources/giraffe_ref") ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+
+    test("stub - multiple samples with bwa") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().fastqs().root()
+        }
+
+        when {
+            params {
+                enable_pangenome_personalization = false
+                enable_alignment_partitioning    = true
+                alignment_partition_count        = 2
+                dedup_strategy                   = 'markdup'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'bwa'
+                input[1] = 2
+                input[2] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG001") ],
+                    [ [id: 'HG002', run_name: 'test_run', run_type: 'SBX-D', single_end: true], file("\${testDataDir}/inputs/fastq/HG002") ]
+                )
+                input[3] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[5] = Channel.value([ [], [], [] ])
+                input[6] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bams },
+                // Should produce one merged BAM per sample
+                { assert workflow.out.bams.size() == 2 },
+                { assert workflow.out.bams.collect { it[0].id }.sort() == ['HG001', 'HG002'] },
+                { assert snapshot(workflow.out.bams).match() }
+            )
+        }
+    }
+}

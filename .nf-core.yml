@@ -1,0 +1,57 @@
+repository_type: pipeline
+
+nf_core_version: 4.0.2
+
+lint:
+  files_unchanged:
+    - docs/CONTRIBUTING.md
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-xoosnf_logo_light.png
+    - docs/images/nf-core-xoosnf_logo_light.png
+    - docs/images/nf-core-xoosnf_logo_dark.png
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - docs/README.md
+    - assets/email_template.html
+    - LICENSE
+  multiqc_config:
+    - report_comment
+  files_exist:
+    - docs/CONTRIBUTING.md
+    - docs/output.md
+    - docs/README.md
+    - docs/usage.md
+    - CITATIONS.md
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-xoosnf_logo_light.png
+    - docs/images/nf-core-xoosnf_logo_light.png
+    - docs/images/nf-core-xoosnf_logo_dark.png
+    - .github/workflows/awstest.yml
+    - .github/workflows/awsfulltest.yml
+
+  nf_test_content:
+    - tests/input_validation.nf.test
+    - tests/samplesheet_conversion.nf.test
+    - tests/subsample_bam_publish.nf.test
+    - tests/samtools_reheader.nf.test
+  schema_lint: false
+  container_configs: false
+template:
+  org: Roche-AXELIOS
+  name: xoosnf
+  description: XOOS (sbX Optimized Open Source) Nextflow pipeline for processing sequencing data produced by the Roche AXELIOS 1 sequencer
+  author: Roche
+  version: 1.1.0
+  force: true
+  outdir: .
+  skip_features:
+    - igenomes
+    - fastqc
+    - codespaces
+    - vscode
+    - citations
+    - documentation
+    - adaptivecard
+    - slackreport
+  is_nfcore: false

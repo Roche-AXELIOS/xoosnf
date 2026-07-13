@@ -1,0 +1,53 @@
+nextflow_pipeline {
+
+    name "Test pipeline - germline with implicit partitioning via variant_calling_partitions (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "germline"
+    tag "bwa"
+    tag "partitioning"
+
+    test("stub - germline bwa with variant calling partitioning enabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                                  = "$outputDir"
+                input                                   = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                                 = 'bwa'
+                variant_calling_mode                    = 'germline'
+                enable_small_variant_caller             = true
+                enable_variant_calling_partitioning     = true
+                gpu_variant_calling_partition_count     = 4
+                dedup_strategy                          = 'markdup'
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+}

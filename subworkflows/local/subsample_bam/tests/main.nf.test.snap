@@ -1,0 +1,23 @@
+{
+    "stub - subsample bam by coverage": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "subsample_fraction": 1.0
+                    },
+                    "HG001_subsampled.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_subsampled.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T17:51:27.079183328",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

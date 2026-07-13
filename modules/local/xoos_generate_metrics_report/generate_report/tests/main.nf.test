@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process XOOS_GENERATE_REPORT"
+    script "../main.nf"
+    process "XOOS_GENERATE_REPORT"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_generate_metrics_report/generate_report"
+
+    test("stub - generates metrics report") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'RUN1', run_type: 'sbx-d'], [file('metrics1.json'), file('metrics2.json')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.report.size() == 1 },
+                { assert process.out.report[0][1].toString().endsWith('metrics-report.tsv') },
+            )
+        }
+    }
+
+    test("stub - preserves meta in report output") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'RUN2', run_type: 'sbx-s'], [file('metrics1.json')] ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.report[0][0].id == 'RUN2' },
+                { assert process.out.report[0][0].run_type == 'sbx-s' },
+            )
+        }
+    }
+}

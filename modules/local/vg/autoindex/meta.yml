@@ -1,0 +1,77 @@
+name: vg_autoindex
+description: "Build Giraffe indexes (zipcodes, minimizers, distance) from a personalized graph with vg autoindex."
+keywords:
+  - vg
+  - autoindex
+  - giraffe
+  - pangenome
+  - index
+tools:
+  - vg:
+      description: Tools for working with genome variation graphs.
+      homepage: "https://github.com/vgteam/vg"
+      documentation: "https://github.com/vgteam/vg/wiki"
+      doi: 10.1038/nbt.4227
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - personalized_graph:
+        type: file
+        description: "Personalized pangenome graph in GBZ format. On disk this is staged as `<meta.id>_personalized_graph.gbz`."
+        pattern: "*_personalized_graph.gbz"
+        ontologies: []
+output:
+  graphs:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_personalized_graph.gbz":
+          type: file
+          description: "Output file matching `*_personalized_graph.gbz`"
+          pattern: "*_personalized_graph.gbz"
+          ontologies: []
+      - "*_personalized_graph.shortread.zipcodes":
+          type: file
+          description: "Output file matching `*_personalized_graph.shortread.zipcodes`"
+          pattern: "*_personalized_graph.shortread.zipcodes"
+          ontologies: []
+      - "*_personalized_graph.shortread.withzip.min":
+          type: file
+          description: "Output file matching `*_personalized_graph.shortread.withzip.min`"
+          pattern: "*_personalized_graph.shortread.withzip.min"
+          ontologies: []
+      - "*_personalized_graph.dist":
+          type: file
+          description: "Output file matching `*_personalized_graph.dist`"
+          pattern: "*_personalized_graph.dist"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - vg:
+          type: string
+          description: The name of the tool
+      - "vg version | head -1 | sed 's/vg version //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - vg:
+          type: string
+          description: The name of the tool
+      - "vg version | head -1 | sed 's/vg version //'":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

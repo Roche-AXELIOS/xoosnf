@@ -1,0 +1,113 @@
+name: xoos_copy_number_caller_germline_wgs
+description: Call germline copy number variants from WGS with the XOOS copy_number_caller.
+keywords:
+  - copy-number
+  - cnv
+  - germline
+  - wgs
+tools:
+  - copy_number_caller:
+      description: XOOS copy number variant caller.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: BAM alignment file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+    - small_variant_vcf:
+        type: file
+        description: Small variant VCF
+        ontologies: []
+    - small_variant_vcf_index:
+        type: file
+        description: Small variant VCF index
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_index:
+        type: file
+        description: Reference FASTA index file
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - mappability_bigwig:
+        type: file
+        description: Mappability bigWig track
+        ontologies: []
+  - - meta4:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - cnv_seed_file:
+        type: file
+        description: CNV seed regions file
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "copy_number_caller/*_germline_copy_number_callset.vcf.gz":
+          type: file
+          description: "Output file matching `copy_number_caller/*_germline_copy_number_callset.vcf.gz`"
+          pattern: "copy_number_caller/*_germline_copy_number_callset.vcf.gz"
+          ontologies: []
+  results_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "copy_number_caller/*":
+          type: file
+          description: "Output file matching `copy_number_caller/*`"
+          pattern: "copy_number_caller/*"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - copy_number_caller:
+          type: string
+          description: The name of the tool
+      - copy_number_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - copy_number_caller:
+          type: string
+          description: The name of the tool
+      - copy_number_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

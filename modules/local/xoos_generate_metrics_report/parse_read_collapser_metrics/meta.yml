@@ -1,0 +1,58 @@
+name: xoos_parse_read_collapser_metrics
+description: Parse read collapser metrics into report JSON.
+keywords:
+  - metrics
+  - read-collapser
+  - parse
+tools:
+  - generate-metrics-report:
+      description: XOOS tool that parses and aggregates per-sample metrics into report JSON/TSV.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - read_collapser_metrics:
+        type: file
+        description: Read collapser metrics
+        ontologies: []
+output:
+  report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.read_collapser.json":
+          type: file
+          description: "Output file matching `*.read_collapser.json`"
+          pattern: "*.read_collapser.json"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - generate-metrics-report --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

@@ -1,0 +1,43 @@
+nextflow_workflow {
+
+    name "Test SUBSAMPLE_BAM subworkflow"
+    script "../main.nf"
+    workflow "SUBSAMPLE_BAM"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subsample_bam"
+    tag "xoos_alignment_metrics"
+    tag "samtools/view"
+
+    test("stub - subsample bam by coverage") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'autosomes_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[3] = 30  // target_coverage
+                input[4] = ['median', 'post_filter_coverage']  // metrics_name
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam_subsampled },
+                { assert snapshot(workflow.out.bam_subsampled).match() }
+            )
+        }
+    }
+}

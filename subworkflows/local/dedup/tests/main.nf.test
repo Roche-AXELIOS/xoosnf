@@ -1,0 +1,239 @@
+nextflow_workflow {
+
+    name "Test DEDUP subworkflow"
+    script "../main.nf"
+    workflow "DEDUP"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "dedup"
+    tag "xoos_read_collapser"
+
+    test("stub - markdup strategy with bwa aligner") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'bwa'
+                input[2] = false
+                input[3] = false
+                input[4] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[7] = Channel.value([ [], [] ])
+                input[8] = Channel.value([ [], [], [] ])
+                input[9] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - markdup strategy with pb_fq2bam aligner, BAM already pb_markdup (skips markdup)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'pb_fq2bam'
+                input[2] = false
+                input[3] = false
+                // A BAM already in an acceptable dedup state for a Parabricks
+                // profile (pb_markdup) and not needing rescue must bypass MARKDUP.
+                input[4] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'pb_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[7] = Channel.value([ [], [] ])
+                input[8] = Channel.value([ [], [], [] ])
+                input[9] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - markdup strategy with pb_giraffe aligner, BAM sas_markdup, no rescue (skips markdup)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'pb_giraffe'
+                input[2] = false
+                // rescue_policy is false (e.g. enable_copy_number_caller disabled),
+                // so an externally marked BAM (sas_markdup) is a trusted pre-marked
+                // state on a Parabricks profile and must bypass MARKDUP.
+                input[3] = false
+                input[4] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'sas_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[7] = Channel.value([ [], [] ])
+                input[8] = Channel.value([ [], [], [] ])
+                input[9] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - markdup strategy with pb_giraffe aligner, BAM sas_markdup, rescue required (runs markdup)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'pb_giraffe'
+                input[2] = false
+                // rescue_policy is true (e.g. enable_copy_number_caller enabled). A
+                // BAM that has not yet been rescued still needs secondary rescue,
+                // which re-marks duplicates, so it must run MARKDUP even though its
+                // sas_markdup state would otherwise be accepted.
+                input[3] = true
+                input[4] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'sas_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[7] = Channel.value([ [], [] ])
+                input[8] = Channel.value([ [], [], [] ])
+                input[9] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - markdup strategy with pb_fq2bam aligner, BAM not yet marked (runs markdup)") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'pb_fq2bam'
+                input[2] = false
+                input[3] = false
+                // A Parabricks BAM that was not marked at alignment time (e.g. an
+                // alignment-partitioned run) arrives with bam_dedup 'none' and must
+                // be marked by the read collapser.
+                input[4] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'none', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[7] = Channel.value([ [], [] ])
+                input[8] = Channel.value([ [], [], [] ])
+                input[9] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - consensus strategy") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'consensus'
+                input[1] = 'bwa'
+                input[2] = false
+                input[3] = false
+                input[4] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[7] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[8] = Channel.value([ [], [], [] ])
+                input[9] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+}

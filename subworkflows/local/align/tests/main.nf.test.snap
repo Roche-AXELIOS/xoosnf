@@ -1,0 +1,43 @@
+{
+    "stub - vg_giraffe aligner": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D"
+                    },
+                    "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T17:25:25.00592286",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - bwa aligner": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "single_end": true
+                    },
+                    "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T17:25:14.988421913",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

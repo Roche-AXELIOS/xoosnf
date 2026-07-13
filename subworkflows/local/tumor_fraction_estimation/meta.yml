@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "TUMOR_FRACTION_ESTIMATION"
+description: >
+  Estimate tumor fraction from BAM files using a reporter VCF from the
+  samplesheet. The reporter_vcf may originate from a separate somatic TN
+  run or be provided directly for cfDNA workflows. Samples without a
+  reporter_vcf are skipped and produce no output.
+keywords:
+  - tumor-fraction
+  - tfe
+  - multiqc
+components:
+  - xoos/tumor/fraction/estimator/tumor/fraction
+  - xoos/tfe/metrics/to/multiqc
+input:
+  - ch_bams:
+      type: channel
+      description: |
+        BAM files with index. Only samples with a non-empty meta.reporter_vcf
+        path are processed.
+        Structure: [ val(meta), path(bam), path(bai) ]
+  - ch_reference:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta_ref), path(fasta), path(fai) ]
+  - ch_tfe_included_regions:
+      type: channel
+      description: |
+        Optional included regions BED for TFE. When empty the binary uses
+        its bundled default.
+        Structure: [ val(meta_bed), path(bed) ]
+output:
+  - results:
+      type: channel
+      description: |
+        Tumor fraction estimation results
+        Structure: [ val(meta), path(results_dir) ]
+  - custom_multiqc_files:
+      type: channel
+      description: |
+        MultiQC input files
+        Structure: [ val(meta), path(multiqc_input_dir) ]
+authors: []
+maintainers: []

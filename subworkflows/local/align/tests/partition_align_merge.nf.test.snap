@@ -1,0 +1,159 @@
+{
+    "stub - pb_giraffe aligner with enable_read_collapser_dedup (Parabricks markdup disabled)": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:05:43.093257042",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - vg_giraffe aligner with 2 partitions": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:05:52.056838388",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - bwa aligner with 2 partitions": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:05:03.998226172",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - pb_fq2bam aligner with enable_read_collapser_dedup (Parabricks markdup disabled)": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:05:33.874023205",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - multiple samples with bwa": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                [
+                    {
+                        "id": "HG002",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG002"
+                    },
+                    "HG002_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG002_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:06:02.95429334",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - pb_fq2bam aligner with 2 partitions (markdup disabled)": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:05:24.153719526",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - bwa aligner with 4 partitions (more partitions than files \u2014 single-BAM passthrough)": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "sample_id": "HG001"
+                    },
+                    "HG001_0.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_0.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:05:14.565601408",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    }
+}

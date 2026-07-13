@@ -1,0 +1,178 @@
+{
+    "stub - TFE with reporter VCF from samplesheet": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "results": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-20T20:11:44.093565336",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - TFE with multiple reporter VCF samples": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "cfDNA_sample_1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "cfDNA_sample_2",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "cfDNA_sample_1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "cfDNA_sample_2",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    [
+                        {
+                            "id": "cfDNA_sample_1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "cfDNA_sample_2",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "results": [
+                    [
+                        {
+                            "id": "cfDNA_sample_1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ],
+                    [
+                        {
+                            "id": "cfDNA_sample_2",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                        },
+                        [
+                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-06-20T18:11:26.360784848",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}

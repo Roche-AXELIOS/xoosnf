@@ -1,0 +1,102 @@
+nextflow_workflow {
+
+    name "Test HAPLOTYPECALLER_PARABRICKS subworkflow"
+    script "../../haplotypecaller_parabricks.nf"
+    workflow "HAPLOTYPECALLER_PARABRICKS"
+    config "./nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "call_germline_variants"
+    tag "parabricks/haplotypecaller"
+
+    test("stub - multi-GPU with partitioning") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4] = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5] = Channel.value([ [], [] ])  // intervals
+                input[6] = true   // enable_partitioning
+                input[7] = 2      // partition_count
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf },
+                { assert workflow.out.bam },
+                // Each BAM tuple should contain flat lists of paths, not nested lists.
+                // With accelerator=2 the stub emits 2 BAMs per partition; after groupTuple
+                // + flatten we expect 4 BAMs total (2 partitions x 2 GPUs).
+                { assert workflow.out.bam.every { tuple ->
+                    def bams = tuple[1]
+                    def bais = tuple[2]
+                    bams instanceof List && bais instanceof List &&
+                    bams.every { !(it instanceof List) } &&
+                    bais.every { !(it instanceof List) }
+                }},
+                // Verify multi-GPU is actually exercised: 2 partitions x 2 GPUs = 4 BAMs
+                { assert workflow.out.bam.every { tuple -> tuple[1].size() == 4 && tuple[2].size() == 4 } },
+            )
+        }
+    }
+
+    test("stub - multi-GPU without partitioning") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4] = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5] = Channel.value([ [], [] ])  // intervals
+                input[6] = false  // enable_partitioning
+                input[7] = 1      // partition_count
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf },
+                { assert workflow.out.bam },
+                // BAM output should be a flat list even without partitioning
+                { assert workflow.out.bam.every { tuple ->
+                    def bams = tuple[1]
+                    def bais = tuple[2]
+                    bams instanceof List && bais instanceof List &&
+                    bams.every { !(it instanceof List) } &&
+                    bais.every { !(it instanceof List) }
+                }},
+                // Verify multi-GPU is actually exercised: 1 partition x 2 GPUs = 2 BAMs
+                { assert workflow.out.bam.every { tuple -> tuple[1].size() == 2 && tuple[2].size() == 2 } },
+            )
+        }
+    }
+}

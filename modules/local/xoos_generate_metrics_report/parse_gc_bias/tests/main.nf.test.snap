@@ -1,0 +1,49 @@
+{
+    "stub - generates gc_bias JSON output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001"
+                    },
+                    "HG001.gc_bias_dedup.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ],
+            [
+                [
+                    "XOOS_PARSE_GC_BIAS_METRICS",
+                    "generate-metrics-report"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T18:06:45.292176211",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    },
+    "stub - preserves meta in report output": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG002",
+                        "run_name": "test_run"
+                    },
+                    "HG002.gc_bias_dedup_subsample.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ],
+            [
+                [
+                    "XOOS_PARSE_GC_BIAS_METRICS",
+                    "generate-metrics-report"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-20T18:06:54.056761356",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
+        }
+    }
+}
