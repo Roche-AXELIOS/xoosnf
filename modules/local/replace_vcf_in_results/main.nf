@@ -1,6 +1,7 @@
 process REPLACE_VCF_IN_RESULTS {
     tag "${meta.id}"
     label 'process_low'
+    container 'quay.io/biocontainers/samtools:1.23--h96c455f_0'
 
     input:
     tuple val(meta), path(results_dir, stageAs: 'input_results/*'), path(reheadered_vcf, stageAs: 'reheadered.vcf.gz'), path(reheadered_index, stageAs: 'reheadered.vcf.gz.tbi'), val(vcf_pattern), val(result_dir_name)

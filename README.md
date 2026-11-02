@@ -29,7 +29,7 @@ First, install all required dependencies:
 Next, download the test datasets and nextflow:
 
 ```bash
-curl -sSL https://github.com/Roche-AXELIOS/xoosnf-test-datasets/releases/download/1.1.0/xoosnf-test-datasets.tar.gz | tar -xzf -
+curl -sSL https://github.com/Roche-AXELIOS/xoosnf-test-datasets/archive/refs/tags/1.2.0.tar.gz | tar -xzf -
 
 curl -sSL -o nextflow https://github.com/nextflow-io/nextflow/releases/download/v26.04.6/nextflow-26.04.6-dist
 chmod +x nextflow
@@ -38,10 +38,10 @@ chmod +x nextflow
 Now, you can run the pipeline from basecall FASTQs, demultiplexed FASTQs, BAMs, or CRAMs using:
 
 ```bash
-NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
+NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets-1.2.0 \
   ./nextflow run Roche-AXELIOS/xoosnf \
     -profile docker,test,germline_wgs_duplex \
-    -params-file xoosnf-test-datasets/resources/resources.json \
+    -params-file xoosnf-test-datasets-1.2.0/resources/resources.json \
     --input basecall_fastq/runsheet.csv \
     --outdir $(pwd)/output/basecall_fastq \
     --aligner bwa \
@@ -49,10 +49,10 @@ NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
     --use_gatk_haplotype_caller true \
     --enable_contamination_estimation false
 
-NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
+NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets-1.2.0 \
   ./nextflow run Roche-AXELIOS/xoosnf \
     -profile docker,test,germline_wgs_duplex \
-    -params-file xoosnf-test-datasets/resources/resources.json \
+    -params-file xoosnf-test-datasets-1.2.0/resources/resources.json \
     --input demultiplexed_fastq/runsheet.csv \
     --outdir $(pwd)/output/demultiplexed_fastq \
     --aligner bwa \
@@ -60,10 +60,10 @@ NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
     --use_gatk_haplotype_caller true \
     --enable_contamination_estimation false
 
-NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
+NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets-1.2.0 \
   ./nextflow run Roche-AXELIOS/xoosnf \
     -profile docker,test,germline_wgs_duplex \
-    -params-file xoosnf-test-datasets/resources/resources.json \
+    -params-file xoosnf-test-datasets-1.2.0/resources/resources.json \
     --input bam/runsheet.csv \
     --outdir output/bam \
     --aligner bwa \
@@ -71,10 +71,10 @@ NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
     --use_gatk_haplotype_caller true \
     --enable_contamination_estimation false
 
-NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
+NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets-1.2.0 \
   ./nextflow run Roche-AXELIOS/xoosnf \
     -profile docker,test,germline_wgs_duplex \
-    -params-file xoosnf-test-datasets/resources/resources.json \
+    -params-file xoosnf-test-datasets-1.2.0/resources/resources.json \
     --input cram/runsheet.csv \
     --outdir output/cram \
     --aligner bwa \
