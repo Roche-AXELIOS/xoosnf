@@ -1,0 +1,50 @@
+nextflow_function {
+
+    name "Test germline SVC filter option construction"
+    script "modules/local/xoos_small_variant_caller/filter_variants_germline_wgs/main.nf"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_small_variant_caller"
+
+    test("normalizes a Giraffe aligner without the removed run-type option") {
+
+        function "alignerOption"
+
+        when {
+            function {
+                """
+                input[0] = 'vg_giraffe'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--aligner giraffe' }
+            )
+        }
+    }
+
+    test("normalizes BWA-compatible aligners") {
+
+        function "alignerOption"
+
+        when {
+            function {
+                """
+                input[0] = 'pb_fq2bam'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--aligner bwa' }
+            )
+        }
+    }
+
+}

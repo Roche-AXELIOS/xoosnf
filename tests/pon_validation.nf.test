@@ -1,0 +1,147 @@
+nextflow_pipeline {
+
+    name "Test pipeline - PON parameter validation"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "input_validation"
+    tag "panel_of_normals"
+
+    test("should fail - tumor-normal PON VCF without index") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .panelOfNormals()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir"
+                input = "${launchDir}/test-data/inputs/input_samplesheet_somatic_tn.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = true
+                svc_panel_of_normals_tbi = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('svc_panel_of_normals_vcf requires svc_panel_of_normals_tbi') }
+            )
+        }
+    }
+
+    test("should fail - tumor-normal PON index without VCF") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .panelOfNormals()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir"
+                input = "${launchDir}/test-data/inputs/input_samplesheet_somatic_tn.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = true
+                svc_panel_of_normals_vcf = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('svc_panel_of_normals_tbi requires svc_panel_of_normals_vcf') }
+            )
+        }
+    }
+
+    test("should fail clearly - PON VCF without index when schema validation is disabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .panelOfNormals()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir"
+                input = "${launchDir}/test-data/inputs/input_samplesheet_somatic_tn.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = true
+                validate_params = false
+                svc_panel_of_normals_tbi = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('svc_panel_of_normals_vcf requires svc_panel_of_normals_tbi. Provide both files, or omit both parameters.') }
+            )
+        }
+    }
+
+    test("should fail clearly - PON index without VCF when schema validation is disabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .panelOfNormals()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir"
+                input = "${launchDir}/test-data/inputs/input_samplesheet_somatic_tn.csv"
+                aligner = 'bwa'
+                variant_calling_mode = 'somatic_tn'
+                enable_small_variant_caller = true
+                validate_params = false
+                svc_panel_of_normals_vcf = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains('svc_panel_of_normals_tbi requires svc_panel_of_normals_vcf. Provide both files, or omit both parameters.') }
+            )
+        }
+    }
+}

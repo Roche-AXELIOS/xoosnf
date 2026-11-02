@@ -1,0 +1,79 @@
+nextflow_process {
+
+    name "Test Process XOOS_PARSE_STR_METRICS"
+    script "../main.nf"
+    process "XOOS_PARSE_STR_METRICS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_parse_str_metrics"
+
+    test("real script: finds metrics.tsv nested under a staged metrics/ dir") {
+
+        setup {
+            def base = "${launchDir}/test-data/nested"
+            new File("${base}/metrics").mkdirs()
+            new File("${base}/metrics/metrics.tsv").text = "key\tvalue\nNumSites\t1\n"
+            new File("${base}/HG001_str.vcf.gz").text = ""
+        }
+
+        when {
+            process {
+                """
+                def base = "${launchDir}/test-data/nested"
+                input[0] = [
+                    [id: 'HG001'],
+                    [
+                        file("\${base}/HG001_str.vcf.gz"),
+                        file("\${base}/metrics"),
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            // Runs for real with Docker/Singularity enabled. Without a
+            // container engine it still gets past the lookup but fails
+            // later since generate-metrics-report isn't on PATH -- either
+            // way it must not hit the lookup's own exit-1 "not found" path.
+            if (process.success) {
+                assert process.out.report
+            } else {
+                assert process.errorReport.contains('Command exit status:\n  127')
+                assert process.errorReport.contains('generate-metrics-report: command not found')
+            }
+        }
+    }
+
+    test("real script: fails fast if no metrics.tsv is staged at all (defensive, not an str_caller scenario)") {
+        // str_caller always writes VCF, JSON, and metrics.tsv together, so
+        // this input shape can't happen with str_caller as the caller --
+        // this only covers the lookup's own defensive branch.
+
+        setup {
+            def base = "${launchDir}/test-data/missing"
+            new File("${base}").mkdirs()
+            new File("${base}/HG001_str.vcf.gz").text = ""
+        }
+
+        when {
+            process {
+                """
+                def base = "${launchDir}/test-data/missing"
+                input[0] = [
+                    [id: 'HG001'],
+                    [ file("\${base}/HG001_str.vcf.gz") ]
+                ]
+                """
+            }
+        }
+
+        then {
+            // Exit 1 uniquely identifies this branch; generate-metrics-report
+            // failures produce other exit codes.
+            assert !process.success
+            assert process.errorReport.contains('Command exit status:\n  1\n')
+        }
+    }
+}

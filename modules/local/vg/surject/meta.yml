@@ -1,0 +1,38 @@
+name: vg_surject
+description: Surject GAF alignments onto a graph and emit an unsorted BAM.
+keywords:
+  - vg
+  - surject
+  - bam
+tools:
+  - vg:
+      description: Tools for working with genome variation graphs.
+      homepage: https://github.com/vgteam/vg
+      documentation: https://github.com/vgteam/vg/wiki
+      doi: 10.1038/nbt.4227
+      licence: ["MIT"]
+input:
+  - - meta:
+        type: map
+        description: Sample metadata
+    - gaf:
+        type: file
+        description: GAF alignments to surject
+        pattern: "*.gaf"
+    - graph:
+        type: file
+        description: Graph GBZ
+        pattern: "*.gbz"
+    - chromosome:
+        type: string
+        description: Chromosome or contig name used in the output filename
+output:
+  bam:
+    - - meta:
+          type: map
+          description: Sample metadata
+      - "*.unsorted.bam":
+          type: file
+          description: Unsorted BAM produced by surject
+authors: []
+maintainers: []

@@ -5,14 +5,14 @@
                 "ADD_RUN_INFO_TO_MULTIQC_HEADER": [
                     "add-run-info-to-multiqc-header"
                 ],
-                "ALIGNMENT_METRICS_AUTOSOMES": [
+                "ALIGNMENT_METRICS_STRATIFIED": [
                     "alignment_metrics"
                 ],
                 "MINIMAP2_ALIGN": [
                     "minimap2",
                     "samtools"
                 ],
-                "PARSE_ALIGNMENT_METRICS_AUTOSOMES": [
+                "PARSE_ALIGNMENT_METRICS": [
                     "generate-metrics-report"
                 ],
                 "SAMTOOLS_INDEX": [
@@ -24,10 +24,19 @@
                 "XOOS_COMBINE_MULTIQC_REPORTS": [
                     "xoos_to_multiqc"
                 ],
+                "XOOS_CONTAMINATION_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
                 "XOOS_GENERATE_REPORT": [
                     "generate-metrics-report"
                 ],
                 "XOOS_GENERATE_REPORT_SUMMARY": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_MERGE_AND_LABEL_BED": [
+                    "alignment_metrics"
+                ],
+                "XOOS_PARSE_CONTAMINATION_METRICS": [
                     "generate-metrics-report"
                 ],
                 "XOOS_PARSE_READ_COLLAPSER_METRICS": [
@@ -38,6 +47,9 @@
                 ],
                 "XOOS_READ_COLLAPSER_METRICS_TO_MULTIQC": [
                     "xoos_to_multiqc"
+                ],
+                "XOOS_TUMOR_FRACTION_ESTIMATOR_CONTAMINATION_DETECTION": [
+                    "tumor_fraction_estimator"
                 ]
             },
             [
@@ -51,12 +63,18 @@
                 "index/demux_metrics_files.json",
                 "index/demuxed_fastqs.json",
                 "index/gc_bias_metrics_files.json",
+                "index/germline_filtering_output.json",
                 "index/hs_metrics_files.json",
+                "index/msi_output.json",
                 "index/multiqc_report.json",
+                "index/mutect_stats.json",
+                "index/pre_dedup_bam.json",
                 "index/pre_subsample_bam.json",
                 "index/raw_vc_vcf.json",
                 "index/read_collapser_metrics_files.json",
+                "index/somalier_output.json",
                 "index/str_output.json",
+                "index/svc_mitochondrial_vcf.json",
                 "index/svc_pretrained_vcf.json",
                 "index/svc_retrained_vcf.json",
                 "index/tfe_output.json",
@@ -72,14 +90,22 @@
                 "test_run/HG001/alignment_metrics/dedup_autosomes",
                 "test_run/HG001/alignment_metrics/dedup_autosomes/accuracy",
                 "test_run/HG001/alignment_metrics/dedup_autosomes/accuracy/base_level_accuracy_summary.tsv",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/accuracy/hp_errors.tsv",
                 "test_run/HG001/alignment_metrics/dedup_autosomes/coverage",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/coverage/coverage_distribution_summary.tsv",
                 "test_run/HG001/alignment_metrics/dedup_autosomes/coverage/coverage_stats.tsv",
                 "test_run/HG001/alignment_metrics/dedup_autosomes/read_metrics",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/read_metrics/read_length_summary.tsv",
                 "test_run/HG001/alignment_metrics/dedup_autosomes/read_metrics/read_metrics_summary.tsv",
+                "test_run/HG001/contamination_detection",
+                "test_run/HG001/contamination_detection/contamination_estimation_results.tsv",
+                "test_run/HG001/contamination_detection/metrics",
+                "test_run/HG001/contamination_detection/metrics/per_site_counts.tsv",
                 "test_run/HG001/read_collapser",
-                "test_run/HG001/read_collapser/cluster_size_distribution_summary.tsv",
-                "test_run/HG001/read_collapser/cluster_size_distributions.tsv",
-                "test_run/HG001/read_collapser/summary_stats.tsv",
+                "test_run/HG001/read_collapser/metrics",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/metrics/summary_stats.tsv",
                 "test_run/HG002",
                 "test_run/HG002/HG002_markdup.bam",
                 "test_run/HG002/HG002_markdup.bam.bai",
@@ -87,23 +113,31 @@
                 "test_run/HG002/alignment_metrics/dedup_autosomes",
                 "test_run/HG002/alignment_metrics/dedup_autosomes/accuracy",
                 "test_run/HG002/alignment_metrics/dedup_autosomes/accuracy/base_level_accuracy_summary.tsv",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/accuracy/hp_errors.tsv",
                 "test_run/HG002/alignment_metrics/dedup_autosomes/coverage",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/coverage/coverage_distribution_summary.tsv",
                 "test_run/HG002/alignment_metrics/dedup_autosomes/coverage/coverage_stats.tsv",
                 "test_run/HG002/alignment_metrics/dedup_autosomes/read_metrics",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/read_metrics/read_length_summary.tsv",
                 "test_run/HG002/alignment_metrics/dedup_autosomes/read_metrics/read_metrics_summary.tsv",
+                "test_run/HG002/contamination_detection",
+                "test_run/HG002/contamination_detection/contamination_estimation_results.tsv",
+                "test_run/HG002/contamination_detection/metrics",
+                "test_run/HG002/contamination_detection/metrics/per_site_counts.tsv",
                 "test_run/HG002/read_collapser",
-                "test_run/HG002/read_collapser/cluster_size_distribution_summary.tsv",
-                "test_run/HG002/read_collapser/cluster_size_distributions.tsv",
-                "test_run/HG002/read_collapser/summary_stats.tsv",
+                "test_run/HG002/read_collapser/metrics",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/metrics/summary_stats.tsv",
                 "test_run/metrics-report-summary.tsv",
                 "test_run/metrics-report.tsv",
                 "test_run/multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-06-29T17:09:18.762804784",
+        "timestamp": "2026-09-30T00:44:00.868865184",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     }
 }

@@ -26,6 +26,9 @@
                 "XOOS_PARSE_READ_COLLAPSER_METRICS": [
                     "generate-metrics-report"
                 ],
+                "XOOS_PARSE_SVC_METRICS": [
+                    "generate-metrics-report"
+                ],
                 "XOOS_READ_COLLAPSER_MARK_DUPLICATES": [
                     "read_collapser"
                 ],
@@ -47,12 +50,18 @@
                 "index/demux_metrics_files.json",
                 "index/demuxed_fastqs.json",
                 "index/gc_bias_metrics_files.json",
+                "index/germline_filtering_output.json",
                 "index/hs_metrics_files.json",
+                "index/msi_output.json",
                 "index/multiqc_report.json",
+                "index/mutect_stats.json",
+                "index/pre_dedup_bam.json",
                 "index/pre_subsample_bam.json",
                 "index/raw_vc_vcf.json",
                 "index/read_collapser_metrics_files.json",
+                "index/somalier_output.json",
                 "index/str_output.json",
+                "index/svc_mitochondrial_vcf.json",
                 "index/svc_pretrained_vcf.json",
                 "index/svc_retrained_vcf.json",
                 "index/tfe_output.json",
@@ -70,9 +79,10 @@
                 "test_run/HG001/haplotype_caller/HG001.vcf.gz",
                 "test_run/HG001/haplotype_caller/HG001.vcf.gz.tbi",
                 "test_run/HG001/read_collapser",
-                "test_run/HG001/read_collapser/cluster_size_distribution_summary.tsv",
-                "test_run/HG001/read_collapser/cluster_size_distributions.tsv",
-                "test_run/HG001/read_collapser/summary_stats.tsv",
+                "test_run/HG001/read_collapser/metrics",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/metrics/summary_stats.tsv",
                 "test_run/HG001/small_variant_caller",
                 "test_run/HG001/small_variant_caller/pretrained",
                 "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz",
@@ -86,9 +96,10 @@
                 "test_run/HG002/haplotype_caller/HG002.vcf.gz",
                 "test_run/HG002/haplotype_caller/HG002.vcf.gz.tbi",
                 "test_run/HG002/read_collapser",
-                "test_run/HG002/read_collapser/cluster_size_distribution_summary.tsv",
-                "test_run/HG002/read_collapser/cluster_size_distributions.tsv",
-                "test_run/HG002/read_collapser/summary_stats.tsv",
+                "test_run/HG002/read_collapser/metrics",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/metrics/summary_stats.tsv",
                 "test_run/HG002/small_variant_caller",
                 "test_run/HG002/small_variant_caller/pretrained",
                 "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz",
@@ -98,10 +109,10 @@
                 "test_run/multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-06-29T17:05:14.106045553",
+        "timestamp": "2026-08-30T23:12:08.937673128",
         "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.3"
         }
     }
 }

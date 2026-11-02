@@ -1,0 +1,101 @@
+name: xoos_small_variant_caller_filter_variants_mitochondria
+description: Filter mitochondrial variants using XOOS small variant caller germline-mitochondria workflow (AF/DP threshold filtering).
+keywords:
+  - small-variant-caller
+  - filter
+  - mitochondria
+  - chrM
+  - heteroplasmy
+tools:
+  - filter_variants:
+      description: XOOS small variant caller component.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bams:
+        type: file
+        description: Realigned BAM file(s) from Mutect2 mitochondria-mode (--bamout)
+        ontologies: []
+    - bam_indexes:
+        type: file
+        description: BAM index files
+        ontologies: []
+    - vcf:
+        type: file
+        description: VCF file produced by Mutect2 in mitochondria-mode
+        ontologies: []
+    - vcf_index:
+        type: file
+        description: VCF index file
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing reference information
+          e.g. `[ id:'reference' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_index:
+        type: file
+        description: Reference FASTA index file
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*_mito_svc.vcf.gz":
+          type: file
+          description: Filtered mitochondrial VCF
+          pattern: "small_variant_caller/*_mito_svc.vcf.gz"
+          ontologies: []
+      - "small_variant_caller/*_mito_svc.vcf.gz.tbi":
+          type: file
+          description: Filtered mitochondrial VCF index
+          pattern: "small_variant_caller/*_mito_svc.vcf.gz.tbi"
+          ontologies: []
+  metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*_mito_svc_metrics.tsv":
+          type: file
+          description: "Output file matching `small_variant_caller/*_mito_svc_metrics.tsv`"
+          pattern: "small_variant_caller/*_mito_svc_metrics.tsv"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - filter_variants:
+          type: string
+          description: The name of the tool
+      - filter_variants --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - filter_variants:
+          type: string
+          description: The name of the tool
+      - filter_variants --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

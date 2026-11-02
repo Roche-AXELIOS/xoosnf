@@ -25,7 +25,7 @@ nextflow_process {
                     [ [id: 'RUN1', run_type: 'sbx-d'], [file('metrics1.json'), file('metrics2.json')] ]
                 )
                 input[1] = [
-                    '^alignment_metrics/dedup(_subsample)?_autosomes/accuracy/all_errors_with_indel_bases/phred\$',
+                    '^alignment_metrics/dedup(_subsample)?/[^/]+/autosomes/accuracy/all_errors_with_indel_bases/phred\$',
                     '^demux/(total_reads|passing_reads%)\$',
                 ]
                 """

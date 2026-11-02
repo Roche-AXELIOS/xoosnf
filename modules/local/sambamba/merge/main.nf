@@ -23,11 +23,13 @@ process SAMBAMBA_MERGE {
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     sambamba merge \
+        -t ${task.cpus} \
         ${args} \
         ${prefix}.merged.bam \
         ${bams}
 
     sambamba index \
+        -t ${task.cpus} \
         ${args2} \
         ${prefix}.merged.bam \
         ${prefix}.merged.bam.bai

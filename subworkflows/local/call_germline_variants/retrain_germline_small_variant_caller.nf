@@ -16,7 +16,6 @@ workflow RETRAIN_GERMLINE_SMALL_VARIANT_MODEL {
     ch_train_bed // channel: [ val(meta), path(bed) ] - training regions (per sample)
     ch_test_bed // channel: [ val(meta), path(bed) ] - evaluation regions (per sample)
     ch_truth_vcf // channel: [ val(meta), path(vcf.gz), path(vcf.gz.tbi) ]
-    use_multisample_model // value: boolean - whether to train a single model across all samples or separate models per sample
     aligner // value: aligner name (e.g. 'pb_giraffe', 'bwa')
 
     main:
@@ -70,11 +69,11 @@ workflow RETRAIN_GERMLINE_SMALL_VARIANT_MODEL {
         ch_popaf,
         ch_par_beds,
         ch_filter_joined.test_bed,
-        use_multisample_model,
         aligner,
     )
 
     emit:
     vcf         = XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_GERMLINE_WGS.out.vcf // channel: [ val(meta), path(vcf), path(tbi) ]
+    metrics     = XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_GERMLINE_WGS.out.metrics // channel: [ val(meta), path(metrics_tsv) ]
     models      = XOOS_SMALL_VARIANT_CALLER_TRAIN_MODEL.out.model_snv.join(XOOS_SMALL_VARIANT_CALLER_TRAIN_MODEL.out.model_indel) // channel: [ val(meta), path(snv), path(indel) ]
 }

@@ -1,0 +1,89 @@
+name: xoos_parse_somalier_metrics
+description: >
+  Parse somalier relate outputs into report JSON. Accepts a pairs.tsv, one or
+  more samples.tsv files, or both. Pair metrics are reported under the key name
+  (the T/N group id); sample metrics are reported under the sample_id read from
+  each row, optionally restricted to a given set of sample ids so a T/N pair
+  spanning two sequencing runs reports each sample under its own run.
+keywords:
+  - metrics
+  - somalier
+  - relatedness
+  - concordance
+  - parse
+tools:
+  - generate-metrics-report:
+      description: XOOS tool that parses and aggregates per-sample metrics into report JSON/TSV.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing the key the metrics are reported under.
+          For pair metrics this is the T/N group id, for sample metrics the
+          run name.
+          e.g. `[ id:'pair1' ]` or `[ id:'run1' ]`
+    - pairs_tsv:
+        type: file
+        description: |
+          Optional somalier relate pairs.tsv. Pass an empty list to parse
+          sample metrics only.
+        pattern: "*.pairs.tsv"
+        ontologies:
+          - edam: http://edamontology.org/format_3475
+    - samples_tsv:
+        type: file
+        description: |
+          Optional somalier relate samples.tsv file(s). Multiple files are
+          merged into a single report. Pass an empty list to parse pair
+          metrics only.
+        pattern: "*.samples.tsv"
+        ontologies:
+          - edam: http://edamontology.org/format_3475
+    - sample_ids:
+        type: list
+        description: |
+          Optional list of sample ids. When supplied, only samples.tsv rows for
+          these samples are reported, so a per-run invocation excludes samples
+          belonging to other runs. Pass an empty list to report every row.
+output:
+  report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing the key the metrics are reported under
+            e.g. `[ id:'pair1' ]`
+      - "*.somalier*.json":
+          type: file
+          description: |
+            Output file matching `*.somalier*.json`. Suffixed `.somalier_pairs`
+            or `.somalier_samples` when only one input type is supplied, so pair
+            and sample reports do not collide when staged together.
+          pattern: "*.somalier*.json"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - "1.0":
+          type: string
+          description: The version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - generate-metrics-report:
+          type: string
+          description: The name of the tool
+      - "1.0":
+          type: string
+          description: The version of the tool
+authors: []
+maintainers: []

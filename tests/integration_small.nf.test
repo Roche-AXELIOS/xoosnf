@@ -81,6 +81,11 @@ nextflow_pipeline {
                 outdir                      = "$outputDir"
                 input                       = "${testDataDir}/demultiplexed_fastq/runsheet.csv"
                 aligner                     = 'vg_giraffe'
+                // Use the subset linearized reference: no sibling .ref_paths_dict exists
+                // for it in the test dataset, so the soft-check in the pipeline skips
+                // --ref-paths for vg giraffe (the test GBZ path names don't match the
+                // chr-prefixed names in the standard .ref_paths_dict).
+                giraffe_reference_linearized = "${testDataDir}/resources/hprc-v1.1-mc-grch38.d9.masked.remove_prefix.v70/hprc-v1.1-mc-grch38.d9.masked.remove_prefix.v70.subset.fa"
                 dedup_strategy              = 'markdup'
                 variant_calling_mode        = 'germline'
                 use_gatk_haplotype_caller   = true
@@ -137,6 +142,139 @@ nextflow_pipeline {
                     stableVersions,
                     stableOutputFiles
                 ).match() }
+            )
+        }
+    }
+
+    test("integration small - germline cram") {
+        when {
+            params {
+                def testDataDir = System.getenv('TEST_DATA_DIR') ?: "${projectDir}/test-data"
+                load("${testDataDir}/resources/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${testDataDir}/cram/runsheet.csv"
+                aligner                     = 'pb_giraffe'
+                dedup_strategy              = 'markdup'
+                variant_calling_mode        = 'germline'
+                use_gatk_haplotype_caller   = true
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    test("integration empty basecall FASTQ exits gracefully") {
+        setup {
+            // Keep the run sheet and run directory valid so schema validation
+            // accepts the input. Only the FASTQ payload is empty; a missing run
+            // directory is a separate schema-validation failure and is not the
+            // behavior under test here.
+            TestFixture.under("${launchDir}/test-data")
+                .emptyBasecallFastq()
+        }
+
+        when {
+            params {
+                def testDataDir = System.getenv('TEST_DATA_DIR') ?: "${projectDir}/test-data"
+                load("${testDataDir}/resources/resources.json")
+                outdir                              = "$outputDir"
+                input                               = "${launchDir}/test-data/inputs/empty_basecall_fastq/runsheet.csv"
+                // Keep the run directory and samplesheet valid; this test isolates
+                // graceful handling of a valid zero-record FASTQ. In particular,
+                // do not enable subsample_run, which would reject an empty run
+                // directory before demultiplexing.
+                enable_subsample_run                = false
+                aligner                             = 'bwa'
+                dedup_strategy                      = 'markdup'
+                enable_demux_early_stop             = true
+                demux_early_stop_coverage_target    = 1
+                enable_publish_demuxed_fastqs       = true
+                enable_pangenome_personalization    = false
+                variant_calling_mode                 = 'germline'
+                use_gatk_haplotype_caller            = true
+                enable_small_variant_caller          = true
+                enable_copy_number_caller           = true
+                enable_str_caller                   = true
+                enable_merge_vcf                    = true
+                enable_alignment_metrics_autosomes  = true
+                enable_alignment_metrics_high_confidence = true
+                enable_contamination_estimation    = false
+                enable_variant_calling_partitioning = false
+            }
+        }
+
+        then {
+            def sampleDir = new File(params.outdir, 'empty_fastq_run/empty_sample')
+            def demuxFastqDir = new File(sampleDir, 'fastqs')
+            def demuxFastqs = []
+            if (demuxFastqDir.isDirectory()) {
+                demuxFastqDir.eachFileRecurse { file ->
+                    if (file.name.endsWith('.fastq.gz')) {
+                        demuxFastqs << file
+                    }
+                }
+            }
+
+            def outputFastqsAreEmpty = !demuxFastqs.isEmpty() && demuxFastqs.every { fastq ->
+                new java.util.zip.GZIPInputStream(new FileInputStream(fastq)).withCloseable { input ->
+                    input.read() == -1
+                }
+            }
+
+            def bamFile = new File(sampleDir, 'empty_sample_markdup.bam')
+            def bamIsValidAndEmpty = {
+                def reader = htsjdk.samtools.SamReaderFactory.makeDefault().open(bamFile)
+                try {
+                    reader.fileHeader != null && reader.hasIndex() && !reader.iterator().hasNext()
+                } finally {
+                    reader.close()
+                }
+            }
+
+            def vcfFile = new File(sampleDir, 'empty_sample.vcf.gz')
+            def vcfIsValidAndIndexed = {
+                def reader = new htsjdk.variant.vcf.VCFFileReader(vcfFile, true)
+                def iterator = reader.iterator()
+                try {
+                    iterator.hasNext()
+                    reader.fileHeader != null
+                } finally {
+                    iterator.close()
+                    reader.close()
+                }
+            }
+
+            def metricsSummaryFile = new File(params.outdir, 'empty_fastq_run/metrics-report-summary.tsv')
+
+            assertAll(
+                { assert workflow.success },
+                { assert new File(params.outdir, 'pipeline_info').isDirectory() },
+                { assert !demuxFastqs.isEmpty() },
+                { assert outputFastqsAreEmpty },
+                { assert bamFile.isFile() },
+                { assert new File(sampleDir, 'empty_sample_markdup.bam.bai').isFile() },
+                { assert bamIsValidAndEmpty() },
+                { assert vcfFile.isFile() },
+                { assert new File(sampleDir, 'empty_sample.vcf.gz.tbi').isFile() },
+                { assert vcfIsValidAndIndexed() },
+                { assert metricsSummaryFile.isFile() && metricsSummaryFile.readLines().any { it.trim() } },
             )
         }
     }

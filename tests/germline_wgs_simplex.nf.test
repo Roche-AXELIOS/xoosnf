@@ -32,6 +32,10 @@ nextflow_pipeline {
                 enable_copy_number_caller       = false
                 enable_str_caller               = false
                 enable_alignment_metrics_autosomes = true
+                // Both simplex profiles (germline_wgs_simplex, germline_wgs_simplex_benchmark)
+                // default enable_contamination_estimation to true; exercise that behavior
+                // directly rather than reading the profile default back out of the config text.
+                enable_contamination_estimation = true
             }
         }
 
@@ -44,6 +48,10 @@ nextflow_pipeline {
                 }
             assertAll(
                 { assert workflow.success },
+                { assert path("$outputDir/test_run/HG001/contamination_detection/contamination_estimation_results.tsv").exists() },
+                { assert path("$outputDir/test_run/HG001/contamination_detection/metrics/per_site_counts.tsv").exists() },
+                { assert path("$outputDir/test_run/HG002/contamination_detection/contamination_estimation_results.tsv").exists() },
+                { assert path("$outputDir/test_run/HG002/contamination_detection/metrics/per_site_counts.tsv").exists() },
                 { assert snapshot(
                     stableVersions,
                     stableOutputFiles
@@ -51,4 +59,47 @@ nextflow_pipeline {
             )
         }
     }
+
+    test("stub - WGS simplex accepts 40x BAM subsampling") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                               = "$outputDir"
+                input                                = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                              = 'minimap2'
+                variant_calling_mode                 = 'none'
+                enable_pangenome_personalization     = false
+                enable_small_variant_caller          = false
+                enable_small_variant_caller_retrain  = false
+                enable_copy_number_caller            = false
+                enable_vcfeval                       = false
+                enable_alignment_metrics_high_confidence = false
+                enable_hp_metrics                    = false
+                enable_gc_bias_metrics                = false
+                enable_subsample_bam                 = true
+                subsample_bam_coverage_target        = 40
+            }
+        }
+
+        then {
+            def simplexConfig = new File("${projectDir}/conf/simplex.config").text
+            assertAll(
+                { assert workflow.success },
+                { assert simplexConfig =~ /(?s)germline_wgs_simplex_benchmark\s*\{.*?subsample_bam_coverage_target\s*=\s*40\b/ },
+                { assert params.enable_subsample_bam.toBoolean() },
+                { assert (params.subsample_bam_coverage_target as Integer) == 40 },
+            )
+        }
+    }
+
 }

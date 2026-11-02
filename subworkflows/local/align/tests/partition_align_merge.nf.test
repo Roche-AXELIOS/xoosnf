@@ -44,6 +44,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 0 },
                 { assert snapshot(workflow.out.bams).match() }
             )
         }
@@ -83,6 +84,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 0 },
                 // Output should have original sample id restored (not partition id)
                 { assert workflow.out.bams.every { it[0].id == 'HG001' } },
                 // sample_id preserved for downstream use
@@ -130,13 +132,14 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 0 },
                 { assert workflow.out.bams.every { it[0].id == 'HG001' } },
                 { assert snapshot(workflow.out.bams).match() }
             )
         }
     }
 
-    test("stub - pb_fq2bam aligner with enable_read_collapser_dedup (Parabricks markdup disabled)") {
+    test("stub - pb_fq2bam aligner") {
         options "-stub"
 
         setup {
@@ -148,7 +151,6 @@ nextflow_workflow {
                 enable_pangenome_personalization = false
                 enable_alignment_partitioning    = false
                 dedup_strategy                   = 'markdup'
-                enable_read_collapser_dedup      = true
                 enable_low_gpu_memory_mode       = false
             }
             workflow {
@@ -171,13 +173,14 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 0 },
                 { assert workflow.out.bams.every { it[0].id == 'HG001' } },
                 { assert snapshot(workflow.out.bams).match() }
             )
         }
     }
 
-    test("stub - pb_giraffe aligner with enable_read_collapser_dedup (Parabricks markdup disabled)") {
+    test("stub - pb_giraffe aligner") {
         options "-stub"
 
         setup {
@@ -189,7 +192,6 @@ nextflow_workflow {
                 enable_pangenome_personalization = false
                 enable_alignment_partitioning    = false
                 dedup_strategy                   = 'markdup'
-                enable_read_collapser_dedup      = true
                 enable_low_gpu_memory_mode       = false
             }
             workflow {
@@ -212,6 +214,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 1 },
                 { assert workflow.out.bams.every { it[0].id == 'HG001' } },
                 { assert snapshot(workflow.out.bams).match() }
             )
@@ -252,6 +255,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 1 },
                 { assert snapshot(workflow.out.bams).match() }
             )
         }
@@ -292,6 +296,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 0 },
                 // Should produce one merged BAM per sample
                 { assert workflow.out.bams.size() == 2 },
                 { assert workflow.out.bams.collect { it[0].id }.sort() == ['HG001', 'HG002'] },

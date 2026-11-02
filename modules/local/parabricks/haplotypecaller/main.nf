@@ -3,7 +3,7 @@ process PARABRICKS_HAPLOTYPECALLER {
     label 'process_high'
     label 'process_gpu'
 
-    container "nvcr.io/nvidia/clara/clara-parabricks:4.7.0-1"
+    container "nvcr.io/nvidia/clara/clara-parabricks:4.7.1-1"
 
     input:
     tuple val(meta), path(input), path(input_index), path(intervals)

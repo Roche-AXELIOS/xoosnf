@@ -3,7 +3,7 @@ process PARABRICKS_MUTECTCALLER {
     label 'process_high'
     label 'process_gpu'
 
-    container "nvcr.io/nvidia/clara/clara-parabricks:4.7.0-1"
+    container "nvcr.io/nvidia/clara/clara-parabricks:4.7.1-1"
 
     input:
     tuple val(meta), path(tumor_bam), path(tumor_bam_index), path(normal_bam), path(normal_bam_index), path(intervals)
@@ -34,6 +34,12 @@ process PARABRICKS_MUTECTCALLER {
     def intervals_command  = intervals     ? (intervals instanceof List ? intervals.collect { interval -> "--interval-file ${interval}" }.join(' \\\n') : "--interval-file ${intervals}") : ""
     def prepon_command = panel_of_normals ? "cp -L ${panel_of_normals_index} `readlink -f ${panel_of_normals}`.tbi && pbrun prepon --in-pon-file ${panel_of_normals}" : ""
     def postpon_command = panel_of_normals ? "pbrun postpon --in-vcf ${prefix}.vcf.gz --in-pon-file ${panel_of_normals} --out-vcf ${prefix}_annotated.vcf.gz" : ""
+    // Sample-name flags (--tumor-name, and --in-normal-bam/--normal-name in
+    // tumor-normal mode) are supplied via ext.args by the per-mode subworkflow
+    // config, mirroring how the GATK Mutect2 module receives --tumor/--normal.
+    // pbrun requires --tumor-name and validates each name against the read-group
+    // SM tag in the corresponding BAM; the per-mode config resolves those names
+    // from the BAM headers before invoking this process.
 
     """
     # if panel of normals specified, run prepon
@@ -43,7 +49,6 @@ process PARABRICKS_MUTECTCALLER {
         mutectcaller \\
         --ref ${fasta} \\
         --in-tumor-bam ${tumor_bam} \\
-        --tumor-name ${meta.tumor_id} \\
         --out-vcf ${prefix}.vcf.gz \\
         --mutect-bam-output ${prefix}_mutect.bam \\
         ${intervals_command} \\
@@ -53,7 +58,7 @@ process PARABRICKS_MUTECTCALLER {
     ${postpon_command}
 
     # reindex the final VCF, because the one produced by mutectcaller is corrupt
-    bcftools index ${args2} ${prefix}.vcf.gz
+    bcftools index --threads ${task.cpus} ${args2} ${prefix}.vcf.gz
     """
 
     stub:

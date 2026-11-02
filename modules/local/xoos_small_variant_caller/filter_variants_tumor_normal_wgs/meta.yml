@@ -69,6 +69,19 @@ input:
         type: file
         description: Population allele frequency index
         ontologies: []
+  - - meta5:
+        type: map
+        description: |
+          Groovy Map identifying the shared panel of normals resource
+          e.g. `[ id:'panel_of_normals' ]`
+    - pon:
+        type: file
+        description: Optional indexed panel of normals VCF produced by generate_pon. When omitted, PON-derived features retain their default values.
+        ontologies: []
+    - pon_index:
+        type: file
+        description: Panel of normals VCF tabix index
+        ontologies: []
   - - meta6:
         type: map
         description: |
@@ -97,6 +110,17 @@ output:
           type: file
           description: "Output file matching `small_variant_caller/*_svc.vcf.gz.tbi`"
           pattern: "small_variant_caller/*_svc.vcf.gz.tbi"
+          ontologies: []
+  metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_svc_metrics.tsv":
+          type: file
+          description: "Output file matching `*_svc_metrics.tsv`"
+          pattern: "*_svc_metrics.tsv"
           ontologies: []
   versions:
     - - ${task.process}:

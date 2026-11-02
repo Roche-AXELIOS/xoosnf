@@ -3,7 +3,7 @@ process XOOS_TUMOR_FRACTION_ESTIMATOR_CONTAMINATION_DETECTION {
     label 'process_high'
 
     conda false
-    container 'ghcr.io/roche-axelios/xoos/tumor_fraction_estimator:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/tumor_fraction_estimator:1.2.0'
 
     input:
     tuple val(meta), path(bam), path(bai)
@@ -20,8 +20,8 @@ process XOOS_TUMOR_FRACTION_ESTIMATOR_CONTAMINATION_DETECTION {
 
     script:
     def args         = task.ext.args ?: ''
-    def vcf_opt      = vcf ? "--vcf '${vcf}'" : ""
-    def included_opt = included_regions ? "--included-regions-bed '${included_regions}'" : "--included-regions-bed '/resources/GRCh38_notinalldifficultregions.noY.bed'"
+    def vcf_opt      = vcf ? "--query-vcf '${vcf}'" : ""
+    def included_opt = included_regions ? "--included-regions-bed '${included_regions}'" : "--included-regions-bed '/resources/GRCh38_GIAB_highconf.notinalldifficultregions.noY.bed'"
 
     """
     mkdir -p 'contamination_detection'
@@ -38,8 +38,8 @@ process XOOS_TUMOR_FRACTION_ESTIMATOR_CONTAMINATION_DETECTION {
 
     stub:
     """
-    mkdir -p 'contamination_detection'
-    touch 'contamination_detection/contamination.results.tsv'
-    touch 'contamination_detection/contamination.counts.tsv'
+    mkdir -p 'contamination_detection/metrics'
+    touch 'contamination_detection/contamination_estimation_results.tsv'
+    touch 'contamination_detection/metrics/per_site_counts.tsv'
     """
 }

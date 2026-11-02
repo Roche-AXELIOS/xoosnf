@@ -16,35 +16,46 @@ from parsers import parse_demux_run_stats, parse_demux_sample_stats
 # ---------------------------------------------------------------------------
 
 RUN_STATS = textwrap.dedent("""\
-    #Version=1.0.0
-    metrics_name\tcount\tpercentage
-    total_reads\t10000\t100.0
-    passing_reads\t8000\t80.0
-    failed_assigned_reads\t1000\t10.0
-    unassigned_reads\t1000\t10.0
-    full_duplex_reads\t6000\t60.0
-    partial_duplex_reads\t2000\t20.0
-    no_hairpin_reads\t500\t5.0
-    too_long_reads\t300\t3.0
-    too_short_reads\t200\t2.0
+    metric_name\tvalue\tpercentage\tdenominator
+    total_reads\t10000\t100.0\ttotal_reads
+    passing_reads\t8000\t80.0\ttotal_reads
+    failed_assigned_reads\t1000\t10.0\ttotal_reads
+    unassigned_reads\t1000\t10.0\ttotal_reads
+    full_duplex_reads\t6000\t60.0\tpassing_reads
+    partial_duplex_reads\t2000\t20.0\tpassing_reads
+    no_hairpin_reads\t500\t5.0\tunassigned_reads
+    too_long_reads\t300\t3.0\tunassigned_reads
+    too_short_reads\t200\t2.0\tunassigned_reads
 """)
 
 # Simplex run_stats.tsv uses a different set of field names. The disposition
 # (assigned + failed + unassigned) still sums to total reads.
 SIMPLEX_RUN_STATS = textwrap.dedent("""\
-    #Version=1.0.0
-    metrics_name\tcount\tpercentage
-    total_reads\t10000\t100.0
-    preassignment_passing_reads\t9000\t90.0
-    failed_reads\t1000\t10.0
-    too_short_reads\t1000\t10.0
-    assigned_reads\t7000\t70.0
-    failed_assigned_reads\t800\t8.0
-    too_short_trimmed_reads\t500\t5.0
-    sid_discordant_discarded_reads\t300\t3.0
-    unassigned_reads\t2000\t20.0
-    full_reads\t5000\t50.0
-    partial_reads\t2000\t20.0
+    metric_name\tvalue\tpercentage\tdenominator
+    total_reads\t10000\t100.0\ttotal_reads
+    preassignment_passing_reads\t9000\t90.0\ttotal_reads
+    failed_reads\t1000\t10.0\ttotal_reads
+    too_short_reads\t1000\t10.0\ttotal_reads
+    assigned_reads\t7000\t70.0\ttotal_reads
+    failed_assigned_reads\t800\t8.0\tassigned_reads
+    too_short_trimmed_reads\t500\t5.0\tunassigned_reads
+    sid_discordant_discarded_reads\t300\t3.0\tunassigned_reads
+    unassigned_reads\t2000\t20.0\ttotal_reads
+    full_reads\t5000\t50.0\tassigned_reads
+    partial_reads\t2000\t20.0\tassigned_reads
+""")
+
+CANONICAL_RUN_STATS = textwrap.dedent("""\
+    ##RocheCommandLine=<ID=demux,Version="1.2.0-SNAPSHOT">
+    metric_name\tvalue\tpercentage\tdenominator
+    total_reads\t10000\t100.00\ttotal_reads
+    assigned_reads\t7000\t70.00\ttotal_reads
+    failed_reads\t1000\t10.00\ttotal_reads
+    unassigned_reads\t2000\t20.00\ttotal_reads
+    full_reads\t5000\t71.43\tassigned_reads
+    partial_reads\t2000\t28.57\tassigned_reads
+    too_short_trimmed_reads\t500\tNA\tNA
+    sid_discordant_discarded_reads\t300\tNA\tNA
 """)
 
 # ---------------------------------------------------------------------------
@@ -82,6 +93,13 @@ def run_stats(tmp_path: Path) -> Path:
 def simplex_run_stats(tmp_path: Path) -> Path:
     p = tmp_path / "run_stats.tsv"
     p.write_text(SIMPLEX_RUN_STATS)
+    return p
+
+
+@pytest.fixture
+def canonical_run_stats(tmp_path: Path) -> Path:
+    p = tmp_path / "run_stats.tsv"
+    p.write_text(CANONICAL_RUN_STATS)
     return p
 
 
@@ -147,9 +165,21 @@ class TestParseDemuxRunStats:
         # No duplex-only keys leak into simplex output
         assert "No Hairpin" not in result
 
+    def test_canonical_run_stats_header(self, canonical_run_stats: Path):
+        result = parse_demux_run_stats(canonical_run_stats)
+        assert result["_mode"] == "simplex"
+        assert result["Total Reads"] == 10000
+        assert result["Passing Reads"] == 7000
+        assert result["Failed Reads"] == 1000
+        assert result["Unassigned Reads"] == 2000
+        assert result["Full Reads"] == 5000
+        assert result["Partial Reads"] == 2000
+        assert result["Too Short After Trimming"] == 500
+        assert result["SID Discordant"] == 300
+
     def test_empty_file_yields_empty_result(self, tmp_path: Path):
         p = tmp_path / "run_stats.tsv"
-        p.write_text("#Version=1.0.0\nmetrics_name\tcount\tpercentage\n")
+        p.write_text("metric_name\tvalue\tpercentage\tdenominator\n")
         assert parse_demux_run_stats(p) == {}
 
 

@@ -1,0 +1,16 @@
+{
+    "stub - SVC metrics reach the merged-report workflow": {
+        "content": [
+            {
+                "XOOS_PARSE_SVC_METRICS": [
+                    "generate-metrics-report"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        },
+        "timestamp": "2026-09-29T00:00:00.000000"
+    }
+}

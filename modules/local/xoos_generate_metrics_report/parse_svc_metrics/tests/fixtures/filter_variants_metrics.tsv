@@ -1,0 +1,6 @@
+##RocheCommandLine=<Version=latest>
+##Sample=<ID=HG002>
+metric_name	value	percentage	denominator
+qc_status	pass	NA	NA
+num_pass_variants	10	50.00	num_output_variants
+num_filter_ML_Score	2	20.00	num_non_pass_variants

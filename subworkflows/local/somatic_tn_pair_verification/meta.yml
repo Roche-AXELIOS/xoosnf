@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "SOMATIC_TN_PAIR_VERIFICATION"
+description: >
+  Verify tumor-normal sample identity using Somalier. Extracts informative sites
+  from each BAM, computes pairwise relatedness, and gates downstream processing
+  based on a configurable concordance threshold. Produces MultiQC-compatible
+  reports and structured metrics JSON.
+
+  A tumor and its normal may be sequenced on different runs. Pair-scoped outputs
+  (relatedness, concordance) are attributed to the tumor's run, while
+  sample-scoped outputs are split so each sample is reported under its own run.
+keywords:
+  - somalier
+  - sample-verification
+  - concordance
+  - relatedness
+  - tumor-normal
+  - identity
+  - multiqc
+components:
+  - somalier/extract
+  - somalier/relate
+  - xoos_somalier_metrics_to_multiqc
+  - xoos_parse_somalier_metrics
+input:
+  - ch_tn_bam_pairs:
+      type: channel
+      description: |
+        Paired tumor-normal BAM files with index.
+        meta must carry `id` (T/N group id), `run_type`, `tumor_id`,
+        `normal_id`, `tumor_run_name` and `normal_run_name`. The two run
+        names may differ when the pair spans sequencing runs.
+        Structure: [ val(meta), [path(tumor_bam), path(normal_bam)], [path(tumor_bai), path(normal_bai)] ]
+  - ch_reference:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta_ref), path(fasta), path(fai) ]
+  - ch_sites_vcf:
+      type: channel
+      description: |
+        Somalier sites VCF for informative-site extraction
+        Structure: [ val(meta), path(sites_vcf) ]
+  - somalier_mode:
+      type: string
+      description: |
+        Behaviour when concordance is below threshold.
+        One of 'warn', 'abort', or 'skip'.
+  - concordance_cutoff:
+      type: double
+      description: |
+        Minimum hom_concordance value required to pass verification.
+        Pairs below this threshold are handled according to somalier_mode.
+output:
+  - verified_pairs:
+      type: channel
+      description: |
+        Tumor-normal BAM pairs that passed concordance verification
+        Structure: [ val(meta), [path(tumor_bam), path(normal_bam)], [path(tumor_bai), path(normal_bai)] ]
+  - multiqc_files:
+      type: channel
+      description: |
+        MultiQC-compatible report directory, one per T/N group, keyed on the
+        tumor's run name.
+        Structure: [ val(meta), path(dir) ]
+  - report:
+      type: channel
+      description: |
+        Structured somalier metrics JSON reports. Emits one pair report per
+        T/N group (keyed on the group id) plus one sample report per run
+        (keyed on the run name), so samples of a cross-run pair are attributed
+        to their own runs.
+        Structure: [ val(meta), path(json) ]
+  - somalier_output:
+      type: channel
+      description: |
+        Raw somalier relate outputs
+        Structure: [ val(meta), path(pairs_tsv), path(samples_tsv), path(html) ]
+  - versions:
+      type: channel
+      description: |
+        Software versions collected from somalier processes
+authors: []
+maintainers: []

@@ -3,7 +3,7 @@ process SUBSAMPLE_RUN {
     label 'process_single'
 
     conda false
-    container 'ghcr.io/roche-axelios/xoosnf/subsample-run:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/subsample-run:1.2.0'
 
     input:
     tuple val(meta), path(input_dir), path(samplesheet)

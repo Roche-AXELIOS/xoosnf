@@ -38,13 +38,22 @@ process BWA_MEM_SINGLE_END_MULTIPLE_FASTQS {
     if (!fasta && extension=="cram") error "Fasta reference is required for CRAM output"
     """
     INDEX=`find -L ${index} -name "*.amb" | sed 's/\\.amb\$//'`
+
+    # Fail fast if no input FASTQs were staged. Without this, xargs would run
+    # zcat with no file arguments, which reads from stdin and hangs the task.
+    if [ -z "\$(find -L 'fastq' -name '*.fastq.gz' -print -quit 2>/dev/null)" ]; then
+        echo 'ERROR: no FASTQ files (*.fastq.gz) found under fastq/' >&2
+        exit 1
+    fi
+
     find -L 'fastq' -name '*.fastq.gz' -print0 \\
     | xargs -0 -n 10 zcat \\
     | bwa mem \\
+          -t ${task.cpus} \\
           $args \\
           \$INDEX \\
           - \\
-    | samtools $samtools_command $args2 ${reference} -o ${prefix}.${extension} -
+    | samtools $samtools_command --threads ${task.cpus} $args2 ${reference} -o ${prefix}.${extension} -
     """
 
     stub:

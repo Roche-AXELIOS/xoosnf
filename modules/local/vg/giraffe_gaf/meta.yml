@@ -1,0 +1,45 @@
+name: vg_giraffe_gaf
+description: Realign recruited reads with vg giraffe to GAF.
+keywords:
+  - vg
+  - giraffe
+  - pangenome
+  - gaf
+tools:
+  - vg:
+      description: Tools for working with genome variation graphs.
+      homepage: https://github.com/vgteam/vg
+      documentation: https://github.com/vgteam/vg/wiki
+      doi: 10.1038/nbt.4227
+      licence: ["MIT"]
+input:
+  - - meta:
+        type: map
+        description: Sample metadata
+    - fastq:
+        type: file
+        description: Recruited single-end FASTQ reads
+        pattern: "*.fastq"
+    - graph:
+        type: file
+        description: Pangenome graph GBZ
+        pattern: "*.gbz"
+    - zipcodes:
+        type: file
+        description: Giraffe zipcodes index
+    - minimizers:
+        type: file
+        description: Giraffe minimizer index
+    - dist:
+        type: file
+        description: Giraffe distance index
+output:
+  gaf:
+    - - meta:
+          type: map
+          description: Sample metadata
+      - "*.all.gaf":
+          type: file
+          description: Multimapping GAF alignments for recruited reads
+authors: []
+maintainers: []

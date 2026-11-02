@@ -1,0 +1,71 @@
+name: xoos_somalier_metrics_to_multiqc
+description: Convert somalier relate metrics into MultiQC input files.
+keywords:
+  - multiqc
+  - somalier
+  - relatedness
+  - concordance
+  - metrics
+tools:
+  - xoos_to_multiqc:
+      description: XOOS tool that converts metrics into MultiQC-compatible input files.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing T/N group information
+          e.g. `[ id:'pair1' ]`
+    - pairs_tsv:
+        type: file
+        description: Optional somalier relate pairs.tsv
+        pattern: "*.pairs.tsv"
+        ontologies:
+          - edam: http://edamontology.org/format_3475
+    - samples_tsv:
+        type: file
+        description: Optional somalier relate samples.tsv
+        pattern: "*.samples.tsv"
+        ontologies:
+          - edam: http://edamontology.org/format_3475
+output:
+  multiqc_report_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing T/N group information
+            e.g. `[ id:'pair1' ]`
+      - "*_somalier_multiqc_input":
+          type: file
+          description: |
+            Output directory matching `*_somalier_multiqc_input`, containing
+            `xoos_somalier_pair_relatedness_mqc.json` and
+            `xoos_somalier_sample_stats_mqc.json`.
+          pattern: "*_somalier_multiqc_input"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xoos_to_multiqc:
+          type: string
+          description: The name of the tool
+      - "1.0":
+          type: string
+          description: The version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xoos_to_multiqc:
+          type: string
+          description: The name of the tool
+      - "1.0":
+          type: string
+          description: The version of the tool
+authors: []
+maintainers: []

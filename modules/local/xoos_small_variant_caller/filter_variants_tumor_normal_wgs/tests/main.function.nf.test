@@ -1,0 +1,154 @@
+nextflow_function {
+
+    name "Test tumor-normal SVC option construction"
+    script "modules/local/xoos_small_variant_caller/filter_variants_tumor_normal_wgs/main.nf"
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_small_variant_caller"
+
+    test("defaults missing sample type to auto-detect") {
+
+        function "alignerSampleTypeOptions"
+
+        when {
+            function {
+                """
+                input[0] = null
+                input[1] = 'bwa'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--sample-type auto-detect --aligner bwa' }
+            )
+        }
+    }
+
+    test("adds the PON option when a VCF is provided") {
+
+        function "ponOption"
+
+        when {
+            function {
+                """
+                input[0] = 'pon.vcf.gz'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == "--pon-vcf 'pon.vcf.gz'" }
+            )
+        }
+    }
+
+    test("omits the PON option when no VCF is provided") {
+
+        function "ponOption"
+
+        when {
+            function {
+                """
+                input[0] = null
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '' }
+            )
+        }
+    }
+
+    test("preserves explicit FFPE sample type") {
+
+        function "alignerSampleTypeOptions"
+
+        when {
+            function {
+                """
+                input[0] = 'ffpe'
+                input[1] = 'pb_fq2bam'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--sample-type ffpe --aligner bwa' }
+            )
+        }
+    }
+
+    test("preserves explicit cell-line sample type") {
+
+        function "alignerSampleTypeOptions"
+
+        when {
+            function {
+                """
+                input[0] = 'cell-line'
+                input[1] = 'bwa'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--sample-type cell-line --aligner bwa' }
+            )
+        }
+    }
+
+    test("preserves explicit auto-detect sample type") {
+
+        function "alignerSampleTypeOptions"
+
+        when {
+            function {
+                """
+                input[0] = 'auto-detect'
+                input[1] = 'bwa'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--sample-type auto-detect --aligner bwa' }
+            )
+        }
+    }
+
+    test("rejects an unsupported sample type") {
+
+        function "alignerSampleTypeOptions"
+
+        when {
+            function {
+                """
+                input[0] = 'unknown'
+                input[1] = 'bwa'
+                """
+            }
+        }
+
+        then {
+            def combined = (function.stdout + function.stderr).join('\n')
+            assertAll(
+                { assert function.failed },
+                { assert combined.contains('Unknown sample type: unknown') }
+            )
+        }
+    }
+}

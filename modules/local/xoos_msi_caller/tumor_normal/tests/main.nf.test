@@ -1,0 +1,41 @@
+nextflow_process {
+
+    name "Test Process XOOS_MSI_CALLER_TUMOR_NORMAL"
+    script "../main.nf"
+    process "XOOS_MSI_CALLER_TUMOR_NORMAL"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_msi_caller"
+    tag "xoos_msi_caller/tumor_normal"
+
+    test("stub - runs tumor-normal MSI and emits results dir") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [
+                        [id: 'PAIR1', tumor_id: 'TUMOR1', normal_id: 'NORMAL1'],
+                        file('tumor.bam'), file('tumor.bam.bai'),
+                        file('normal.bam'), file('normal.bam.bai')
+                    ]
+                )
+                input[1] = Channel.value([[], []])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf.size() == 1 },
+                { assert process.out.vcf[0][1].toString().endsWith('PAIR1_msi_results.vcf.gz') },
+                { assert process.out.json.size() == 1 },
+                { assert process.out.tsv[0][1].toString().endsWith('metrics/PAIR1_msi_statistics.tsv') },
+                { assert process.out.results_dir[0][0].id == 'PAIR1' },
+            )
+        }
+    }
+}

@@ -1,0 +1,43 @@
+name: replace_vcf_in_results
+description: Replace a caller result directory's VCF with a reheadered VCF while preserving the other result files.
+keywords:
+  - vcf
+  - reheader
+  - results
+input:
+  - - meta:
+        type: map
+        description: Sample metadata.
+    - results_dir:
+        type: file
+        description: Caller result files containing the original VCF.
+        pattern: "*"
+        ontologies: []
+    - reheadered_vcf:
+        type: file
+        description: Reheadered VCF that replaces the original result VCF.
+        pattern: "*.vcf.gz"
+        ontologies: []
+    - reheadered_index:
+        type: file
+        description: Tabix index for the reheadered VCF.
+        pattern: "*.vcf.gz.tbi"
+        ontologies: []
+    - vcf_pattern:
+        type: string
+        description: Shell glob identifying the VCF to replace in the result directory.
+    - result_dir_name:
+        type: string
+        description: Directory name used to preserve the caller-specific output hierarchy.
+output:
+  results_dir:
+    - - meta:
+          type: map
+          description: Sample metadata.
+      - results:
+          type: file
+          description: Caller result files containing the reheadered VCF.
+          pattern: "*"
+          ontologies: []
+authors: []
+maintainers: []

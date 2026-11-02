@@ -1,0 +1,1028 @@
+{
+    "stub - gatk mutect2 with intervals": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "groupSize": 1,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+
+                ],
+                "11": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    
+                ],
+                "7": [
+                    
+                ],
+                "8": [
+                    
+                ],
+                "9": [
+                    
+                ],
+                "copy_number_caller_output": [
+                    
+                ],
+                "custom_multiqc_files": [
+                    
+                ],
+                "germline_filtered_vcf": [
+                    
+                ],
+                "germline_filtering_output": [
+                    
+                ],
+                "merged_vcf": [
+                    [
+                        {
+                            "groupSize": 1,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "msi_caller_output": [
+                    
+                ],
+                "mutect_stats": [
+
+                ],
+                "raw_vc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "small_variant_vcfeval_output": [
+                    
+                ],
+                "small_variant_vcfeval_report": [
+                    
+                ],
+                "svc_metrics": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "svc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-01T19:20:22.1765383",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - small variant caller with copy number caller and germline filtering": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "groupSize": 2,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+
+                ],
+                "11": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_germline_filtered.vcf.gz:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "sample1_germline_filtered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        [
+                            [
+                                "sample1_metrics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "sample1_somatic_copy_number_callset.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "sample1_somatic_copy_number_callset.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                            "sample1_somatic_copy_number_callset.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "sample1_augmented_intervals.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_bafs.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratio_segments.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_mapping_quality.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_purity_ploidy_grid.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.diploid_bias.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.uniform.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_corrected_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            [
+                                "sample1_bafs.bw:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_igv_visualization.xml:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bw:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
+                        ]
+                    ]
+                ],
+                "7": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_germline_filtered_prediction.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "8": [
+                    
+                ],
+                "9": [
+                    
+                ],
+                "copy_number_caller_output": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        [
+                            [
+                                "sample1_metrics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "sample1_somatic_copy_number_callset.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "sample1_somatic_copy_number_callset.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                            "sample1_somatic_copy_number_callset.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "sample1_augmented_intervals.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_bafs.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratio_segments.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_mapping_quality.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_purity_ploidy_grid.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.diploid_bias.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.uniform.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_corrected_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            [
+                                "sample1_bafs.bw:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_igv_visualization.xml:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bw:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    
+                ],
+                "germline_filtered_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_germline_filtered.vcf.gz:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "sample1_germline_filtered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "germline_filtering_output": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_germline_filtered_prediction.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "merged_vcf": [
+                    [
+                        {
+                            "groupSize": 2,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "msi_caller_output": [
+                    
+                ],
+                "mutect_stats": [
+
+                ],
+                "raw_vc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "small_variant_vcfeval_output": [
+                    
+                ],
+                "small_variant_vcfeval_report": [
+                    
+                ],
+                "svc_metrics": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "svc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-01T19:20:36.515801417",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - merge vcf disabled": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "sample1",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002"
+                    },
+                    "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                    "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "sample1",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002"
+                    },
+                    "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                    "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-01T19:21:28.567018693",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - merge small variant and copy number VCFs without germline filtering": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "groupSize": 2,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+
+                ],
+                "11": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        [
+                            [
+                                "sample1_metrics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "sample1_somatic_copy_number_callset.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "sample1_somatic_copy_number_callset.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                            "sample1_somatic_copy_number_callset.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "sample1_augmented_intervals.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_bafs.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratio_segments.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_mapping_quality.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_purity_ploidy_grid.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.diploid_bias.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.uniform.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_corrected_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            [
+                                "sample1_bafs.bw:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_igv_visualization.xml:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bw:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
+                        ]
+                    ]
+                ],
+                "7": [
+                    
+                ],
+                "8": [
+                    
+                ],
+                "9": [
+                    
+                ],
+                "copy_number_caller_output": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        [
+                            [
+                                "sample1_metrics.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "sample1_somatic_copy_number_callset.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            "sample1_somatic_copy_number_callset.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                            "sample1_somatic_copy_number_callset.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "sample1_augmented_intervals.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_bafs.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratio_segments.seg:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_mapping_quality.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_purity_ploidy_grid.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.diploid_bias.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_segment_likelihood.uniform.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_corrected_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_tumor_coverage.bed:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            [
+                                "sample1_bafs.bw:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_igv_visualization.xml:md5,d41d8cd98f00b204e9800998ecf8427e",
+                                "sample1_log_ratios.bw:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    
+                ],
+                "germline_filtered_vcf": [
+                    
+                ],
+                "germline_filtering_output": [
+                    
+                ],
+                "merged_vcf": [
+                    [
+                        {
+                            "groupSize": 2,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "msi_caller_output": [
+                    
+                ],
+                "mutect_stats": [
+
+                ],
+                "raw_vc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "small_variant_vcfeval_output": [
+                    
+                ],
+                "small_variant_vcfeval_report": [
+                    
+                ],
+                "svc_metrics": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "svc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-01T19:20:50.823063105",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - tumor-only small variant caller with gatk mutect2 and stats": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "groupSize": 1,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz.stats:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "11": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    
+                ],
+                "7": [
+                    
+                ],
+                "8": [
+                    
+                ],
+                "9": [
+                    
+                ],
+                "copy_number_caller_output": [
+                    
+                ],
+                "custom_multiqc_files": [
+                    
+                ],
+                "germline_filtered_vcf": [
+                    
+                ],
+                "germline_filtering_output": [
+                    
+                ],
+                "merged_vcf": [
+                    [
+                        {
+                            "groupSize": 1,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "msi_caller_output": [
+                    
+                ],
+                "mutect_stats": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz.stats:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "raw_vc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "small_variant_vcfeval_output": [
+                    
+                ],
+                "small_variant_vcfeval_report": [
+                    
+                ],
+                "svc_metrics": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "svc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-01T19:19:40.492362593",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - tumor-only small variant caller with parabricks mutectcaller": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "groupSize": 1,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "10": [
+
+                ],
+                "11": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    
+                ],
+                "4": [
+                    
+                ],
+                "5": [
+                    
+                ],
+                "6": [
+                    
+                ],
+                "7": [
+                    
+                ],
+                "8": [
+                    
+                ],
+                "9": [
+                    
+                ],
+                "copy_number_caller_output": [
+                    
+                ],
+                "custom_multiqc_files": [
+                    
+                ],
+                "germline_filtered_vcf": [
+                    
+                ],
+                "germline_filtering_output": [
+                    
+                ],
+                "merged_vcf": [
+                    [
+                        {
+                            "groupSize": 1,
+                            "groupTarget": {
+                                "id": "sample1",
+                                "run_name": "test_run",
+                                "run_type": "SBX-D",
+                                "tumor_id": "HG002"
+                            }
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "msi_caller_output": [
+                    
+                ],
+                "mutect_stats": [
+
+                ],
+                "raw_vc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "small_variant_vcfeval_output": [
+                    
+                ],
+                "small_variant_vcfeval_report": [
+                    
+                ],
+                "svc_metrics": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                                "tumor_id": "HG002",
+                            "tumor_sample_name": "HG002",
+                            "svc_source": "small_variant_tumor_only"
+                        },
+                        "sample1_svc_metrics.tsv:md5,4b8e4d811a2f38f61c943d7d878bad01"
+                    ]
+                ],
+                "svc_vcf": [
+                    [
+                        {
+                            "id": "sample1",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "tumor_id": "HG002"
+                        },
+                        "sample1_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "sample1_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-01T19:19:54.299364104",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

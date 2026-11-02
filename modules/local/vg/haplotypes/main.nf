@@ -1,8 +1,6 @@
 process VG_HAPLOTYPES {
     conda false
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'docker://quay.io/vgteam/vg:v1.70.0'
-        : 'quay.io/vgteam/vg:v1.70.0'}"
+    container 'quay.io/vgteam/vg:v1.70.0'
 
     tag "${meta.id}"
 
@@ -26,6 +24,7 @@ process VG_HAPLOTYPES {
     REFERENCE_PREFIX=`find -L ${giraffe_index_dir} -name "*.gbz" | head -1 | xargs basename | sed 's/\\.gbz\$//'`
 
     vg haplotypes \\
+        -t ${task.cpus} \\
         ${args} \\
         -i ${giraffe_index_dir}/\$REFERENCE_PREFIX.hapl \\
         -k ${kmer_dict} \\

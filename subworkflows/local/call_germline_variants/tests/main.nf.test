@@ -42,20 +42,24 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [], [] ])  // mappability_bw
                 input[14] = Channel.value([ [], [] ])  // cnv_seed_file
-                input[15] = Channel.value([ [], [] ])  // repeat_catalog_json
-                input[16] = true   // enable_small_variant_caller
-                input[17] = true   // use_gatk_haplotype_caller
-                input[18] = false  // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
                 input[19] = 'bwa'  // aligner
                 input[20] = false  // enable_small_variant_caller_retrain
                 input[21] = false  // enable_vcfeval
                 input[22] = false  // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = false  // enable_str_caller
-                input[25] = true   // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
@@ -100,32 +104,114 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [], [] ])  // mappability_bw
                 input[14] = Channel.value([ [], [] ])  // cnv_seed_file
-                input[15] = Channel.value([ [], [] ])  // repeat_catalog_json
-                input[16] = true   // enable_small_variant_caller
-                input[17] = true   // use_gatk_haplotype_caller
-                input[18] = false  // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
                 input[19] = 'bwa'  // aligner
                 input[20] = true   // enable_small_variant_caller_retrain
                 input[21] = false  // enable_vcfeval
                 input[22] = false  // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = false  // enable_str_caller
-                input[25] = true   // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
 
         then {
+            def metricsBySource = workflow.out.svc_metrics.collectEntries { meta, metrics ->
+                [meta.svc_source, path(metrics).readLines()]
+            }
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.merged_vcf },
                 { assert workflow.out.raw_vc_vcf.size() > 0 },
                 { assert workflow.out.svc_pretrained_vcf.size() > 0 },
                 { assert workflow.out.svc_retrained_vcf.size() > 0 },
+                { assert metricsBySource.keySet() == (['small_variant_pretrained', 'small_variant_retrained'] as Set) },
+                { assert metricsBySource.values().every { lines -> lines.any { it.startsWith('qc_status\t') } } },
                 { assert snapshot(workflow.out.merged_vcf).match() }
+            )
+        }
+    }
+
+    test("stub - retrain enabled skips clinical sample without benchmark resources") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().vcfevalResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                // Mixed batch: one benchmark sample (HG001, has truth/train/test
+                // resources) and one clinical sample (HPSID_008_L1, none). The
+                // clinical sample must be skipped for retraining without
+                // aborting the pipeline via the strict joins in
+                // RETRAIN_GERMLINE_SMALL_VARIANT_MODEL. Reuses HG001.bam for the
+                // clinical id since file contents are irrelevant in stub mode.
+                input[0]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ],
+                    [ [id: 'HPSID_008_L1', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'par_beds'], file("\${testDataDir}/resources/bwa_ref/test.chrX_PAR.bed"), file("\${testDataDir}/resources/bwa_ref/test.chrY_PAR.bed") ])
+                input[7]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[8]  = Channel.value([ [id: 'svc_models'], file("\${testDataDir}/resources/variantCaller/svc_model_snv.bin"), file("\${testDataDir}/resources/variantCaller/svc_model_indel.bin") ])
+                input[9]  = Channel.value([ [id: 'truth_vcf_dir'], file("\${testDataDir}/resources/truth_vcf") ])
+                input[10]  = Channel.value([ [id: 'train_bed_dir'], file("\${testDataDir}/resources/train_bed") ])
+                input[11]  = Channel.value([ [id: 'test_bed_dir'], file("\${testDataDir}/resources/test_bed") ])
+                input[12] = Channel.value([ [], [] ])  // eval_bed_dir
+                input[13] = Channel.value([ [], [] ])  // mappability_bw
+                input[14] = Channel.value([ [], [] ])  // cnv_seed_file
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
+                input[19] = 'bwa'  // aligner
+                input[20] = true   // enable_small_variant_caller_retrain
+                input[21] = false  // enable_vcfeval
+                input[22] = false  // enable_copy_number_caller
+                input[23] = true   // enable_copy_number_caller_baf
+                input[24] = false  // enable_str_caller
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                // Pipeline completes despite the clinical sample lacking resources.
+                { assert workflow.success },
+                { assert workflow.out.merged_vcf },
+                // Both samples get raw + pretrained calls.
+                { assert workflow.out.raw_vc_vcf.size() > 0 },
+                { assert workflow.out.svc_pretrained_vcf.size() > 0 },
+                // Only the benchmark sample (HG001) is retrained; the clinical
+                // sample is skipped. Exactly one retrained VCF is emitted.
+                { assert workflow.out.svc_retrained_vcf.findAll { it[0].id == 'HG001' }.size() > 0 },
+                { assert workflow.out.svc_retrained_vcf.findAll { it[0].id == 'HPSID_008_L1' }.size() == 0 },
             )
         }
     }
@@ -158,20 +244,83 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [id: 'mappability_bw'], file("\${testDataDir}/resources/bwa_ref/test.bw") ])
                 input[14] = Channel.value([ [id: 'cnv_seed_file'], file("\${testDataDir}/resources/bwa_ref/cnv_seed.bed") ])
-                input[15] = Channel.value([ [id: 'repeat_catalog'], file("\${testDataDir}/resources/STR/hg38/full_repeat_catalog.json") ])
-                input[16] = true   // enable_small_variant_caller
-                input[17] = true   // use_gatk_haplotype_caller
-                input[18] = false  // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [id: 'repeat_catalog'], file("\${testDataDir}/resources/STR/hg38/full_repeat_catalog.json") ])
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
                 input[19] = 'bwa'  // aligner
                 input[20] = false  // enable_small_variant_caller_retrain
                 input[21] = false  // enable_vcfeval
                 input[22] = true   // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = true   // enable_str_caller
-                input[25] = true   // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.merged_vcf },
+                { assert snapshot(workflow.out.merged_vcf).match() }
+            )
+        }
+    }
+
+    test("stub - default model with giraffe aligner and YS simplex run type") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().vcfevalResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'YS'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'par_beds'], file("\${testDataDir}/resources/bwa_ref/test.chrX_PAR.bed"), file("\${testDataDir}/resources/bwa_ref/test.chrY_PAR.bed") ])
+                input[7]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[8]  = Channel.value([ [], [], [] ])  // empty svc_models - forces default model resolution
+                input[9]  = Channel.value([ [], [] ])  // truth_vcf_dir
+                input[10]  = Channel.value([ [], [] ])  // train_bed_dir
+                input[11]  = Channel.value([ [], [] ])  // test_bed_dir
+                input[12] = Channel.value([ [], [] ])  // eval_bed_dir
+                input[13] = Channel.value([ [], [] ])  // mappability_bw
+                input[14] = Channel.value([ [], [] ])  // cnv_seed_file
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true          // enable_small_variant_caller
+                input[18] = true          // use_gatk_haplotype_caller
+                input[19] = 'pb_giraffe'  // aligner
+                input[20] = false         // enable_small_variant_caller_retrain
+                input[21] = false         // enable_vcfeval
+                input[22] = false         // enable_copy_number_caller
+                input[23] = true   // enable_copy_number_caller_baf
+                input[24] = false         // enable_str_caller
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false          // use_gatk_mutect2_mitochondrial
+                input[27] = true          // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
@@ -213,75 +362,24 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [], [] ])  // mappability_bw
                 input[14] = Channel.value([ [], [] ])  // cnv_seed_file
-                input[15] = Channel.value([ [], [] ])  // repeat_catalog_json
-                input[16] = true          // enable_small_variant_caller
-                input[17] = true          // use_gatk_haplotype_caller
-                input[18] = false         // use_multisample_model
-                input[19] = 'pb_giraffe'  // aligner
-                input[20] = false         // enable_small_variant_caller_retrain
-                input[21] = false         // enable_vcfeval
-                input[22] = false         // enable_copy_number_caller
-                input[23] = true   // enable_copy_number_caller_baf
-                input[24] = false         // enable_str_caller
-                input[25] = true          // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
-                """
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.success },
-                { assert workflow.out.merged_vcf },
-                { assert snapshot(workflow.out.merged_vcf).match() }
-            )
-        }
-    }
-
-    test("stub - default model with giraffe aligner and multisample") {
-        options "-stub"
-
-        setup {
-            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().vcfevalResources().bams().root()
-        }
-
-        when {
-            workflow {
-                """
-                def testDataDir = "\${projectDir}/test-data-stub"
-                input[0]  = Channel.of(
-                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-FAST'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
-                )
-                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
-                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
-                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
-                input[5]  = Channel.value([ [], [] ])  // intervals
-                input[6]  = Channel.value([ [id: 'par_beds'], file("\${testDataDir}/resources/bwa_ref/test.chrX_PAR.bed"), file("\${testDataDir}/resources/bwa_ref/test.chrY_PAR.bed") ])
-                input[7]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
-                input[8]  = Channel.value([ [], [], [] ])  // empty svc_models - forces default model resolution
-                input[9]  = Channel.value([ [], [] ])  // truth_vcf_dir
-                input[10]  = Channel.value([ [], [] ])  // train_bed_dir
-                input[11]  = Channel.value([ [], [] ])  // test_bed_dir
-                input[12] = Channel.value([ [], [] ])  // eval_bed_dir
-                input[13] = Channel.value([ [], [] ])  // mappability_bw
-                input[14] = Channel.value([ [], [] ])  // cnv_seed_file
-                input[15] = Channel.value([ [], [] ])  // repeat_catalog_json
-                input[16] = true          // enable_small_variant_caller
-                input[17] = true          // use_gatk_haplotype_caller
-                input[18] = true          // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true          // enable_small_variant_caller
+                input[18] = true          // use_gatk_haplotype_caller
                 input[19] = 'vg_giraffe'  // aligner
                 input[20] = false         // enable_small_variant_caller_retrain
                 input[21] = false         // enable_vcfeval
                 input[22] = false         // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = false         // enable_str_caller
-                input[25] = true          // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false          // use_gatk_mutect2_mitochondrial
+                input[27] = true          // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
@@ -323,20 +421,24 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [id: 'mappability_bw'], file("\${testDataDir}/resources/bwa_ref/test.bw") ])
                 input[14] = Channel.value([ [id: 'cnv_seed_file'], file("\${testDataDir}/resources/bwa_ref/cnv_seed.bed") ])
-                input[15] = Channel.value([ [id: 'repeat_catalog'], file("\${testDataDir}/resources/STR/hg38/full_repeat_catalog.json") ])
-                input[16] = true   // enable_small_variant_caller
-                input[17] = true   // use_gatk_haplotype_caller
-                input[18] = false  // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [id: 'repeat_catalog'], file("\${testDataDir}/resources/STR/hg38/full_repeat_catalog.json") ])
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
                 input[19] = 'bwa'  // aligner
                 input[20] = false  // enable_small_variant_caller_retrain
                 input[21] = false  // enable_vcfeval
                 input[22] = true   // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = true   // enable_str_caller
-                input[25] = false  // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = false  // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
@@ -380,20 +482,24 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [], [] ])  // mappability_bw
                 input[14] = Channel.value([ [], [] ])  // cnv_seed_file
-                input[15] = Channel.value([ [], [] ])  // repeat_catalog_json
-                input[16] = true   // enable_small_variant_caller
-                input[17] = true   // use_gatk_haplotype_caller
-                input[18] = false  // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
                 input[19] = 'bwa'  // aligner
                 input[20] = false  // enable_small_variant_caller_retrain
                 input[21] = false  // enable_vcfeval
                 input[22] = false  // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = false  // enable_str_caller
-                input[25] = true   // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = false  // enable_partitioning
-                input[28] = 1      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = false  // enable_partitioning
+                input[30] = 1      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
@@ -435,20 +541,24 @@ nextflow_workflow {
                 input[12] = Channel.value([ [], [] ])  // eval_bed_dir
                 input[13] = Channel.value([ [id: 'mappability_bw'], file("\${testDataDir}/resources/bwa_ref/test.bw") ])
                 input[14] = Channel.value([ [id: 'cnv_seed_file'], file("\${testDataDir}/resources/bwa_ref/cnv_seed.bed") ])
-                input[15] = Channel.value([ [], [] ])  // repeat_catalog_json
-                input[16] = false  // enable_small_variant_caller
-                input[17] = true   // use_gatk_haplotype_caller
-                input[18] = false  // use_multisample_model
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = false  // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
                 input[19] = 'bwa'  // aligner
                 input[20] = false  // enable_small_variant_caller_retrain
                 input[21] = false  // enable_vcfeval
                 input[22] = true   // enable_copy_number_caller
                 input[23] = true   // enable_copy_number_caller_baf
                 input[24] = false  // enable_str_caller
-                input[25] = true   // enable_merge_vcf
-                input[26] = null   // reference_sdf
-                input[27] = true   // enable_partitioning
-                input[28] = 2      // partition_count
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
                 """
             }
         }
@@ -457,8 +567,211 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.merged_vcf },
-                { assert workflow.out.raw_vc_vcf.size() == 0 },
+                { assert workflow.out.raw_vc_vcf.size() == 1 },
+                { assert workflow.out.svc_pretrained_vcf.size() == 0 },
                 { assert snapshot(workflow.out.merged_vcf).match() }
+            )
+        }
+    }
+
+    test("stub - str caller uses --aligner giraffe when aligner is a giraffe variant") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().vcfevalResources().bams().root()
+        }
+
+        when {
+            params {
+                aligner = 'pb_giraffe'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'par_beds'], file("\${testDataDir}/resources/bwa_ref/test.chrX_PAR.bed"), file("\${testDataDir}/resources/bwa_ref/test.chrY_PAR.bed") ])
+                input[7]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[8]  = Channel.value([ [], [], [] ])  // svc_models
+                input[9]  = Channel.value([ [], [] ])  // truth_vcf_dir
+                input[10]  = Channel.value([ [], [] ])  // train_bed_dir
+                input[11]  = Channel.value([ [], [] ])  // test_bed_dir
+                input[12] = Channel.value([ [], [] ])  // eval_bed_dir
+                input[13] = Channel.value([ [], [] ])  // mappability_bw
+                input[14] = Channel.value([ [], [] ])  // cnv_seed_file
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [id: 'repeat_catalog'], file("\${testDataDir}/resources/STR/hg38/full_repeat_catalog.json") ])
+                input[17] = false         // enable_small_variant_caller
+                input[18] = true          // use_gatk_haplotype_caller
+                input[19] = 'pb_giraffe'  // aligner
+                input[20] = false         // enable_small_variant_caller_retrain
+                input[21] = false         // enable_vcfeval
+                input[22] = false         // enable_copy_number_caller
+                input[23] = false         // enable_copy_number_caller_baf
+                input[24] = true          // enable_str_caller
+                input[25] = false         // enable_mitochondrial_variant_caller
+                input[26] = false          // use_gatk_mutect2_mitochondrial
+                input[27] = true          // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            def strFiles = workflow.out.str_caller_output[0][1]
+            def strJson = new File(strFiles.find { it.toString().endsWith('_str.json') }.toString()).text
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.str_caller_output },
+                // giraffe aligner must map to --aligner giraffe, and must NOT
+                // use the deprecated --giraffe-input-bam flag.
+                { assert strJson.contains('--aligner giraffe') },
+                { assert !strJson.contains('--giraffe-input-bam') }
+            )
+        }
+    }
+
+    test("stub - mitochondrial variant calling enabled") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().vcfevalResources().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])  // subset reference for partitioning
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])  // subset reference dict for partitioning
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'par_beds'], file("\${testDataDir}/resources/bwa_ref/test.chrX_PAR.bed"), file("\${testDataDir}/resources/bwa_ref/test.chrY_PAR.bed") ])
+                input[7]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[8]  = Channel.value([ [id: 'svc_models'], file("\${testDataDir}/resources/variantCaller/svc_model_snv.bin"), file("\${testDataDir}/resources/variantCaller/svc_model_indel.bin") ])
+                input[9]  = Channel.value([ [], [] ])  // truth_vcf_dir
+                input[10]  = Channel.value([ [], [] ])  // train_bed_dir
+                input[11]  = Channel.value([ [], [] ])  // test_bed_dir
+                input[12] = Channel.value([ [], [] ])  // eval_bed_dir
+                input[13] = Channel.value([ [], [] ])  // mappability_bw
+                input[14] = Channel.value([ [], [] ])  // cnv_seed_file
+                input[15] = Channel.value([ [], [] ])  // cnv_seed_file
+                input[16] = Channel.value([ [], [] ])  // repeat_catalog_json
+                input[17] = true   // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
+                input[19] = 'bwa'  // aligner
+                input[20] = false  // enable_small_variant_caller_retrain
+                input[21] = false  // enable_vcfeval
+                input[22] = false  // enable_copy_number_caller
+                input[23] = true   // enable_copy_number_caller_baf
+                input[24] = false  // enable_str_caller
+                input[25] = true   // enable_mitochondrial_variant_caller
+                input[26] = true   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            def metricsBySource = workflow.out.svc_metrics.collectEntries { meta, metrics ->
+                [meta.svc_source, path(metrics).readLines()]
+            }
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.mitochondrial_vcf.size() > 0 },
+                { assert metricsBySource.keySet() == (['small_variant_pretrained', 'small_variant_mitochondria'] as Set) },
+                { assert metricsBySource.values().every { lines -> lines.any { it.startsWith('qc_status\t') } } },
+                { assert workflow.out.merged_vcf },
+                { assert snapshot(workflow.out.merged_vcf).match() },
+                { assert snapshot(workflow.out.mitochondrial_vcf).match("mitochondrial_vcf") }
+            )
+        }
+    }
+
+    test("stub - str caller omits --aligner for non-giraffe aligner") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().variantCallingResources().vcfevalResources().bams().root()
+        }
+
+        when {
+            params {
+                aligner = 'bwa'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0]  = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1]  = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2]  = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3]  = Channel.value([ [id: 'splitintervals_reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[4]  = Channel.value([ [id: 'splitintervals_reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[5]  = Channel.value([ [], [] ])  // intervals
+                input[6]  = Channel.value([ [id: 'par_beds'], file("\${testDataDir}/resources/bwa_ref/test.chrX_PAR.bed"), file("\${testDataDir}/resources/bwa_ref/test.chrY_PAR.bed") ])
+                input[7]  = Channel.value([ [id: 'pop_af'], file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz"), file("\${testDataDir}/resources/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi") ])
+                input[8]  = Channel.value([ [], [], [] ])  // svc_models
+                input[9]  = Channel.value([ [], [] ])  // truth_vcf_dir
+                input[10]  = Channel.value([ [], [] ])  // train_bed_dir
+                input[11]  = Channel.value([ [], [] ])  // test_bed_dir
+                input[12] = Channel.value([ [], [] ])  // eval_bed_dir
+                input[13] = Channel.value([ [], [] ])  // mappability_bw
+                input[14] = Channel.value([ [], [] ])  // cnv_seed_file
+                input[15] = Channel.value([ [], [] ])  // cnv_blocklist_bed
+                input[16] = Channel.value([ [id: 'repeat_catalog'], file("\${testDataDir}/resources/STR/hg38/full_repeat_catalog.json") ])
+                input[17] = false  // enable_small_variant_caller
+                input[18] = true   // use_gatk_haplotype_caller
+                input[19] = 'bwa'  // aligner
+                input[20] = false  // enable_small_variant_caller_retrain
+                input[21] = false  // enable_vcfeval
+                input[22] = false  // enable_copy_number_caller
+                input[23] = false  // enable_copy_number_caller_baf
+                input[24] = true   // enable_str_caller
+                input[25] = false  // enable_mitochondrial_variant_caller
+                input[26] = false   // use_gatk_mutect2_mitochondrial
+                input[27] = true   // enable_merge_vcf
+                input[28] = null   // reference_sdf
+                input[29] = true   // enable_partitioning
+                input[30] = 2      // partition_count
+                input[31] = Channel.empty()  // ch_giraffe_graphs
+                input[32] = Channel.empty()  // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            def strFiles = workflow.out.str_caller_output[0][1]
+            def strJson = new File(strFiles.find { it.toString().endsWith('_str.json') }.toString()).text
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.str_caller_output },
+                // non-giraffe aligner must omit --aligner so the caller auto-detects
+                // from the BAM @PG header (the drop-in replacement for the removed
+                // "nothing passed" --giraffe-input-bam behaviour). 'auto' is not a
+                // valid --aligner value; the caller accepts {unknown, bwa, giraffe}.
+                { assert !strJson.contains('--aligner') },
+                { assert !strJson.contains('--giraffe-input-bam') }
             )
         }
     }

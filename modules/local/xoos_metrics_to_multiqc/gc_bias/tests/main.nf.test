@@ -1,0 +1,57 @@
+nextflow_process {
+
+    name "Test Process XOOS_GC_BIAS_METRICS_TO_MULTIQC"
+    script "../main.nf"
+    process "XOOS_GC_BIAS_METRICS_TO_MULTIQC"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_metrics_to_multiqc"
+    tag "xoos_metrics_to_multiqc/gc_bias"
+
+    test("stub - generates GC bias MultiQC input") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([ [id: 'HG001'], file('gc_bias') ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.multiqc_report_dir,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.multiqc_report_dir.size() == 1 },
+                { assert process.out.multiqc_report_dir[0][1].toString().endsWith('HG001_gc_bias_multiqc_input') },
+            )
+        }
+    }
+
+    test("stub - output dir reflects stage") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'HG001', report_prefix: 'downsampled_metrics'], file('gc_bias') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.multiqc_report_dir[0][1].toString().endsWith('HG001_downsampled_metrics_gc_bias_multiqc_input') },
+            )
+        }
+    }
+}

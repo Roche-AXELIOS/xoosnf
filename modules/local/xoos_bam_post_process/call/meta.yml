@@ -1,0 +1,46 @@
+name: xoos_bam_post_process_call
+description: Estimate mitochondrial read-origin probabilities and emit retained chrM GAF placements.
+keywords:
+  - bam
+  - mitochondria
+  - numt
+  - gaf
+tools:
+  - process-mitochondrial-bam:
+      description: XOOS BAM post-processing tool for mitochondrial read recovery.
+      homepage: https://github.com/Roche-AXELIOS/XOOS
+      licence: ["Apache-2.0"]
+input:
+  - - meta:
+        type: map
+        description: Sample metadata
+    - gaf:
+        type: file
+        description: Multimapping graph alignments
+        pattern: "*.gaf"
+    - paths_gaf:
+        type: file
+        description: chrM graph path node set
+        pattern: "*.gaf"
+    - orig_bam:
+        type: file
+        description: Original coordinate-sorted, indexed, NR-tagged BAM
+        pattern: "*.bam"
+    - orig_bam_index:
+        type: file
+        description: BAM index
+        pattern: "*.bai"
+    - recruit_regions:
+        type: file
+        description: Merged recruitment regions
+        pattern: "*.bed"
+output:
+  gaf:
+    - - meta:
+          type: map
+          description: Sample metadata
+      - "*.chrM.gaf":
+          type: file
+          description: GAF placements assigned to chrM with posterior MAPQ
+authors: []
+maintainers: []

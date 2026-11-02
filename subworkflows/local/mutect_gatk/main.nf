@@ -3,11 +3,6 @@ include { GATK4_MERGEVCFS        } from '../../../modules/nf-core/gatk4/mergevcf
 include { GATK4_MERGEMUTECTSTATS } from '../../../modules/local/gatk4/mergemutectstats/main'
 include { FAI_TO_BED             } from '../../../modules/local/fai_to_bed/main'
 include { GATK4_MUTECT2          } from '../../../modules/local/gatk4/mutect2/main'
-
-def replaceExtension(path, extension) {
-    return file(path).resolveSibling(file(path).baseName + extension)
-}
-
 workflow MUTECT_GATK {
     take:
     ch_bams           // channel: [ val(meta), [path(bam), ...], [path(bai), ..] ]
@@ -102,9 +97,10 @@ workflow MUTECT_GATK {
         )
         .map { meta, vcf, tbi -> [meta - meta.subMap('num_intervals'), vcf, tbi] }
 
-    // Gather BAMs
+    // Gather BAMs — join BAM with its declared BAI emit before stripping interval_name
     mutect_bam = GATK4_MUTECT2.out.bam
-        .map { meta, bam -> [meta - meta.subMap('interval_name'), bam] }
+        .join(GATK4_MUTECT2.out.bai)
+        .map { meta, bam, bai -> [meta - meta.subMap('interval_name'), bam, bai] }
         .branch {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
@@ -113,11 +109,11 @@ workflow MUTECT_GATK {
     ch_bams_out = Channel.empty()
         .mix(
             mutect_bam.intervals
-                .map { meta, bam -> [groupKey(meta, meta.num_intervals), bam] }
+                .map { meta, bam, bai -> [groupKey(meta, meta.num_intervals), bam, bai] }
                 .groupTuple()
-                .map { meta, bams -> [meta, bams, bams.collect { replaceExtension(it, '.bai') }] },
+                .map { meta, bams, bais -> [meta, bams, bais] },
             mutect_bam.no_intervals
-                .map { meta, bam -> [meta, [bam], [replaceExtension(bam, '.bai')]] },
+                .map { meta, bam, bai -> [meta, [bam], [bai]] },
         )
         .map { meta, bams, bais -> [meta - meta.subMap('num_intervals'), bams, bais] }
 

@@ -1,0 +1,76 @@
+name: samtools_bam_sample_name
+description: Extract the first read-group sample (SM) name from a BAM header.
+keywords:
+  - samtools
+  - bam
+  - read-group
+  - sample-name
+tools:
+  - samtools:
+      description: |
+        SAMtools is a set of utilities for interacting with and post-processing
+        short DNA sequence read alignments in the SAM, BAM and CRAM formats.
+      homepage: "http://www.htslib.org/"
+      documentation: "http://www.htslib.org/doc/samtools.html"
+      doi: 10.1093/bioinformatics/btp352
+      licence:
+        - "MIT"
+      identifier: biotools:samtools
+input:
+  - - sample_key:
+        type: string
+        description: Key used to associate the BAM with its sample metadata.
+    - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - role:
+        type: string
+        description: Sample role associated with the BAM (for example, tumor or normal).
+    - bam:
+        type: file
+        description: BAM alignment file whose header contains the read-group SM tag.
+        pattern: "*.bam"
+        ontologies: []
+output:
+  sample_name:
+    - - sample_key:
+          type: string
+          description: Key used to associate the extracted name with its sample metadata.
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - role:
+          type: string
+          description: Sample role associated with the BAM.
+      - sample_name.txt:
+          type: file
+          description: Text file containing the first read-group SM value after safe-character validation.
+          pattern: "sample_name.txt"
+          ontologies: []
+  versions_samtools:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from.
+      - samtools:
+          type: string
+          description: The tool name.
+      - "samtools version | sed '1!d;s/.* //'":
+          type: eval
+          description: The command used to generate the version of the tool.
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from.
+      - samtools:
+          type: string
+          description: The tool name.
+      - "samtools version | sed '1!d;s/.* //'":
+          type: eval
+          description: The command used to generate the version of the tool.
+authors: []
+maintainers: []

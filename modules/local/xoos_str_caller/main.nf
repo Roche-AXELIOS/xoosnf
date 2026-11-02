@@ -1,6 +1,6 @@
 process XOOS_STR_CALLER {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/str_caller:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/str_caller:1.2.0'
 
     label 'process_single'
 
@@ -27,20 +27,26 @@ process XOOS_STR_CALLER {
     str_caller \\
         --reference '${reference}' \\
         --str-catalog '${catalog_path}' \\
-        --bam-input '${bam}' \\
+        --bam '${bam}' \\
         --output-dir str_caller \\
         --output-vcf '${prefix}_str.vcf.gz' \\
         --output-json '${prefix}_str.json' \\
         --sample-name '${meta.id}' \\
+        --threads ${task.cpus} \\
         ${args}
     """
 
     stub:
     prefix = task.ext.prefix ?: meta.id
+    // Surface the constructed ext.args in the stub JSON so nf-test can assert
+    // the effective command-line flags (e.g. --aligner) without a container.
+    def args = task.ext.args ?: ''
     """
     mkdir -p str_caller
     gzip -n < /dev/null > 'str_caller/${prefix}_str.vcf.gz'
     touch 'str_caller/${prefix}_str.vcf.gz.tbi'
-    echo '{"sample": "${prefix}"}' > 'str_caller/${prefix}_str.json'
+    echo '{"sample": "${prefix}", "args": "${args}"}' > 'str_caller/${prefix}_str.json'
+    mkdir -p 'str_caller/metrics'
+    touch 'str_caller/metrics/metrics.tsv'
     """
 }

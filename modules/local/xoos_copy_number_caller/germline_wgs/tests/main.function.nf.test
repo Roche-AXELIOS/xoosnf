@@ -1,0 +1,77 @@
+nextflow_function {
+
+    name "Test germline CNC library-type mapping"
+    script "subworkflows/local/utils_xoos_workflow/main.nf"
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_copy_number_caller"
+
+    test("maps duplex run types to sbx-d") {
+        function "libraryTypeFromRunType"
+
+        when {
+            function {
+                """
+                input[0] = 'SBX-DM'
+                """
+            }
+        }
+
+        then {
+            assert function.success
+            assert function.result == 'sbx-d'
+        }
+    }
+
+    test("maps SBX-FAST to sbx-fast") {
+        function "libraryTypeFromRunType"
+
+        when {
+            function {
+                """
+                input[0] = 'SBX-FAST'
+                """
+            }
+        }
+
+        then {
+            assert function.success
+            assert function.result == 'sbx-fast'
+        }
+    }
+
+    test("maps simplex run types to sbx-s") {
+        function "libraryTypeFromRunType"
+
+        when {
+            function {
+                """
+                input[0] = 'YSU'
+                """
+            }
+        }
+
+        then {
+            assert function.success
+            assert function.result == 'sbx-s'
+        }
+    }
+
+    test("rejects an unsupported run type") {
+        function "libraryTypeFromRunType"
+
+        when {
+            function {
+                """
+                input[0] = 'unsupported'
+                """
+            }
+        }
+
+        then {
+            def output = (function.stdout + function.stderr).join('\n')
+            assert function.failed
+            assert output.contains('Unsupported run type')
+        }
+    }
+}

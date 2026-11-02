@@ -38,6 +38,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 0 },
                 { assert snapshot(workflow.out.bams).match() }
             )
         }
@@ -70,6 +71,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bams },
+                { assert workflow.out.giraffe_graphs.size() == 1 },
                 { assert snapshot(workflow.out.bams).match() }
             )
         }

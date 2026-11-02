@@ -1,0 +1,171 @@
+{
+    "stub - somatic tumor-only with gatk mutect2": {
+        "content": [
+            {
+                "ADD_RUN_INFO_TO_MULTIQC_HEADER": [
+                    "add-run-info-to-multiqc-header"
+                ],
+                "BCFTOOLS_REHEADER_CNC_TO_ORIGINAL": [
+                    "bcftools"
+                ],
+                "BCFTOOLS_REHEADER_SVC_TO_ORIGINAL": [
+                    "bcftools"
+                ],
+                "GATK4_MUTECT2": [
+                    "gatk4"
+                ],
+                "SAMTOOLS_BAM_SAMPLE_NAME": [
+                    "samtools"
+                ],
+                "XOOS_CNC_METRICS_TO_MULTIQC_SOMATIC_TO": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_COMBINE_MULTIQC_REPORTS": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_COPY_NUMBER_CALLER_TUMOR_ONLY_WGS": [
+                    "copy_number_caller"
+                ],
+                "XOOS_GENERATE_REPORT": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_GENERATE_REPORT_SUMMARY": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_CNC_METRICS_SOMATIC_TO": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_READ_COLLAPSER_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_PARSE_SVC_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_READ_COLLAPSER_MARK_DUPLICATES": [
+                    "read_collapser"
+                ],
+                "XOOS_READ_COLLAPSER_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_TUMOR_ONLY_WGS": [
+                    "filter_variants"
+                ],
+                "XOOS_SMALL_VARIANT_CALLER_PHASE_VARIANTS_TUMOR_ONLY_WGS": [
+                    "phase_variants"
+                ]
+            },
+            [
+                "index",
+                "index/alignment_metrics_files.json",
+                "index/bam.json",
+                "index/cnc_output.json",
+                "index/combined_report.json",
+                "index/combined_report_summary.json",
+                "index/contamination_output.json",
+                "index/demux_metrics_files.json",
+                "index/demuxed_fastqs.json",
+                "index/gc_bias_metrics_files.json",
+                "index/germline_filtering_output.json",
+                "index/hs_metrics_files.json",
+                "index/msi_output.json",
+                "index/multiqc_report.json",
+                "index/mutect_stats.json",
+                "index/pre_dedup_bam.json",
+                "index/pre_subsample_bam.json",
+                "index/raw_vc_vcf.json",
+                "index/read_collapser_metrics_files.json",
+                "index/somalier_output.json",
+                "index/str_output.json",
+                "index/svc_mitochondrial_vcf.json",
+                "index/svc_pretrained_vcf.json",
+                "index/svc_retrained_vcf.json",
+                "index/tfe_output.json",
+                "index/vcf.json",
+                "index/vcfeval_output.json",
+                "pipeline_info",
+                "pipeline_info/xoos_software_mqc_versions.yml",
+                "test_run",
+                "test_run/HG001",
+                "test_run/HG001/HG001_markdup.bam",
+                "test_run/HG001/HG001_markdup.bam.bai",
+                "test_run/HG001/copy_number_caller",
+                "test_run/HG001/copy_number_caller/HG001_somatic_copy_number_callset.seg",
+                "test_run/HG001/copy_number_caller/HG001_somatic_copy_number_callset.vcf.gz",
+                "test_run/HG001/copy_number_caller/HG001_somatic_copy_number_callset.vcf.gz.tbi",
+                "test_run/HG001/copy_number_caller/metrics",
+                "test_run/HG001/copy_number_caller/metrics/HG001_metrics.tsv",
+                "test_run/HG001/copy_number_caller/supplemental",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_augmented_intervals.bed",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_bafs.bed",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_log_ratio_segments.seg",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_log_ratios.bed",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_mapping_quality.bed",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_purity_ploidy_grid.tsv",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_segment_likelihood.diploid_bias.tsv",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_segment_likelihood.uniform.tsv",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_tumor_corrected_coverage.bed",
+                "test_run/HG001/copy_number_caller/supplemental/HG001_tumor_coverage.bed",
+                "test_run/HG001/copy_number_caller/tracks",
+                "test_run/HG001/copy_number_caller/tracks/HG001_bafs.bw",
+                "test_run/HG001/copy_number_caller/tracks/HG001_igv_visualization.xml",
+                "test_run/HG001/copy_number_caller/tracks/HG001_log_ratios.bw",
+                "test_run/HG001/mutect2",
+                "test_run/HG001/mutect2/HG001.vcf.gz",
+                "test_run/HG001/mutect2/HG001.vcf.gz.tbi",
+                "test_run/HG001/read_collapser",
+                "test_run/HG001/read_collapser/metrics",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/metrics/summary_stats.tsv",
+                "test_run/HG001/small_variant_caller",
+                "test_run/HG001/small_variant_caller/pretrained",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz",
+                "test_run/HG001/small_variant_caller/pretrained/HG001_reheadered.vcf.gz.tbi",
+                "test_run/HG002",
+                "test_run/HG002/HG002_markdup.bam",
+                "test_run/HG002/HG002_markdup.bam.bai",
+                "test_run/HG002/copy_number_caller",
+                "test_run/HG002/copy_number_caller/HG002_somatic_copy_number_callset.seg",
+                "test_run/HG002/copy_number_caller/HG002_somatic_copy_number_callset.vcf.gz",
+                "test_run/HG002/copy_number_caller/HG002_somatic_copy_number_callset.vcf.gz.tbi",
+                "test_run/HG002/copy_number_caller/metrics",
+                "test_run/HG002/copy_number_caller/metrics/HG002_metrics.tsv",
+                "test_run/HG002/copy_number_caller/supplemental",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_augmented_intervals.bed",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_bafs.bed",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_log_ratio_segments.seg",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_log_ratios.bed",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_mapping_quality.bed",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_purity_ploidy_grid.tsv",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_segment_likelihood.diploid_bias.tsv",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_segment_likelihood.uniform.tsv",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_tumor_corrected_coverage.bed",
+                "test_run/HG002/copy_number_caller/supplemental/HG002_tumor_coverage.bed",
+                "test_run/HG002/copy_number_caller/tracks",
+                "test_run/HG002/copy_number_caller/tracks/HG002_bafs.bw",
+                "test_run/HG002/copy_number_caller/tracks/HG002_igv_visualization.xml",
+                "test_run/HG002/copy_number_caller/tracks/HG002_log_ratios.bw",
+                "test_run/HG002/mutect2",
+                "test_run/HG002/mutect2/HG002.vcf.gz",
+                "test_run/HG002/mutect2/HG002.vcf.gz.tbi",
+                "test_run/HG002/read_collapser",
+                "test_run/HG002/read_collapser/metrics",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/metrics/summary_stats.tsv",
+                "test_run/HG002/small_variant_caller",
+                "test_run/HG002/small_variant_caller/pretrained",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz",
+                "test_run/HG002/small_variant_caller/pretrained/HG002_reheadered.vcf.gz.tbi",
+                "test_run/metrics-report-summary.tsv",
+                "test_run/metrics-report.tsv",
+                "test_run/multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-10-07T19:31:54.981847387",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}

@@ -43,21 +43,21 @@ EMPTY_TFE_TSV = textwrap.dedent("""\
 
 @pytest.fixture
 def tfe_file(tmp_path: Path) -> Path:
-    p = tmp_path / "tumor_fraction.results.tsv"
+    p = tmp_path / "tumor_fraction_estimation_results.tsv"
     p.write_text(TFE_RESULTS_TSV)
     return p
 
 
 @pytest.fixture
 def tfe_file_minimal(tmp_path: Path) -> Path:
-    p = tmp_path / "tumor_fraction.results.tsv"
+    p = tmp_path / "tumor_fraction_estimation_results.tsv"
     p.write_text(TFE_RESULTS_MINIMAL)
     return p
 
 
 @pytest.fixture
 def empty_tfe_file(tmp_path: Path) -> Path:
-    p = tmp_path / "tumor_fraction.results.tsv"
+    p = tmp_path / "tumor_fraction_estimation_results.tsv"
     p.write_text(EMPTY_TFE_TSV)
     return p
 

@@ -23,10 +23,11 @@ nextflow_workflow {
                 def testDataDir = "\${projectDir}/test-data-stub"
                 // BAM channel with reporter_vcf in meta (cfDNA mode)
                 input[0] = Channel.of(
-                    [ [id: 'cfDNA_sample', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz"], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                    [ [id: 'cfDNA_sample', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz", reporter_vcf_tumor_sample: 'TUMOR'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
                 input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
                 input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                input[3] = Channel.value([ [], [], [] ])  // tfe_panel_of_normals
                 """
             }
         }
@@ -54,11 +55,12 @@ nextflow_workflow {
                 def testDataDir = "\${projectDir}/test-data-stub"
                 // Two BAMs each with reporter_vcf in meta
                 input[0] = Channel.of(
-                    [ [id: 'cfDNA_sample_1', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz"], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ],
-                    [ [id: 'cfDNA_sample_2', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz"], file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG002.bam.bai") ]
+                    [ [id: 'cfDNA_sample_1', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz", reporter_vcf_tumor_sample: 'TUMOR'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ],
+                    [ [id: 'cfDNA_sample_2', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz", reporter_vcf_tumor_sample: 'TUMOR'], file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG002.bam.bai") ]
                 )
                 input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
                 input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                input[3] = Channel.value([ [], [], [] ])  // tfe_panel_of_normals
                 """
             }
         }
@@ -90,6 +92,7 @@ nextflow_workflow {
                 )
                 input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
                 input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                input[3] = Channel.value([ [], [], [] ])  // tfe_panel_of_normals
                 """
             }
         }
@@ -99,6 +102,38 @@ nextflow_workflow {
                 { assert workflow.success },
                 { assert workflow.out.results.size() == 0 },
                 { assert workflow.out.custom_multiqc_files.size() == 0 }
+            )
+        }
+    }
+
+    test("stub - TFE with normal sample name") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                // BAM channel with reporter_vcf, tumor sample name, and normal sample name in meta
+                input[0] = Channel.of(
+                    [ [id: 'cfDNA_sample', run_name: 'test_run', run_type: 'SBX-D', reporter_vcf: "af-only-gnomad.hg38.vcf.gz", reporter_vcf_tumor_sample: 'TUMOR', reporter_vcf_normal_sample: 'NORMAL'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [], [] ])  // tfe_included_regions
+                input[3] = Channel.value([ [], [], [] ])  // tfe_panel_of_normals
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.results },
+                { assert workflow.out.custom_multiqc_files },
+                { assert snapshot(workflow.out).match() }
             )
         }
     }

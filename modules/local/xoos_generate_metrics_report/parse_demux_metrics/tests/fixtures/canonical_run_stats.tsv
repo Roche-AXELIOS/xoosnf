@@ -1,0 +1,4 @@
+##RocheCommandLine=<ID=demux,Version="1.2.0-SNAPSHOT">
+metric_name	value	percentage	denominator
+total_reads	100	100.00	total_reads
+too_short_reads	0	NA	NA

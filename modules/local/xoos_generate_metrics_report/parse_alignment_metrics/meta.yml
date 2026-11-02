@@ -31,7 +31,10 @@ input:
         ontologies: []
   - source:
       type: string
-      description: Source/stage label
+      description: Source/stage label used for the report metric key path
+  - report_label:
+      type: string
+      description: Label used for the output filename (`<id>.alignment_metrics_<report_label>.json`)
 output:
   report:
     - - meta:

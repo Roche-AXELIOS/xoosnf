@@ -7,7 +7,8 @@
                         "id": "HG001",
                         "run_name": "test_run",
                         "run_type": "SBX-D",
-                        "bam_dedup": "xoos_markdup"
+                        "bam_dedup_type": "xoos_markdup",
+                        "bam_secondary_rescued": false
                     },
                     "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
                     "HG001_markdup.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -15,6 +16,94 @@
             ]
         ],
         "timestamp": "2026-06-25T19:06:31.268784536",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.4"
+        }
+    },
+    "stub - markdup strategy with pb_fq2bam aligner, pb_markdup BAM is re-marked": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "bam_dedup_type": "xoos_markdup",
+                        "bam_secondary_rescued": false
+                    },
+                    "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_markdup.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-02T20:10:23.381234135",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - markdup strategy with pb_giraffe aligner, rescue not required, sas_markdup BAM is re-marked": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "bam_dedup_type": "xoos_markdup",
+                        "bam_secondary_rescued": false
+                    },
+                    "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_markdup.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-02T20:10:35.603894309",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - markdup strategy with pb_giraffe aligner, rescue required, raw BAM runs secondary rescue and markdup": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "bam_dedup_type": "xoos_markdup",
+                        "bam_secondary_rescued": true
+                    },
+                    "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_markdup.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-02T20:37:58.143511154",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - markdup strategy with pb_fq2bam aligner, raw BAM input runs markdup": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "bam_dedup_type": "xoos_markdup",
+                        "bam_secondary_rescued": false
+                    },
+                    "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001_markdup.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-06-25T19:06:49.834102392",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.4"
@@ -29,7 +118,7 @@
                         "run_name": "test_run",
                         "run_type": "SBX-D",
                         "single_end": true,
-                        "bam_dedup": "xoos_consensus"
+                        "bam_dedup_type": "xoos_consensus"
                     },
                     "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
                     "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -42,7 +131,7 @@
             "nextflow": "26.04.4"
         }
     },
-    "stub - markdup strategy with pb_giraffe aligner, BAM sas_markdup, no rescue (skips markdup)": {
+    "stub - xoos_markdup input bypasses markdup when rescue is not required": {
         "content": [
             [
                 [
@@ -50,7 +139,7 @@
                         "id": "HG001",
                         "run_name": "test_run",
                         "run_type": "SBX-D",
-                        "bam_dedup": "sas_markdup",
+                        "bam_dedup_type": "xoos_markdup",
                         "bam_secondary_rescued": false
                     },
                     "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -58,13 +147,13 @@
                 ]
             ]
         ],
-        "timestamp": "2026-07-02T14:35:01.098849700",
+        "timestamp": "2026-10-02T20:38:34.315736198",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     },
-    "stub - markdup strategy with pb_giraffe aligner, BAM sas_markdup, rescue required (runs markdup)": {
+    "stub - xoos_secondary_rescue_and_markdup input bypasses both rescue and markdup": {
         "content": [
             [
                 [
@@ -72,7 +161,29 @@
                         "id": "HG001",
                         "run_name": "test_run",
                         "run_type": "SBX-D",
-                        "bam_dedup": "xoos_markdup",
+                        "bam_dedup_type": "xoos_markdup",
+                        "bam_secondary_rescued": true
+                    },
+                    "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                    "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-02T20:38:45.410085254",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - xoos_markdup input re-runs rescue and markdup when rescue is required": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "bam_dedup_type": "xoos_markdup",
                         "bam_secondary_rescued": true
                     },
                     "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -80,13 +191,13 @@
                 ]
             ]
         ],
-        "timestamp": "2026-07-02T14:35:11.412396422",
+        "timestamp": "2026-10-02T20:39:08.514080425",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     },
-    "stub - markdup strategy with pb_fq2bam aligner, BAM already pb_markdup (skips markdup)": {
+    "stub - xoos_consensus input bypasses consensus": {
         "content": [
             [
                 [
@@ -94,7 +205,7 @@
                         "id": "HG001",
                         "run_name": "test_run",
                         "run_type": "SBX-D",
-                        "bam_dedup": "pb_markdup",
+                        "bam_dedup_type": "xoos_consensus",
                         "bam_secondary_rescued": false
                     },
                     "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
@@ -102,32 +213,10 @@
                 ]
             ]
         ],
-        "timestamp": "2026-06-25T19:06:39.788673487",
+        "timestamp": "2026-10-02T20:39:19.368509244",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     },
-    "stub - markdup strategy with pb_fq2bam aligner, BAM not yet marked (runs markdup)": {
-        "content": [
-            [
-                [
-                    {
-                        "id": "HG001",
-                        "run_name": "test_run",
-                        "run_type": "SBX-D",
-                        "bam_dedup": "xoos_markdup",
-                        "bam_secondary_rescued": false
-                    },
-                    "HG001_markdup.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
-                    "HG001_markdup.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
-                ]
-            ]
-        ],
-        "timestamp": "2026-06-25T19:06:49.834102392",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
-        }
-    }
 }

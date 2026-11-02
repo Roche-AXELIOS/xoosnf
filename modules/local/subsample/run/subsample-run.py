@@ -207,28 +207,55 @@ def main(
     strategy: SubsampleStrategy,
 ):
     device_dirs = [Path(p) for p in sorted(input_dir.rglob("device_*"))]
-    if len(device_dirs) == 0:
+
+    if run_type == RunType.fastq:
+        if len(device_dirs) > 0:
+            for device_dir in device_dirs:
+                subsample_device_fastq(
+                    device_dir,
+                    to_output(input_dir, device_dir, output_dir),
+                    copy_mode,
+                    strategy,
+                )
+            return
+
+        fastq_conversion_dirs = [
+            Path(p)
+            for p in sorted(input_dir.rglob("fastqConversion"))
+            if Path(p).is_dir()
+        ]
+        if len(fastq_conversion_dirs) > 0:
+            for fastq_conversion_dir in fastq_conversion_dirs:
+                subsample_device_fastq(
+                    fastq_conversion_dir,
+                    to_output(input_dir, fastq_conversion_dir, output_dir),
+                    copy_mode,
+                    strategy,
+                )
+            return
+
         raise Exception(
-            f"No device directories found, run directory is likely corrupted: {input_dir}"
+            "No fastq input directories found. Expected either 'device_*' directories "
+            "or 'fastqConversion' directories under "
+            f"'{input_dir}'."
         )
 
-    for device_dir in device_dirs:
-        if run_type == RunType.fastq:
-            subsample_device_fastq(
-                device_dir,
-                to_output(input_dir, device_dir, output_dir),
-                copy_mode,
-                strategy,
+    if run_type == RunType.basecall_rdb:
+        if len(device_dirs) == 0:
+            raise Exception(
+                f"No device directories found, run directory is likely corrupted: {input_dir}"
             )
-        elif run_type == RunType.basecall_rdb:
+
+        for device_dir in device_dirs:
             subsample_device_basecall_rdb(
                 device_dir,
                 to_output(input_dir, device_dir, output_dir),
                 copy_mode,
                 strategy,
             )
-        else:
-            raise ValueError(f"Unrecognized run_type {run_type}")
+        return
+
+    raise ValueError(f"Unrecognized run_type {run_type}")
 
 
 if __name__ == "__main__":

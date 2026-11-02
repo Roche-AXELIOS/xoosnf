@@ -1,0 +1,52 @@
+nextflow_pipeline {
+
+    name "Test pipeline - invalid samplesheet produces clean error"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "samplesheet_validation"
+
+    test("stub - invalid samplesheet fails with clean nf-schema error, no stack trace") {
+        options "-stub"
+
+        setup {
+            // Create BAM dir (run_dir) and BWA index (required by param validation)
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .bams()
+                .writeResources()
+
+            def inputsDir = "${launchDir}/test-data/inputs"
+            def bamDir    = "${inputsDir}/bam"
+
+            // Invalid samplesheet: sample_sid is empty, violating the required+pattern constraint
+            new File("${inputsDir}/invalid_samplesheet.csv").text = """\
+sample_name,sample_sid,bam_type
+HG001,,xoos_markdup
+""".stripIndent()
+
+            new File("${inputsDir}/invalid_input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/invalid_samplesheet.csv
+""".stripIndent()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir  = "$outputDir"
+                input   = "${launchDir}/test-data/inputs/invalid_input.csv"
+                aligner = 'bwa'
+            }
+        }
+
+        then {
+            assert workflow.failed
+            // The clean nf-schema validation message must be present in any output line
+            assert workflow.stdout.any { it.contains("sample_sid") } || workflow.stderr.any { it.contains("sample_sid") }
+            // Raw DataflowHelper/reflection stack trace must NOT be present
+            assert !workflow.stdout.any { it.contains("InvocationTargetException") }
+            assert !workflow.stderr.any { it.contains("InvocationTargetException") }
+        }
+    }
+}

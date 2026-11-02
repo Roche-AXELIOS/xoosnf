@@ -1,5 +1,5 @@
 process XOOS_PARSE_RESCUE_SECONDARY_METRICS {
-    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.2.0'
     conda false
 
     label 'process_single'
@@ -20,7 +20,7 @@ process XOOS_PARSE_RESCUE_SECONDARY_METRICS {
     generate-metrics-report parse-read-collapser-metrics \\
         --sample-name '${meta.id}' \\
         --source 'rescue_secondary' \\
-        --input '${rescue_secondary_metrics}/metrics/${meta.id}.rescue_secondary_metrics.tsv' \\
+        --input '${rescue_secondary_metrics}/metrics/${meta.id}_rescue_secondary_metrics.tsv' \\
         --output '${meta.id}.rescue_secondary.json'
     """
 

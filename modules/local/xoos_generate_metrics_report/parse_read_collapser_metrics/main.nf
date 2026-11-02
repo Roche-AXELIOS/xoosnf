@@ -1,5 +1,5 @@
 process XOOS_PARSE_READ_COLLAPSER_METRICS {
-    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.2.0'
     conda false
 
     label 'process_single'
@@ -20,8 +20,8 @@ process XOOS_PARSE_READ_COLLAPSER_METRICS {
     generate-metrics-report parse-read-collapser-metrics \\
         --sample-name '${meta.id}' \\
         --source 'read_collapser' \\
-        --input '${read_collapser_metrics}/summary_stats.tsv' \\
-        --input '${read_collapser_metrics}/cluster_size_distribution_summary.tsv' \\
+        --input '${read_collapser_metrics}/metrics/summary_stats.tsv' \\
+        --input '${read_collapser_metrics}/metrics/cluster_size_distribution_summary.tsv' \\
         --output '${meta.id}.read_collapser.json'
     """
 

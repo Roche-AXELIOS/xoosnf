@@ -1,0 +1,54 @@
+name: xoos_gc_bias_metrics_to_multiqc
+description: Convert alignment_metrics GC bias metrics into MultiQC input files.
+keywords:
+  - multiqc
+  - gc-bias
+  - metrics
+tools:
+  - xoos_to_multiqc:
+      description: XOOS tool that converts metrics into MultiQC-compatible input files.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: Sample metadata, e.g. `[ id:'sample1' ]`.
+    - gc_bias:
+        type: file
+        description: Directory containing gc_bias.tsv.
+        ontologies: []
+output:
+  multiqc_report_dir:
+    - - meta:
+          type: map
+          description: Sample metadata.
+      - "*_gc_bias_multiqc_input":
+          type: file
+          description: Directory containing MultiQC custom content.
+          pattern: "*_gc_bias_multiqc_input"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Process name.
+      - xoos_to_multiqc:
+          type: string
+          description: Tool name.
+      - xoos_to_multiqc.py --version:
+          type: eval
+          description: Command used to obtain the tool version.
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Process name.
+      - xoos_to_multiqc:
+          type: string
+          description: Tool name.
+      - xoos_to_multiqc.py --version:
+          type: eval
+          description: Command used to obtain the tool version.
+authors: []
+maintainers: []

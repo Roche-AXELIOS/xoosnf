@@ -1,8 +1,6 @@
-FROM debian:13.4-slim
+FROM cgr.dev/chainguard/wolfi-base
 
-RUN apt-get -qq update && apt-get -qq upgrade -y \
-  && apt-get -qq install -y --no-install-recommends procps python3 \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache bash python-3.13 procps
 
 ENV PATH=/apps:${PATH}
 COPY generate-metrics-report.py /apps/generate-metrics-report

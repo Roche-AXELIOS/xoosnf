@@ -47,4 +47,39 @@ nextflow_pipeline {
             )
         }
     }
+
+    test("stub - incompatible externally deduplicated BAM fails validation") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .bams()
+                .xoosMarkdupBamSamplesheet()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                              = "$outputDir"
+                input                               = "${launchDir}/test-data/inputs/input_samplesheet_xoos_markdup.csv"
+                aligner                             = 'bwa'
+                dedup_strategy                      = 'none'
+                variant_calling_mode                = 'none'
+                enable_small_variant_caller         = false
+                enable_copy_number_caller           = false
+                enable_str_caller                   = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("bam_type 'xoos_markdup'") },
+                { assert combined.contains("requires pipeline dedup_strategy='markdup'") }
+            )
+        }
+    }
 }

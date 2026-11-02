@@ -17,7 +17,8 @@ input:
       type: channel
       description: |
         BAM files with index. Only samples with a non-empty meta.reporter_vcf
-        path are processed.
+        path are processed. meta must also contain reporter_vcf_tumor_sample
+        (required when reporter_vcf is set) and optionally reporter_vcf_normal_sample.
         Structure: [ val(meta), path(bam), path(bai) ]
   - ch_reference:
       type: channel
@@ -30,6 +31,11 @@ input:
         Optional included regions BED for TFE. When empty the binary uses
         its bundled default.
         Structure: [ val(meta_bed), path(bed) ]
+  - ch_tfe_panel_of_normals:
+      type: channel
+      description: |
+        Optional panel of normals TSV for TFE.
+        Structure: [ val(meta_pon), path(panel_of_normals_tsv), path(panel_of_normals_tbi) ]
 output:
   - results:
       type: channel

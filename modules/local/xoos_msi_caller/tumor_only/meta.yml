@@ -1,0 +1,96 @@
+name: xoos_msi_caller_tumor_only
+description: |
+  Call microsatellite instability (MSI) status from a tumor BAM with the
+  XOOS msi_caller. Beta / experimental module.
+keywords:
+  - msi
+  - microsatellite-instability
+  - tumor-only
+  - somatic
+tools:
+  - msi_caller:
+    description: XOOS microsatellite instability caller (experimental).
+    homepage: "https://github.com/Roche-AXELIOS/XOOS"
+    documentation: "https://roche-axelios.gitbook.io/xoos"
+    licence: ["XOOS Public License"]
+    identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy map of sample information, e.g.
+          `[ id:'sample1' ]`.
+    - tumor_bam:
+        type: file
+        description: Coordinate-sorted tumor BAM file.
+        pattern: "*.bam"
+    - tumor_bam_index:
+        type: file
+        description: Index for the tumor BAM file.
+        pattern: "*.{bai,csi}"
+  - - meta2:
+        type: map
+        description: Groovy map for the background thresholds resource.
+    - background_threshold_json:
+        type: file
+        description: |
+          Optional panel-of-normals background distribution and thresholds JSON.
+          When empty, the pipeline supplies its bundled default.
+        pattern: "*.json"
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: Groovy map of sample information.
+      - "*_msi_results.vcf.gz":
+          type: file
+          description: BGZF-compressed and indexed MSI call results in VCF format.
+          pattern: "*_msi_results.vcf.gz"
+  json:
+    - - meta:
+          type: map
+          description: Groovy map of sample information.
+      - "*_msi_results.json":
+          type: file
+          description: MSI statistics in JSON format.
+          pattern: "*_msi_results.json"
+  tsv:
+    - - meta:
+          type: map
+          description: Groovy map of sample information.
+      - "metrics/*_msi_statistics.tsv":
+          type: file
+          description: MSI statistics in TSV format.
+          pattern: "*_msi_statistics.tsv"
+  results_dir:
+    - - meta:
+          type: map
+          description: Groovy map of sample information.
+      - "msi_caller/*":
+          type: file
+          description: All files emitted into the msi_caller output directory.
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process.
+      - msi_caller:
+          type: string
+          description: The name of the tool.
+      - msi_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool.
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process.
+      - msi_caller:
+          type: string
+          description: The name of the tool.
+      - msi_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool.
+authors:
+  - "@carrola5"
+maintainers:
+  - "@carrola5"

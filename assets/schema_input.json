@@ -31,7 +31,7 @@
             },
             "file_type": {
                 "type": "string",
-                "enum": ["basecall_rdb", "basecall_fastq", "demultiplexed_fastq", "bam"],
+                "enum": ["basecall_rdb", "basecall_fastq", "demultiplexed_fastq", "bam", "cram"],
                 "meta": ["file_type"]
             },
             "run_dir": {
@@ -55,7 +55,7 @@
                     "xoos_consensus"
                 ],
                 "meta": ["bam_type"],
-                "description": "State of pre-aligned input BAMs (file_type = 'bam'). Declares which deduplication and secondary-rescue steps have already been applied so the pipeline can skip steps that would be redundant or non-idempotent (notably secondary rescue). Defaults to 'sas_markdup' when omitted. Ignored for non-BAM input types."
+                "description": "State of pre-aligned input BAMs/CRAMs (file_type = 'bam' or 'cram'). Declares which deduplication and secondary-rescue steps have already been applied so the pipeline can skip steps that would be redundant or non-idempotent (notably secondary rescue). Defaults to 'sas_markdup' when omitted. Ignored for basecall and FASTQ input types."
             }
         },
         "required": ["run_name", "run_type", "file_type", "run_dir", "samplesheet"]

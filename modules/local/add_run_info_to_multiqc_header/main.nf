@@ -1,6 +1,6 @@
 process ADD_RUN_INFO_TO_MULTIQC_HEADER {
     conda false
-    container 'ghcr.io/roche-axelios/xoosnf/add-run-info-to-multiqc-header:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/add-run-info-to-multiqc-header:1.2.0'
 
     label 'process_single'
 

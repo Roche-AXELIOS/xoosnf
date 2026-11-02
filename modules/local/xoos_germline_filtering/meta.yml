@@ -1,0 +1,91 @@
+name: xoos_germline_filtering
+description: Filter germline variants from a tumor-only sample's VCF using the XOOS germline_filtering tool in predict mode. SNV/INDEL models default to the ones shipped in the container.
+keywords:
+  - germline-filtering
+  - tumor-only
+  - somatic
+tools:
+  - germline_filtering:
+      description: XOOS germline variant filtering tool.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - vcf:
+        type: file
+        description: Small variant caller VCF for the sample
+        ontologies: []
+    - seg:
+        type: file
+        description: Copy number caller SEG file (carries purity/ploidy)
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.vcf.gz":
+          type: file
+          description: "Germline/somatic-tagged VCF"
+          pattern: "*.vcf.gz"
+          ontologies: []
+      - "*.vcf.gz.tbi":
+          type: file
+          description: "Tabix index for the tagged VCF"
+          pattern: "*.vcf.gz.tbi"
+          ontologies: []
+  prediction:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_prediction.csv":
+          type: file
+          description: "Per-variant germline/somatic classifications with probabilities"
+          pattern: "*_prediction.csv"
+          ontologies: []
+  metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "metric/*.tsv":
+          type: file
+          description: "Per-sample QC metrics TSV"
+          pattern: "metric/*.tsv"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - germline_filtering:
+          type: string
+          description: The name of the tool
+      - germline_filtering --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - germline_filtering:
+          type: string
+          description: The name of the tool
+      - germline_filtering --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@roche-axelios"
+maintainers:
+  - "@roche-axelios"

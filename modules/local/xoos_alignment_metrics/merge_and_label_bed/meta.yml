@@ -1,0 +1,69 @@
+name: xoos_merge_and_label_bed
+description: "Merge one or more region BED files into a single labeled BED whose 4th column is a comma-separated list of labels, for use with `alignment_metrics --stratify-by-label`."
+keywords:
+  - alignment
+  - metrics
+  - bed
+  - regions
+  - labels
+tools:
+  - merge_and_label_bed:
+      description: "XOOS tool that merges multiple BED files, each paired with a label, into a single labeled BED. Overlapping regions from different labels are split at their boundaries and their labels are combined. Inputs may be gzip/bgzip compressed."
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - labels:
+        type: list
+        description: |
+          List of label strings, paired positionally with `beds` (labels[i] is
+          assigned to all regions of beds[i]). At most 16 distinct labels are
+          supported; a label must be usable as a directory name (no path
+          separators, control characters, or whitespaces).
+    - beds:
+        type: list
+        description: |
+          List of BED files, paired positionally with `labels`. Each file may be
+          plain or gzip/bgzip compressed when named with a `.gz` extension.
+        ontologies: []
+output:
+  labeled_bed:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*.labeled.bed":
+          type: file
+          description: "Single merged, labeled BED file with a comma-separated 4th label column."
+          pattern: "*.labeled.bed"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - alignment_metrics:
+          type: string
+          description: The name of the tool
+      - merge_and_label_bed --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - alignment_metrics:
+          type: string
+          description: The name of the tool
+      - merge_and_label_bed --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors: []
+maintainers: []

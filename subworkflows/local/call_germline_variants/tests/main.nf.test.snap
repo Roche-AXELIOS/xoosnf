@@ -22,6 +22,49 @@
             "nextflow": "26.04.3"
         }
     },
+    "stub - mitochondrial variant calling enabled": {
+        "content": [
+            [
+                [
+                    {
+                        "groupSize": 2,
+                        "groupTarget": {
+                            "id": "HG001",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D"
+                        }
+                    },
+                    "HG001.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                    "HG001.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-21T17:44:37.698776881",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "mitochondrial_vcf": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D"
+                    },
+                    "HG001_chrM_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                    "HG001_chrM_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-31T00:00:00.000000000",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
     "stub - germline small variant caller with retrain enabled": {
         "content": [
             [
@@ -100,8 +143,8 @@
                         "run_name": "test_run",
                         "run_type": "SBX-D"
                     },
-                    "HG001_germline_copy_number_callset.vcf.gz:md5,d41d8cd98f00b204e9800998ecf8427e",
-                    "HG001_germline_copy_number_callset.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    "HG001_cnc_reheadered.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                    "HG001_cnc_reheadered.vcf.gz.tbi:md5,d41d8cd98f00b204e9800998ecf8427e"
                 ],
                 [
                     {
@@ -152,7 +195,7 @@
             "nextflow": "26.04.3"
         }
     },
-    "stub - default model with giraffe aligner and multisample": {
+    "stub - default model with giraffe aligner and YS simplex run type": {
         "content": [
             [
                 [
@@ -161,7 +204,7 @@
                         "groupTarget": {
                             "id": "HG001",
                             "run_name": "test_run",
-                            "run_type": "SBX-FAST"
+                            "run_type": "YS"
                         }
                     },
                     "HG001.vcf.gz:md5,68b329da9893e34099c7d8ad5cb9c940",

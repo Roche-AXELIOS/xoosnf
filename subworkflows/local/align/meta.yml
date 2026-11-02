@@ -44,5 +44,10 @@ output:
       description: |
         Aligned BAM files with index
         Structure: [ val(meta), path(bam), path(bai) ]
+  - giraffe_graphs:
+      type: channel
+      description: |
+        Giraffe graph components used for alignment. Empty for non-Giraffe aligners.
+        Structure: [ val(meta), path(gbz), path(zipcodes), path(min), path(dist) ]
 authors: []
 maintainers: []

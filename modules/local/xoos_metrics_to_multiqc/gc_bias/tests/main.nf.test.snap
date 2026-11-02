@@ -1,0 +1,27 @@
+{
+    "stub - generates GC bias MultiQC input": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001"
+                    },
+                    [
+                        "xoos_gc_bias_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ],
+            [
+                [
+                    "XOOS_GC_BIAS_METRICS_TO_MULTIQC",
+                    "xoos_to_multiqc"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T08:33:48.54964919",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}

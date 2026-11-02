@@ -1,0 +1,61 @@
+nextflow_pipeline {
+
+    name "Test SVC metrics channel wiring"
+    script "../main.nf"
+    tag "pipeline"
+    tag "svc_metrics"
+
+    test("stub - SVC metrics reach the merged-report workflow") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .panelOfNormals()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_somatic_tn.csv"
+                aligner                     = 'bwa'
+                variant_calling_mode        = 'somatic_tn'
+                enable_small_variant_caller = true
+                use_gatk_mutect2            = true
+                dedup_strategy              = 'markdup'
+                metrics_report_summary_patterns = ['small_variant']
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(
+                params.outdir,
+                relative: true,
+                includeDir: true,
+                ignore: ['pipeline_info/*.{html,json,txt}']
+            )
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k == "XOOS_PARSE_SVC_METRICS" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+
+            assertAll(
+                { assert workflow.success },
+                // The generic report processes intentionally keep their
+                // standard stubs. SVC content is validated at the parser
+                // boundary; this integration test verifies the channel is
+                // wired through the complete workflow without changing
+                // generic report-process behavior.
+                { assert path("$outputDir/test_run/metrics-report.tsv").readLines() == ['metric\tvalue'] },
+                { assert path("$outputDir/test_run/metrics-report-summary.tsv").readLines() == ['metric\tvalue'] },
+                { assert snapshot(stableVersions).match() }
+            )
+        }
+    }
+}

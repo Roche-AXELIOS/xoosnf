@@ -54,13 +54,16 @@ from parsers import (
     parse_coverage_metrics,
     parse_demux_run_stats,
     parse_demux_sample_stats,
+    parse_gc_bias_metrics,
+    parse_gc_bias_summary,
     parse_hp_accuracy,
     parse_tfe_results,
     parse_read_collapser_cluster_size_distributions,
     parse_read_collapser_summary,
-    parse_tfe_results,
     parse_read_length_summary,
     parse_read_metrics,
+    parse_somalier_pairs,
+    parse_somalier_samples,
     parse_str_metrics,
     parse_vcfeval_summary,
     parse_vcfeval_roc,
@@ -303,6 +306,37 @@ SECTION_DEFS: dict[str, dict[str, Any]] = {
             "ylab": "True Positives"
         },
     },
+    "gc_bias": {
+        "id": "xoos_gc_bias",
+        "section_name": "XOOS GC Bias",
+        "description": "Normalized coverage by GC percentage from alignment_metrics. A perfect library would be a flat line at y = 1.",
+        "plot_type": "linegraph",
+        "pconfig": {
+            "id": "xoos_gc_bias",
+            "title": "XOOS GC Bias",
+            "xlab": "GC Percentage",
+            "ylab": "Normalized Coverage",
+            "xmin": 0,
+            "xmax": 100,
+            "y_lines": [
+                {"value": 1, "color": "#999999", "width": 2, "dash": "longdash"},
+            ],
+        },
+    },
+    "gc_bias_dropout": {
+        "id": "xoos_gc_bias_dropout",
+        "section_name": "XOOS GC Bias Dropout",
+        "description": "AT and GC dropout from alignment_metrics.",
+        "plot_type": "table",
+        "pconfig": {
+            "id": "xoos_gc_bias_dropout_table",
+            "title": "XOOS GC Bias Dropout",
+        },
+        "headers": {
+            "AT Dropout": {"format": "{:.4f}"},
+            "GC Dropout": {"format": "{:.4f}"},
+        },
+    },
     "tfe_contamination_metrics": {
         "id": "xoos_tfe_contamination_metrics",
         "section_name": "XOOS TFE / Contamination Metrics",
@@ -418,6 +452,112 @@ SECTION_DEFS: dict[str, dict[str, Any]] = {
             "ylab": "Count",
             "xmin": 1,
             "tt_decimals": 0,
+        },
+    },
+    "somalier_pair_relatedness": {
+        "id": "xoos_somalier_pair_relatedness",
+        "section_name": "XOOS Somalier Pair Relatedness",
+        "description": "Pairwise relatedness metrics from somalier. Shows relatedness, IBS0, IBS2, homozygosity concordance, and shared sites for each sample pair.",
+        "plot_type": "table",
+        "pconfig": {
+            "id": "xoos_somalier_pair_relatedness_table",
+            "title": "XOOS Somalier Pair Relatedness",
+            "sortRows": True,
+        },
+        "headers": {
+            "Relatedness": {
+                "format": "{:,.4f}",
+                "min": -1,
+                "max": 1,
+                "scale": "RdYlGn",
+                "description": "Estimated coefficient of relatedness",
+            },
+            "IBS0": {
+                "format": "{:,.0f}",
+                "description": "Sites with zero shared alleles (high values suggest sample swap)",
+            },
+            "IBS2": {
+                "format": "{:,.0f}",
+                "description": "Sites with both alleles shared",
+            },
+            "Hom Concordance": {
+                "format": "{:,.4f}",
+                "min": 0,
+                "max": 1,
+                "description": "Concordance rate at homozygous sites",
+            },
+            "Shared Hets": {
+                "format": "{:,.0f}",
+                "description": "Number of shared heterozygous genotypes",
+            },
+            "Shared Hom Alts": {
+                "format": "{:,.0f}",
+                "description": "Number of shared homozygous alt genotypes",
+            },
+            "N Sites": {
+                "format": "{:,.0f}",
+                "description": "Total informative sites used for comparison",
+            },
+        },
+    },
+    "somalier_sample_stats": {
+        "id": "xoos_somalier_sample_stats",
+        "section_name": "XOOS Somalier Sample Statistics",
+        "description": "Per-sample genotype statistics from somalier. Includes depth, allele balance, and genotype counts at informative sites.",
+        "plot_type": "table",
+        "pconfig": {
+            "id": "xoos_somalier_sample_stats_table",
+            "title": "XOOS Somalier Sample Statistics",
+        },
+        "headers": {
+            "GT Depth Mean": {
+                "format": "{:,.1f}",
+                "description": "Mean depth at genotyped sites",
+            },
+            "GT Depth SD": {
+                "format": "{:,.1f}",
+                "description": "Std dev of depth at genotyped sites",
+            },
+            "Depth Mean": {
+                "format": "{:,.1f}",
+                "description": "Mean depth across all sites",
+            },
+            "Depth SD": {
+                "format": "{:,.1f}",
+                "description": "Std dev of depth across all sites",
+            },
+            "AB Mean": {
+                "format": "{:,.3f}",
+                "min": 0,
+                "max": 1,
+                "description": "Mean allele balance at het sites",
+            },
+            "AB Std": {
+                "format": "{:,.3f}",
+                "description": "Std dev of allele balance",
+            },
+            "P Middling AB": {
+                "format": "{:,.3f}",
+                "min": 0,
+                "max": 1,
+                "description": "Fraction of het sites with AB in [0.2, 0.8] (contamination indicator)",
+            },
+            "N Hom Ref": {
+                "format": "{:,.0f}",
+                "description": "Number of homozygous reference genotypes",
+            },
+            "N Het": {
+                "format": "{:,.0f}",
+                "description": "Number of heterozygous genotypes",
+            },
+            "N Hom Alt": {
+                "format": "{:,.0f}",
+                "description": "Number of homozygous alt genotypes",
+            },
+            "N Unknown": {
+                "format": "{:,.0f}",
+                "description": "Number of unknown/missing genotypes",
+            },
         },
     },
 }
@@ -553,6 +693,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="summary.tsv from vcfeval.",
     )
     parser.add_argument(
+        "--gc-bias",
+        type=Path,
+        action=SampleAction,
+        metavar="FILE",
+        help="gc_bias.tsv from alignment_metrics gcbias.",
+    )
+    parser.add_argument(
+        "--gc-bias-summary",
+        type=Path,
+        action=SampleAction,
+        metavar="FILE",
+        help="gc_bias_summary.tsv from alignment_metrics gcbias.",
+    )
+    parser.add_argument(
         "--tfe-contamination-results",
         type=Path,
         action=SampleAction,
@@ -564,7 +718,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         action=SampleAction,
         metavar="FILE",
-        help="Results TSV from tumor_fraction_estimator (e.g. tumor_fraction.results.tsv or contamination.results.tsv).",
+        help="Results TSV from tumor_fraction_estimator (e.g. tumor_fraction.results.tsv or contamination_estimation_results.tsv).",
     )
     parser.add_argument(
         "--str-metrics",
@@ -606,6 +760,19 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         metavar="FILE",
         help="Demux sample_stats.tsv (contains all samples).",
+    )
+
+    parser.add_argument(
+        "--somalier-pairs-tsv",
+        type=Path,
+        metavar="FILE",
+        help="somalier pairs.tsv (pairwise relatedness from somalier relate).",
+    )
+    parser.add_argument(
+        "--somalier-samples-tsv",
+        type=Path,
+        metavar="FILE",
+        help="somalier samples.tsv (per-sample genotype statistics from somalier relate).",
     )
 
     parser.add_argument(
@@ -731,13 +898,20 @@ def process_inputs(args: argparse.Namespace) -> None:
         # row key so every region/stage appears as its own row in one table
         # instead of silently dropping all but the first dataset.
         accuracy_row = _row_key(sample_name, tab_label)
-        accuracy_target = single_report_sections["accuracy_metrics"][accuracy_row]
 
         for f in inputs.get("accuracy_metrics", []):
-            _parse_file(f, parse_accuracy_metrics, accuracy_target)
+            _parse_file(
+                f,
+                parse_accuracy_metrics,
+                single_report_sections["accuracy_metrics"][accuracy_row],
+            )
 
         for f in inputs.get("hp_errors", []):
-            _parse_file(f, parse_hp_accuracy, accuracy_target)
+            _parse_file(
+                f,
+                parse_hp_accuracy,
+                single_report_sections["accuracy_metrics"][accuracy_row],
+            )
 
         for f in inputs.get("coverage_metrics", []):
             coverage_metrics = parse_coverage_metrics(f)
@@ -747,7 +921,6 @@ def process_inputs(args: argparse.Namespace) -> None:
             for sub_key, sub_label in (
                 ("coverage", "Coverage"),
                 ("post_filter_coverage", "Post-filter Coverage"),
-                ("concordant_duplex_coverage", "Concordant Duplex Coverage"),
             ):
                 if coverage_metrics[sub_key]:
                     label = f"{tab_label} - {sub_label}" if tab_label else sub_label
@@ -782,6 +955,23 @@ def process_inputs(args: argparse.Namespace) -> None:
         for f in inputs.get("vcfeval_indel_roc", []):
             multi_report_sections["vcfeval_roc"]["Indel"][sample_name] = parse_vcfeval_roc(f)
             _parse_file(f, parse_vcfeval_summary_from_roc, single_report_sections["vcfeval_summary_indel"][sample_name])
+
+        for f in inputs.get("gc_bias", []):
+            points = parse_gc_bias_metrics(f)
+            if points:
+                label = (
+                    f"{tab_label} - Normalized Coverage by GC%"
+                    if tab_label
+                    else "Normalized Coverage by GC%"
+                )
+                multi_report_sections["gc_bias"][label][sample_name] = points
+
+        for f in inputs.get("gc_bias_summary", []):
+            _parse_file(
+                f,
+                parse_gc_bias_summary,
+                single_report_sections["gc_bias_dropout"][_row_key(sample_name, tab_label)],
+            )
 
         for f in inputs.get("tfe_contamination_results", []):
             _parse_file(f, parse_tfe_results, single_report_sections["tfe_contamination_metrics"][sample_name])
@@ -903,6 +1093,22 @@ def process_inputs(args: argparse.Namespace) -> None:
         )
         if bases_bar:
             multi_report_sections["demux_sample_metrics"]["Base Composition"] = bases_bar
+
+    # --- Somalier run-level metrics ---
+    if args.somalier_pairs_tsv and args.somalier_pairs_tsv.exists():
+        pair_data = parse_somalier_pairs(args.somalier_pairs_tsv)
+        if pair_data:
+            single_report_sections["somalier_pair_relatedness"] = pair_data
+    elif args.somalier_pairs_tsv:
+        logger.warning("File not found: %s", args.somalier_pairs_tsv)
+
+    if args.somalier_samples_tsv and args.somalier_samples_tsv.exists():
+        sample_data = parse_somalier_samples(args.somalier_samples_tsv)
+        if sample_data:
+            single_report_sections["somalier_sample_stats"] = sample_data
+    elif args.somalier_samples_tsv:
+        logger.warning("File not found: %s", args.somalier_samples_tsv)
+
 
     # --- Write MultiQC JSON files ---
     files_written = 0

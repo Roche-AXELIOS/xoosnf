@@ -54,7 +54,7 @@ input:
           e.g. `[ id:'sample1' ]`
     - mappability_bigwig:
         type: file
-        description: Mappability bigWig track
+        description: Optional mappability BigWig override. When omitted, Copy Number Caller selects its bundled track by library type.
         ontologies: []
   - - meta4:
         type: map
@@ -64,6 +64,15 @@ input:
     - cnv_seed_file:
         type: file
         description: CNV seed regions file
+        ontologies: []
+  - - meta5:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - blocklist_bed:
+        type: file
+        description: BED file of regions to exclude from copy number analysis before generating intervals
         ontologies: []
 output:
   vcf:

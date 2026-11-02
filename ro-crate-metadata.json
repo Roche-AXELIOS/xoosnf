@@ -1,29 +1,23 @@
 {
     "@context": [
-        "https://w3id.org/ro/crate/1.2/context",
-        {
-            "GithubService": "https://w3id.org/ro/terms/test#GithubService",
-            "JenkinsService": "https://w3id.org/ro/terms/test#JenkinsService",
-            "PlanemoEngine": "https://w3id.org/ro/terms/test#PlanemoEngine",
-            "TestDefinition": "https://w3id.org/ro/terms/test#TestDefinition",
-            "TestInstance": "https://w3id.org/ro/terms/test#TestInstance",
-            "TestService": "https://w3id.org/ro/terms/test#TestService",
-            "TestSuite": "https://w3id.org/ro/terms/test#TestSuite",
-            "TravisService": "https://w3id.org/ro/terms/test#TravisService",
-            "definition": "https://w3id.org/ro/terms/test#definition",
-            "engineVersion": "https://w3id.org/ro/terms/test#engineVersion",
-            "instance": "https://w3id.org/ro/terms/test#instance",
-            "resource": "https://w3id.org/ro/terms/test#resource",
-            "runsOn": "https://w3id.org/ro/terms/test#runsOn"
-        }
+        "https://w3id.org/ro/crate/1.3/context",
+        "https://w3id.org/ro/terms/test"
     ],
     "@graph": [
         {
             "@id": "./",
             "@type": "Dataset",
+            "conformsTo": [
+                {
+                    "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.1"
+                },
+                {
+                    "@id": "https://w3id.org/ro/wftest/0.2"
+                }
+            ],
             "creativeWorkStatus": "Stable",
-            "datePublished": "2026-07-13T00:16:18+00:00",
-            "description": "# Roche-AXELIOS/xoosnf\n\n[![GitHub Actions CI Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml)\n[![GitHub Actions Linting Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)\n[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)\n\n[![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)\n[![nf-core template version](https://img.shields.io/badge/nf--core_template-4.0.2-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.0.2)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/Roche-AXELIOS/xoosnf)\n\n## Introduction\n\n**Roche-AXELIOS/xoosnf** is an end-to-end Nextflow pipeline for processing sequencing data produced by the Roche AXELIOS 1 sequencer.\n\nPlease see our complete [documentation](https://roche-axelios.gitbook.io/xoos/analysis-pipeline/xoosnf) for more information.\n\n## Usage\n\nSee the [documentation](https://roche-axelios.gitbook.io/xoos/analysis-pipeline/xoosnf) for full usage instructions.\n\nFirst, install all required dependencies:\n\n- [Java >=17](https://adoptopenjdk.net/releases.html)\n- [docker](https://docs.docker.com/engine/install/)\n\nNext, download the test datasets and nextflow:\n\n```bash\ncurl -sSL https://github.com/Roche-AXELIOS/xoosnf-test-datasets/releases/download/1.1.0/xoosnf-test-datasets.tar.gz | tar -xzf -\n\ncurl -sSL -o nextflow https://github.com/nextflow-io/nextflow/releases/download/v26.04.6/nextflow-26.04.6-dist\nchmod +x nextflow\n```\n\nNow, you can run the pipeline from basecall FASTQs, demultiplexed FASTQs, or BAMs using:\n\n```bash\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input basecall_fastq/runsheet.csv \\\n    --outdir $(pwd)/output/basecall_fastq \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_variant_calling_partitioning false \\\n    --enable_contamination_estimation false\n\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input bam/runsheet.csv \\\n    --outdir $(pwd)/output/demultiplexed \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_variant_calling_partitioning false \\\n    --enable_contamination_estimation false\n\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input bam/runsheet.csv \\\n    --outdir output/bam \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_variant_calling_partitioning false \\\n    --enable_contamination_estimation false\n```\n\n## Credits\n\nWe thank the following people for their extensive assistance in the development of this pipeline:\n\nPlease see [CITATION.cff](CITATION.cff).\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](docs/CONTRIBUTING.md).\n\n## Citations\n\n<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->\n<!-- If you use Roche-AXELIOS/xoosnf for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->\n\nThis pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n",
+            "datePublished": "2026-10-21T14:23:43+00:00",
+            "description": "# Roche-AXELIOS/xoosnf\n\n[![GitHub Actions CI Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml)\n[![GitHub Actions Linting Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml)\n[![Cite with Zenodo](https://img.shields.io/badge/DOI-10.5281/zenodo.21339773-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.21339773)\n[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)\n\n[![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)\n[![nf-core template version](https://img.shields.io/badge/nf--core_template-4.0.2-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.0.2)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/Roche-AXELIOS/xoosnf)\n\n## Introduction\n\n**Roche-AXELIOS/xoosnf** is an end-to-end Nextflow pipeline for processing sequencing data produced by the Roche AXELIOS 1 sequencer.\n\nPlease see our complete [documentation](https://roche-axelios.gitbook.io/xoos/analysis-pipeline/xoosnf) for more information.\n\n## Usage\n\nSee the [documentation](https://roche-axelios.gitbook.io/xoos/analysis-pipeline/xoosnf) for full usage instructions.\n\nFirst, install all required dependencies:\n\n- [Java >=17](https://adoptopenjdk.net/releases.html)\n- [docker](https://docs.docker.com/engine/install/)\n\nNext, download the test datasets and nextflow:\n\n```bash\ncurl -sSL https://github.com/Roche-AXELIOS/xoosnf-test-datasets/releases/download/1.1.0/xoosnf-test-datasets.tar.gz | tar -xzf -\n\ncurl -sSL -o nextflow https://github.com/nextflow-io/nextflow/releases/download/v26.04.6/nextflow-26.04.6-dist\nchmod +x nextflow\n```\n\nNow, you can run the pipeline from basecall FASTQs, demultiplexed FASTQs, BAMs, or CRAMs using:\n\n```bash\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input basecall_fastq/runsheet.csv \\\n    --outdir $(pwd)/output/basecall_fastq \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_contamination_estimation false\n\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input demultiplexed_fastq/runsheet.csv \\\n    --outdir $(pwd)/output/demultiplexed_fastq \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_contamination_estimation false\n\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input bam/runsheet.csv \\\n    --outdir output/bam \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_contamination_estimation false\n\nNXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \\\n  ./nextflow run Roche-AXELIOS/xoosnf \\\n    -profile docker,test,germline_wgs_duplex \\\n    -params-file xoosnf-test-datasets/resources/resources.json \\\n    --input cram/runsheet.csv \\\n    --outdir output/cram \\\n    --aligner bwa \\\n    --enable_pangenome_personalization false \\\n    --use_gatk_haplotype_caller true \\\n    --enable_contamination_estimation false\n```\n\n## Credits\n\nWe thank the following people for their extensive assistance in the development of this pipeline:\n\nPlease see [CITATION.cff](CITATION.cff).\n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](docs/CONTRIBUTING.md).\n\n## Citations\n\nIf you use Roche-AXELIOS/xoosnf for your analysis, please cite it using the following doi: [10.5281/zenodo.21339773](https://doi.org/10.5281/zenodo.21339773)\n\nThis pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n",
             "hasPart": [
                 {
                     "@id": "main.nf"
@@ -90,7 +84,7 @@
             },
             "mentions": [
                 {
-                    "@id": "#75d76041-5104-4f3c-9ce6-dd0d3203477e"
+                    "@id": "#53e09f91-5aef-40ec-aea4-2f39fe36b9f4"
                 }
             ],
             "name": "Roche-AXELIOS/xoosnf"
@@ -101,14 +95,9 @@
             "about": {
                 "@id": "./"
             },
-            "conformsTo": [
-                {
-                    "@id": "https://w3id.org/ro/crate/1.2"
-                },
-                {
-                    "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"
-                }
-            ]
+            "conformsTo": {
+                "@id": "https://w3id.org/ro/crate/1.3"
+            }
         },
         {
             "@id": "main.nf",
@@ -126,7 +115,7 @@
                 }
             ],
             "dateCreated": "",
-            "dateModified": "2026-07-13T00:16:23Z",
+            "dateModified": "2026-10-21T14:23:43Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
             "description": "XOOS (sbX Optimized Open Source) Nextflow pipeline for processing sequencing data produced by the Roche AXELIOS 1 sequencer",
             "keywords": [
@@ -147,7 +136,7 @@
                     "@id": "https://orcid.org/0009-0007-0595-3053"
                 },
                 {
-                    "@id": "#76c03ece-767d-4de2-9dd9-1ffe5d921b52"
+                    "@id": "#5f464316-822f-42d7-bc2c-cdc6ccea6083"
                 }
             ],
             "name": [
@@ -161,10 +150,10 @@
             },
             "url": [
                 "https://github.com/Roche-AXELIOS/xoosnf",
-                "https://nf-co.re/Roche-AXELIOS/xoosnf/1.1.0/"
+                "https://nf-co.re/Roche-AXELIOS/xoosnf/1.2.0/"
             ],
             "version": [
-                "1.1.0"
+                "1.2.0"
             ]
         },
         {
@@ -180,11 +169,20 @@
             "version": "!>=25.10.4"
         },
         {
-            "@id": "#75d76041-5104-4f3c-9ce6-dd0d3203477e",
+            "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.1",
+            "@type": [
+                "CreativeWork",
+                "Profile"
+            ],
+            "name": "Workflow RO-Crate",
+            "version": "1.1"
+        },
+        {
+            "@id": "#53e09f91-5aef-40ec-aea4-2f39fe36b9f4",
             "@type": "TestSuite",
             "instance": [
                 {
-                    "@id": "#bc6f66a7-d994-4528-99c9-3656ade8200e"
+                    "@id": "#be9ce4ea-5ec4-4270-baed-4ac903026b48"
                 }
             ],
             "mainEntity": {
@@ -193,7 +191,16 @@
             "name": "Test suite for Roche-AXELIOS/xoosnf"
         },
         {
-            "@id": "#bc6f66a7-d994-4528-99c9-3656ade8200e",
+            "@id": "https://w3id.org/ro/wftest/0.2",
+            "@type": [
+                "CreativeWork",
+                "Profile"
+            ],
+            "name": "Workflow Testing RO-Crate",
+            "version": "0.2"
+        },
+        {
+            "@id": "#be9ce4ea-5ec4-4270-baed-4ac903026b48",
             "@type": "TestInstance",
             "name": "GitHub Actions workflow for testing Roche-AXELIOS/xoosnf",
             "resource": "repos/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml",
@@ -331,9 +338,10 @@
             "url": "https://github.com/gaoj66-roche"
         },
         {
-            "@id": "#76c03ece-767d-4de2-9dd9-1ffe5d921b52",
+            "@id": "#5f464316-822f-42d7-bc2c-cdc6ccea6083",
             "@type": "Person",
             "affiliation": "Roche",
+            "email": "pavan_kumar.kotha@external.roche.com",
             "name": "Pavan Kumar Kotha"
         }
     ]

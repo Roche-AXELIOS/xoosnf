@@ -5,6 +5,7 @@ include { ALIGN_PB_FQ2BAM    } from './align_pb_fq2bam'
 include { ALIGN_PB_MINIMAP2  } from './align_pb_minimap2'
 include { ALIGN_PB_GIRAFFE   } from './align_pb_giraffe'
 include { ALIGN_VG_GIRAFFE   } from './align_vg_giraffe'
+include { PREPARE_GIRAFFE_INPUTS } from './prepare_giraffe_inputs'
 
 workflow ALIGN {
     take:
@@ -24,6 +25,17 @@ workflow ALIGN {
 
     // 2. Initialize empty output channel
     bams = channel.empty()
+
+    // Prepare the graph resources once before dispatching to either Giraffe
+    // implementation. Both aligners consume the same prepared input tuple.
+    ch_giraffe_inputs = channel.empty()
+    if (aligner in ['pb_giraffe', 'vg_giraffe']) {
+        ch_giraffe_inputs = PREPARE_GIRAFFE_INPUTS(
+            ch_reads_for_alignment,
+            ch_giraffe_idx,
+            params.enable_pangenome_personalization.toBoolean(),
+        ).align_inputs
+    }
 
     // 3. Select aligner and delegate to appropriate subworkflow using the conditionally modified channel
     if (aligner == 'bwa') {
@@ -62,8 +74,7 @@ workflow ALIGN {
     }
     else if (aligner == 'pb_giraffe') {
         giraffe_out = ALIGN_PB_GIRAFFE(
-            ch_reads_for_alignment,
-            ch_giraffe_idx,
+            ch_giraffe_inputs,
             ch_ref_paths,
         )
         bams = giraffe_out.bams
@@ -71,8 +82,8 @@ workflow ALIGN {
     }
     else if (aligner == 'vg_giraffe') {
         giraffe_out = ALIGN_VG_GIRAFFE(
-            ch_reads_for_alignment,
-            ch_giraffe_idx,
+            ch_giraffe_inputs,
+            ch_ref_paths,
         )
         bams = giraffe_out.bams
         ch_versions = ch_versions.mix(ALIGN_VG_GIRAFFE.out.versions)
@@ -82,6 +93,9 @@ workflow ALIGN {
     }
 
     emit:
-    bams     // channel: [ val(meta), path(bam), path(bai) ]
-    versions = ch_versions
+    bams           // channel: [ val(meta), path(bam), path(bai) ]
+    giraffe_graphs = ch_giraffe_inputs.map { meta, _reads, graph, zipcodes, minimizers, dist ->
+        [meta, graph, zipcodes, minimizers, dist]
+    }
+    versions       = ch_versions
 }

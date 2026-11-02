@@ -1,0 +1,39 @@
+nextflow_process {
+
+    name "Test Process XOOS_READ_COLLAPSER_RESCUE_SECONDARY"
+    script "../main.nf"
+    process "XOOS_READ_COLLAPSER_RESCUE_SECONDARY"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_read_collapser"
+    tag "xoos_read_collapser/rescue_secondary"
+
+    test("stub - emits rescued bam and metrics dir with prefixed naming") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'HG001'], file('input.bam'), file('input.bam.bai') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // The rescued BAM is renamed to <id>_rescued.bam by the module.
+                { assert process.out.rescued_bam.size() == 1 },
+                { assert process.out.rescued_bam[0][0].id == 'HG001' },
+                { assert process.out.rescued_bam[0][1].toString().endsWith('HG001_rescued.bam') },
+                // The metrics dir stub carries the prefixed 'metrics/' layout:
+                // <output-dir>/metrics/<prefix>_rescue_secondary_metrics.tsv.
+                { assert process.out.metrics_dir.size() == 1 },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/HG001_rescue_secondary_metrics.tsv").exists() },
+            )
+        }
+    }
+}

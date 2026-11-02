@@ -1,26 +1,5 @@
 include { CREATE_PERSONALIZED_PANGENOME } from './create_personalized_pangenome'
-
-def resolveGiraffeIndexComponents(idxDir) {
-    // Use file() with type:'dir' so Nextflow resolves the path through
-    // the correct filesystem provider (local or S3/GCS).  Path.list()
-    // delegates to that provider, unlike File.listFiles() which only
-    // works on local filesystems.
-    def baseDir = file(idxDir, type: 'dir', checkIfExists: true)
-    def gbzFiles = baseDir.list()?.findAll { it -> it.endsWith('.gbz') }?.sort()
-
-    if (!gbzFiles) {
-        error("No .gbz file found in Giraffe index directory: ${idxDir}")
-    }
-
-    def prefix = gbzFiles.first().replaceFirst(/\.gbz$/, '')
-
-    return [
-        gbz : file(baseDir.resolve("${prefix}.gbz"), checkIfExists: true),
-        zipcodes : file(baseDir.resolve("${prefix}.zipcodes"), checkIfExists: true),
-        minimizer : file(baseDir.resolve("${prefix}.min"), checkIfExists: true),
-        dist : file(baseDir.resolve("${prefix}.dist"), checkIfExists: true),
-    ]
-}
+include { resolveGiraffeIndexComponents } from '../utils_xoos_workflow/main'
 
 workflow PREPARE_GIRAFFE_INPUTS {
     take:

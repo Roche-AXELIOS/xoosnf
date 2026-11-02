@@ -1,0 +1,40 @@
+nextflow_process {
+
+    name "Test Process XOOS_READ_COLLAPSER_MARK_DUPLICATES"
+    script "../main.nf"
+    process "XOOS_READ_COLLAPSER_MARK_DUPLICATES"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_read_collapser"
+    tag "xoos_read_collapser/markdup"
+
+    test("stub - emits markdup bam and metrics under metrics/ subdir") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'HG001'], file('input.bam'), file('input.bam.bai') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.markdup_bams.size() == 1 },
+                { assert process.out.markdup_bams[0][1].toString().endsWith('HG001_markdup.bam') },
+                { assert process.out.markdup_bams[0][2].toString().endsWith('HG001_markdup.bam.bai') },
+                // The emitted metrics dir preserves the tool's 'metrics/' nesting,
+                // matching the rescue-secondary layout.
+                { assert process.out.metrics_dir.size() == 1 },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/summary_stats.tsv").exists() },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/cluster_size_distribution_summary.tsv").exists() },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/cluster_size_distributions.tsv").exists() },
+            )
+        }
+    }
+}

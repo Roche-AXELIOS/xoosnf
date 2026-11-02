@@ -1,0 +1,39 @@
+nextflow_process {
+
+    name "Test Process XOOS_MSI_CALLER_TUMOR_ONLY"
+    script "../main.nf"
+    process "XOOS_MSI_CALLER_TUMOR_ONLY"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_msi_caller"
+    tag "xoos_msi_caller/tumor_only"
+
+    test("stub - runs tumor-only MSI and emits results dir") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [
+                        [id: 'TUMOR1'], file('tumor.bam'), file('tumor.bam.bai')
+                    ]
+                )
+                input[1] = Channel.value([[], []])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf.size() == 1 },
+                { assert process.out.vcf[0][1].toString().endsWith('TUMOR1_msi_results.vcf.gz') },
+                { assert process.out.json.size() == 1 },
+                { assert process.out.tsv[0][1].toString().endsWith('metrics/TUMOR1_msi_statistics.tsv') },
+                { assert process.out.results_dir[0][0].id == 'TUMOR1' },
+            )
+        }
+    }
+}

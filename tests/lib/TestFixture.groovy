@@ -139,6 +139,7 @@ HG002,CCTGCGGTTGAA,T,pair1
             'test.gbz', 'test.min', 'test.dist', 'test.gbwt', 'test.hapl',
             'test.pg', 'test.ri', 'test.vg', 'test.fa', 'test.fa.fai', 'test.dict',
             'test.shortread.withzip.min', 'test.shortread.zipcodes',
+            'test.ref_paths_dict', 'test.chrm_paths.grch38.gaf',
         ].each { emptyFile("${dir}/${it}") }
         // Pipeline derives {prefix}.zipcodes from the .gbz basename.
         emptyFile("${dir}/test.zipcodes")
@@ -167,6 +168,7 @@ HG002,CCTGCGGTTGAA,T,pair1
         def resources = "${root}/resources"
         [
             'svc_model_snv.bin', 'svc_model_indel.bin', 'svc_model_somatic_tn.bin',
+            'svc_model_somatic_to.bin',
         ].each { emptyFile("${resources}/variantCaller/${it}") }
 
         emptyFile("${resources}/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz")
@@ -175,12 +177,26 @@ HG002,CCTGCGGTTGAA,T,pair1
         // Parsed as JSON by the pipeline — must be valid, empty list is fine.
         textFile("${resources}/STR/hg38/full_repeat_catalog.json", '[]\n')
         resourceParams.putAll([
-            svc_model_germline_snv        : "${resources}/variantCaller/svc_model_snv.bin",
-            svc_model_germline_indel      : "${resources}/variantCaller/svc_model_indel.bin",
-            svc_model_somatic_tumor_normal: "${resources}/variantCaller/svc_model_somatic_tn.bin",
-            pop_af_vcf                    : "${resources}/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz",
-            pop_af_tbi                    : "${resources}/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi",
-            repeat_catalog                : "${resources}/STR/hg38/full_repeat_catalog.json",
+            svc_model_germline_snv         : "${resources}/variantCaller/svc_model_snv.bin",
+            svc_model_germline_indel       : "${resources}/variantCaller/svc_model_indel.bin",
+            svc_model_somatic_tumor_normal : "${resources}/variantCaller/svc_model_somatic_tn.bin",
+            svc_model_somatic_tumor_only   : "${resources}/variantCaller/svc_model_somatic_to.bin",
+            pop_af_vcf                     : "${resources}/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz",
+            pop_af_tbi                     : "${resources}/gatk-best-practices/hg38/af-only-gnomad.hg38.vcf.gz.tbi",
+            repeat_catalog                 : "${resources}/STR/hg38/full_repeat_catalog.json",
+        ])
+        return this
+    }
+
+    /** Indexed panel-of-normals VCF for somatic small-variant filtering. */
+    TestFixture panelOfNormals() {
+        def pon = "${root}/resources/variantCaller/pon.vcf.gz"
+        def ponIndex = "${pon}.tbi"
+        emptyFile(pon)
+        emptyFile(ponIndex)
+        resourceParams.putAll([
+            svc_panel_of_normals_vcf: pon,
+            svc_panel_of_normals_tbi: ponIndex,
         ])
         return this
     }
@@ -217,6 +233,28 @@ HG002,CCTGCGGTTGAA,T,pair1
         return this
     }
 
+    /**
+     * Valid basecall FASTQ run sheet whose run directory contains zero reads.
+     *
+     * The run directory and samplesheet are deliberately non-empty: schema
+     * validation must accept the input and the pipeline must reach demux and
+     * downstream stages. Only the gzip FASTQ payload is empty.
+     */
+    TestFixture emptyBasecallFastq() {
+        def inputs = "${root}/inputs/empty_basecall_fastq"
+        def runDir = new File(inputs, 'run')
+        def samplesheet = new File(inputs, 'samplesheet.csv')
+        def runSheet = new File(inputs, 'runsheet.csv')
+        def fastq = new File(runDir, 'empty_reads.fastq.gz')
+
+        runDir.mkdirs()
+        new java.util.zip.GZIPOutputStream(new FileOutputStream(fastq)).close()
+        samplesheet.text = "sample_name,sample_sid\nempty_sample,ACGTACGT\n"
+        runSheet.text = "run_name,run_type,file_type,run_dir,samplesheet\n" +
+            "empty_fastq_run,SBX-D,basecall_fastq,${runDir.absolutePath},${samplesheet.absolutePath}\n"
+        return this
+    }
+
     /** Empty BAM placeholders + indexes. */
     TestFixture bams() {
         def bamDir = "${root}/inputs/bam"
@@ -227,12 +265,31 @@ HG002,CCTGCGGTTGAA,T,pair1
         return this
     }
 
+    /** Somalier sites VCF placeholder for sample verification. */
+    TestFixture somalierSites() {
+        def resources = "${root}/resources"
+        emptyFile("${resources}/somalier_sites.vcf")
+        resourceParams.putAll([somalier_sites_vcf: "${resources}/somalier_sites.vcf"])
+        return this
+    }
+
+    /** Empty CRAM placeholders + indexes. */
+    TestFixture crams() {
+        def cramDir = "${root}/inputs/cram"
+        SAMPLES.each { sample ->
+            emptyFile("${cramDir}/${sample}.cram")
+            emptyFile("${cramDir}/${sample}.cram.crai")
+        }
+        return this
+    }
+
     /** Input samplesheets + per-run sample sheets (parsed by the pipeline). */
     TestFixture samplesheets() {
         def inputs = "${root}/inputs"
         def fastqDir = "${inputs}/raw_fastq/duplex"
         def simplexDir = "${inputs}/raw_fastq/simplex"
         def bamDir = "${inputs}/bam"
+        def cramDir = "${inputs}/cram"
         def samplesheet = "${inputs}/samplesheet_stub.csv"
         def samplesheetSomatic = "${inputs}/samplesheet_somatic_tn.csv"
 
@@ -249,6 +306,11 @@ run_name,run_type,file_type,run_dir,samplesheet
 test_run,SBX-D,bam,${bamDir},${samplesheet}
 """)
 
+        textFile("${inputs}/input_samplesheet_cram.csv", """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,cram,${cramDir},${samplesheet}
+""")
+
         textFile("${inputs}/input_samplesheet_somatic_tn.csv", """\
 run_name,run_type,file_type,run_dir,samplesheet
 test_run,SBX-D,bam,${bamDir},${samplesheetSomatic}
@@ -258,6 +320,24 @@ test_run,SBX-D,bam,${bamDir},${samplesheetSomatic}
 run_name,run_type,file_type,run_dir,samplesheet
 test_run,YSU,basecall_fastq,${simplexDir},${samplesheet}
 """)
+        return this
+    }
+
+    /** BAM input samplesheet declaring an externally XOOS-marked BAM. */
+    TestFixture xoosMarkdupBamSamplesheet() {
+        def inputs = "${root}/inputs"
+        def bamDir = "${inputs}/bam"
+        def samplesheet = "${inputs}/samplesheet_xoos_markdup.csv"
+
+        textFile(samplesheet, """\
+sample_name,sample_sid,bam_type
+HG001,CTATTGAAGGCT,xoos_markdup
+""".stripIndent())
+
+        textFile("${inputs}/input_samplesheet_xoos_markdup.csv", """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${samplesheet}
+""".stripIndent())
         return this
     }
 

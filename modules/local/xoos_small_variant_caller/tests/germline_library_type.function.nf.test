@@ -1,0 +1,89 @@
+nextflow_function {
+
+    name "Test germline SVC library-type normalization"
+    script "modules/local/xoos_small_variant_caller/germline_library_type.nf"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_small_variant_caller"
+
+    test("maps YS to the SVC simplex library type") {
+
+        function "germlineLibraryTypeOption"
+
+        when {
+            function {
+                """
+                input[0] = 'YS'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--library-type sbx-s' }
+            )
+        }
+    }
+
+    test("maps YSU to the SVC simplex library type") {
+
+        function "germlineLibraryTypeOption"
+
+        when {
+            function {
+                """
+                input[0] = 'YSU'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--library-type sbx-s' }
+            )
+        }
+    }
+
+    test("maps YS-NEW to the SVC simplex library type") {
+
+        function "germlineLibraryTypeOption"
+
+        when {
+            function {
+                """
+                input[0] = 'YS-NEW'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--library-type sbx-s' }
+            )
+        }
+    }
+
+    test("preserves the SBX-D library type") {
+
+        function "germlineLibraryTypeOption"
+
+        when {
+            function {
+                """
+                input[0] = 'SBX-D'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == '--library-type sbx-d' }
+            )
+        }
+    }
+}

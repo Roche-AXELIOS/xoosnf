@@ -1,5 +1,5 @@
 process XOOS_PARSE_CNC_METRICS {
-    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.2.0'
     conda false
 
     label 'process_single'
@@ -17,7 +17,7 @@ process XOOS_PARSE_CNC_METRICS {
 
     script:
     """
-    metrics_file=\$(find . -maxdepth 1 -name '*_metrics.tsv' | head -1)
+    metrics_file=\$(find -L . -maxdepth 2 -name '*_metrics.tsv' | head -1)
     if [ -z "\$metrics_file" ]; then
         echo "ERROR: *_metrics.tsv not found in staged files" >&2
         exit 1

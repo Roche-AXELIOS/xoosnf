@@ -1,5 +1,5 @@
 process XOOS_PARSE_GC_BIAS_METRICS {
-    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.2.0'
     conda false
 
     label 'process_single'
@@ -16,7 +16,6 @@ process XOOS_PARSE_GC_BIAS_METRICS {
     task.ext.when == null || task.ext.when
 
     script:
-    // Must match the prefix used by PICARD_COLLECT_GC_BIAS_METRICS
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     generate-metrics-report parse-gc-bias \\

@@ -1,5 +1,5 @@
 {
-    "stub - TFE with reporter VCF from samplesheet": {
+    "stub - TFE with normal sample name": {
         "content": [
             {
                 "0": [
@@ -8,11 +8,15 @@
                             "id": "cfDNA_sample",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR",
+                            "reporter_vcf_normal_sample": "NORMAL"
                         },
                         [
-                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ]
                 ],
@@ -22,7 +26,9 @@
                             "id": "cfDNA_sample",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR",
+                            "reporter_vcf_normal_sample": "NORMAL"
                         },
                         [
                             "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -35,7 +41,9 @@
                             "id": "cfDNA_sample",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR",
+                            "reporter_vcf_normal_sample": "NORMAL"
                         },
                         [
                             "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -48,20 +56,97 @@
                             "id": "cfDNA_sample",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR",
+                            "reporter_vcf_normal_sample": "NORMAL"
                         },
                         [
-                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-06-20T20:11:44.093565336",
+        "timestamp": "2026-09-15T05:32:24.847760144",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - TFE with reporter VCF from samplesheet": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
+                        },
+                        [
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "custom_multiqc_files": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
+                        },
+                        [
+                            "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ],
+                "results": [
+                    [
+                        {
+                            "id": "cfDNA_sample",
+                            "run_name": "test_run",
+                            "run_type": "SBX-D",
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
+                        },
+                        [
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        ]
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-09-15T05:31:59.998301468",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
         }
     },
     "stub - TFE with multiple reporter VCF samples": {
@@ -73,11 +158,14 @@
                             "id": "cfDNA_sample_1",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
-                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ],
                     [
@@ -85,11 +173,14 @@
                             "id": "cfDNA_sample_2",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
-                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ]
                 ],
@@ -99,7 +190,8 @@
                             "id": "cfDNA_sample_1",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
                             "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -110,7 +202,8 @@
                             "id": "cfDNA_sample_2",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
                             "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -123,7 +216,8 @@
                             "id": "cfDNA_sample_1",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
                             "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -134,7 +228,8 @@
                             "id": "cfDNA_sample_2",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
                             "xoos_tfe_metrics_mqc.json:md5,d41d8cd98f00b204e9800998ecf8427e"
@@ -147,11 +242,14 @@
                             "id": "cfDNA_sample_1",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
-                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ],
                     [
@@ -159,20 +257,23 @@
                             "id": "cfDNA_sample_2",
                             "run_name": "test_run",
                             "run_type": "SBX-D",
-                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz"
+                            "reporter_vcf": "af-only-gnomad.hg38.vcf.gz",
+                            "reporter_vcf_tumor_sample": "TUMOR"
                         },
                         [
-                            "tumor_fraction.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "tumor_fraction.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ],
+                            "tumor_fraction_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
                         ]
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-06-20T18:11:26.360784848",
+        "timestamp": "2026-09-15T05:32:08.816465706",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
         }
     }
 }

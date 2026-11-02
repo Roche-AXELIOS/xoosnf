@@ -1,0 +1,89 @@
+nextflow_function {
+
+    name "Test samplesheet utility functions"
+    script "subworkflows/local/utils_samplesheet/main.nf"
+    tag "subworkflows"
+    tag "utils_samplesheet"
+
+    test("preserves optional columns during sectioned samplesheet conversion") {
+
+        function "samplesheetColumnAliases"
+
+        when {
+            function {
+                """
+                // No inputs.
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result.sample_type == 'sample_type' },
+                { assert function.result.truth_sample_name == 'truth_sample_name' }
+            )
+        }
+    }
+
+    test("uses an explicit truth sample name") {
+
+        function "resolveTruthSampleName"
+
+        when {
+            function {
+                """
+                input[0] = [id: 'HCC1395_TG_5_6', truth_sample_name: 'HCC1395']
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == 'HCC1395' }
+            )
+        }
+    }
+
+    test("falls back to the base sample identifier") {
+
+        function "resolveTruthSampleName"
+
+        when {
+            function {
+                """
+                input[0] = [id: 'HG002_sample029_sid7']
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == 'HG002' }
+            )
+        }
+    }
+
+    test("supports a workflow-specific fallback") {
+
+        function "resolveTruthSampleName"
+
+        when {
+            function {
+                """
+                input[0] = [id: 'HCC1395_TG_5_6']
+                input[1] = 'HCC1395_TG_5_6'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert function.success },
+                { assert function.result == 'HCC1395_TG_5_6' }
+            )
+        }
+    }
+}

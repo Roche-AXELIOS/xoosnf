@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "DOWNSAMPLED_BWA_METRICS"
+description: Downsample raw consensus FASTQs, re-align them with the configured aligner, and run the full alignment metrics suite on the re-aligned BAM for cross-validation (parity check) with the R&D pipeline
+keywords:
+  - downsample
+  - alignment
+  - bwa
+  - metrics
+  - parity
+components:
+  - subsample_fastq_random
+  - align_bwa
+  - align_pb_fq2bam
+  - metrics
+input:
+  - ch_fastq:
+      type: channel
+      description: Raw consensus FASTQ files
+  - ch_reference:
+      type: channel
+      description: Reference FASTA with index
+  - ch_bwa_idx:
+      type: channel
+      description: BWA index directory
+  - ch_autosomes_bed:
+      type: channel
+      description: Autosomes BED file
+  - ch_target_bed:
+      type: channel
+      description: Target regions BED file
+  - ch_capture_bed:
+      type: channel
+      description: Capture regions BED file
+  - ch_high_confidence_bed_dir:
+      type: channel
+      description: High confidence regions BED directory
+  - ch_fallback_high_confidence_bed:
+      type: channel
+      description: Fallback high confidence BED file
+  - ch_reference_for_metrics:
+      type: channel
+      description: Reference FASTA with index used by metrics tools
+  - enable_alignment_metrics_autosomes:
+      type: boolean
+      description: Enable alignment metrics on autosomes
+  - enable_alignment_metrics_targets:
+      type: boolean
+      description: Enable alignment metrics on targets
+  - enable_alignment_metrics_high_confidence:
+      type: boolean
+      description: Enable alignment metrics on high confidence regions
+  - enable_gc_bias_metrics:
+      type: boolean
+      description: Enable GC bias metrics collection
+  - enable_hs_metrics:
+      type: boolean
+      description: Enable hybrid selection metrics collection
+  - downsampled_bwa_metrics_read_count:
+      type: integer
+      description: Number of reads to downsample to
+  - downsampled_bwa_metrics_aligner:
+      type: string
+      description: Aligner to use ('bwa' or 'pb_fq2bam')
+  - enable_alignment_metrics_additional_regions:
+      type: boolean
+      description: Enable additional stratification-region alignment metrics
+  - additional_bed_files:
+      type: list
+      description: List of additional region BED entries [ [region_name, bed] ]
+output:
+  - report:
+      type: channel
+      description: Combined metrics report
+  - alignment_metrics_files:
+      type: channel
+      description: Alignment metrics output directories (read_metrics, coverage, accuracy)
+  - gc_bias_metrics_files:
+      type: channel
+      description: GC bias metrics files
+  - hs_metrics_files:
+      type: channel
+      description: Hybrid selection metrics files
+  - custom_multiqc_files:
+      type: channel
+      description: Custom MultiQC input files
+  - multiqc_files:
+      type: channel
+      description: Standard MultiQC input files
+  - versions:
+      type: channel
+      description: File containing software versions
+authors: []
+maintainers: []

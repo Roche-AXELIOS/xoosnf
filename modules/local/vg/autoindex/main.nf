@@ -1,8 +1,6 @@
 process VG_AUTOINDEX {
     conda false
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'docker://quay.io/vgteam/vg:v1.70.0'
-        : 'quay.io/vgteam/vg:v1.70.0'}"
+    container 'quay.io/vgteam/vg:v1.70.0'
 
     tag "${meta.id}"
 
@@ -23,6 +21,7 @@ process VG_AUTOINDEX {
     def args = task.ext.args ?: ''
     """
     vg autoindex \\
+        -t ${task.cpus} \\
         ${args} \\
         -p '${meta.id}_personalized_graph' \\
         -G '${meta.id}_personalized_graph.gbz'

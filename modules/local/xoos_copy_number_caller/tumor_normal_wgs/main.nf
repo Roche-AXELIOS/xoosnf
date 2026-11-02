@@ -1,6 +1,6 @@
 process XOOS_COPY_NUMBER_CALLER_TUMOR_NORMAL_WGS {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/copy_number_caller:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/copy_number_caller:1.2.0'
 
     label 'process_high'
     tag "${meta.id}"
@@ -23,46 +23,50 @@ process XOOS_COPY_NUMBER_CALLER_TUMOR_NORMAL_WGS {
     script:
     prefix = task.ext.prefix ?: "${meta.id}"
     def args = task.ext.args ?: ''
+    def mappability_arg = mappability_bigwig ? "--mappability-bigwig '${mappability_bigwig}'" : ''
     """
     mkdir -p "copy_number_caller"
 
     copy_number_caller tumor-normal-wgs \\
         --tumor-bam '${tumor_bam}' \\
         --normal-bam '${normal_bam}' \\
-        --tumor-sample-name '${meta.tumor_id}' \\
-        --normal-sample-name '${meta.normal_id}' \\
+        --tumor-sample-name '${meta.tumor_sample_name ?: meta.tumor_id ?: meta.id}' \\
+        --normal-sample-name '${meta.normal_sample_name ?: meta.normal_id}' \\
         --vcf '${small_variant_vcf}' \\
         --reference '${reference}' \\
         --seed-segments '${cnv_seed_file ?: '/resources/hg38_seed.seg'}' \\
-        --mappability-bigwig '${mappability_bigwig ?: '/resources/hg38_mappability.bw'}' \\
+        ${mappability_arg} \\
         --blocklist-bed '${blocklist_bed ?: '/resources/hg38_blocklist.bed'}' \\
         --output-dir 'copy_number_caller' \\
+        --output-prefix '${prefix}' \\
+        --threads ${task.cpus} \\
         ${args}
-
-    for file in copy_number_caller/*; do
-        mv -- "\$file" "copy_number_caller/${prefix}_\$(basename "\$file")"
-    done
     """
 
     stub:
     prefix = task.ext.prefix ?: "${meta.id}"
+    def metrics_dir = 'copy_number_caller/metrics'
+    def tracks_dir = 'copy_number_caller/tracks'
+    def supplemental_dir = 'copy_number_caller/supplemental'
     """
-    mkdir -p "copy_number_caller"
+    mkdir -p '${metrics_dir}' '${tracks_dir}' '${supplemental_dir}'
     touch 'copy_number_caller/${prefix}_somatic_copy_number_callset.vcf.gz'
     touch 'copy_number_caller/${prefix}_somatic_copy_number_callset.seg'
-    touch 'copy_number_caller/${prefix}_purity_ploidy_grid.tsv'
-    touch 'copy_number_caller/${prefix}_igv_visualization.xml'
-    touch 'copy_number_caller/${prefix}_metrics.tsv'
-    touch 'copy_number_caller/${prefix}_augmented_intervals.bed'
-    touch 'copy_number_caller/${prefix}_normal_coverage.bed'
-    touch 'copy_number_caller/${prefix}_normal_corrected_coverage.bed'
-    touch 'copy_number_caller/${prefix}_tumor_coverage.bed'
-    touch 'copy_number_caller/${prefix}_tumor_corrected_coverage.bed'
-    touch 'copy_number_caller/${prefix}_log_ratios.bw'
-    touch 'copy_number_caller/${prefix}_log_ratios.bed'
-    touch 'copy_number_caller/${prefix}_log_ratio_segments.bed'
-    touch 'copy_number_caller/${prefix}_mapping_quality.bed'
-    touch 'copy_number_caller/${prefix}_bafs.bed'
-    touch 'copy_number_caller/${prefix}_bafs.bw'
+    touch '${supplemental_dir}/${prefix}_purity_ploidy_grid.tsv'
+    touch '${metrics_dir}/${prefix}_metrics.tsv'
+    touch '${tracks_dir}/${prefix}_igv_visualization.xml'
+    touch '${tracks_dir}/${prefix}_log_ratios.bw'
+    touch '${tracks_dir}/${prefix}_bafs.bw'
+    touch '${supplemental_dir}/${prefix}_augmented_intervals.bed'
+    touch '${supplemental_dir}/${prefix}_normal_coverage.bed'
+    touch '${supplemental_dir}/${prefix}_normal_corrected_coverage.bed'
+    touch '${supplemental_dir}/${prefix}_tumor_coverage.bed'
+    touch '${supplemental_dir}/${prefix}_tumor_corrected_coverage.bed'
+    touch '${supplemental_dir}/${prefix}_log_ratios.bed'
+    touch '${supplemental_dir}/${prefix}_log_ratio_segments.seg'
+    touch '${supplemental_dir}/${prefix}_mapping_quality.bed'
+    touch '${supplemental_dir}/${prefix}_bafs.bed'
+    touch '${supplemental_dir}/${prefix}_segment_likelihood.diploid_bias.tsv'
+    touch '${supplemental_dir}/${prefix}_segment_likelihood.uniform.tsv'
     """
 }

@@ -33,14 +33,31 @@ def samplesheetColumnAliases() {
         'sample_index'    : 'sample_sid',
         'sample_name'     : 'sample_name',
         'sample_sid'      : 'sample_sid',
+        'truth_sample_name': 'truth_sample_name',
         'target_bed'      : 'target_bed',
         'capture_bed'     : 'capture_bed',
         'target_coverage' : 'target_coverage',
         'group'           : 'group',
         'tn'              : 'TN',
+        'sample_type'     : 'sample_type',
         'reporter_vcf'    : 'reporter_vcf',
+        'reporter_vcf_tumor_sample' : 'reporter_vcf_tumor_sample',
+        'reporter_vcf_normal_sample': 'reporter_vcf_normal_sample',
         'bam_type'        : 'bam_type',
     ]
+}
+
+/*
+ * Resolve the sample identifier used for truth resources and vcfeval.
+ *
+ * An explicit samplesheet value supports truth samples whose name cannot be
+ * inferred from the library or tumor-normal group. Callers may supply their
+ * existing workflow-specific fallback; otherwise the first underscore-delimited
+ * token is used.
+ */
+def resolveTruthSampleName(meta, fallback_name = meta.id.toString().split('_')[0]) {
+    def configured_name = meta.truth_sample_name?.toString()?.trim()
+    return configured_name ?: fallback_name
 }
 
 workflow UTILS_SAMPLESHEET {

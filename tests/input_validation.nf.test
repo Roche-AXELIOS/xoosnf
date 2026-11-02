@@ -194,7 +194,7 @@ test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
             def combined = (workflow.stdout + workflow.stderr).join('\n')
             assertAll(
                 { assert workflow.failed },
-                { assert combined.contains('multiple matching BAM files') },
+                { assert combined.contains('multiple matching .bam files') },
                 { assert combined.contains('HG001') && combined.contains('HG002') }
             )
         }
@@ -439,7 +439,7 @@ test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
         }
     }
 
-    test("should fail - enable_hs_metrics without capture_bed and target_bed") {
+    test("should fail - enable_hs_metrics without target_bed") {
         options "-stub"
 
         setup {
@@ -472,9 +472,9 @@ test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
                 input  = "${outputDir}/hs_metrics_no_bed/inputs/input.csv"
                 aligner = 'bwa'
                 enable_small_variant_caller = false
-                // reference_fasta comes from the test profile; capture_bed and
-                // target_bed are intentionally absent so the only unmet
-                // enable_hs_metrics requirement is the BED files.
+                // reference_fasta comes from the test profile; target_bed is
+                // intentionally absent. capture_bed is optional and would
+                // fall back to target_bed if the latter were available.
                 enable_hs_metrics = true
                 capture_bed = null
                 target_bed = null
@@ -485,7 +485,56 @@ test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
             def combined = (workflow.stdout + workflow.stderr).join('\n')
             assertAll(
                 { assert workflow.failed },
-                { assert combined.contains('enable_hs_metrics requires reference_fasta, capture_bed, and target_bed') }
+                { assert combined.contains('enable_hs_metrics requires reference_fasta and target_bed') }
+            )
+        }
+    }
+
+    test("should pass - enable_hs_metrics uses target_bed when capture_bed is absent") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/hs_metrics_target_bed_fallback"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/hs_metrics_target_bed_fallback/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                enable_hs_metrics = true
+                capture_bed = null
+                target_bed = "${launchDir}/test-data/resources/bwa_ref/test.autosomes.bed"
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.success },
+                { assert combined.contains('capture_bed was not provided; using target_bed for HS metrics') },
+                { assert combined.contains('On-bait metrics may be inaccurate') }
             )
         }
     }
@@ -583,7 +632,54 @@ test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
             def combined = (workflow.stdout + workflow.stderr).join('\n')
             assertAll(
                 { assert workflow.failed },
-                { assert combined.contains("cannot be merged into a single VCF") }
+                { assert combined.contains("enable_merge_vcf is not supported when variant_calling_mode is 'somatic_tn'") }
+            )
+        }
+    }
+
+    test("should log error - alignment_metrics_additional_regions with unmatched label") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().writeResources()
+
+            def testDir = "${outputDir}/additional_regions_unmatched_label"
+            def bamDir = "${testDir}/bam_dir"
+            def inputsDir = "${testDir}/inputs"
+            new File(bamDir).mkdirs()
+            new File(inputsDir).mkdirs()
+
+            new File("${bamDir}/HG001.bam").text = ''
+            new File("${bamDir}/HG001.bam.bai").text = ''
+
+            new File("${inputsDir}/samplesheet.csv").text = """\
+sample_name,sample_sid
+HG001,CTATTGAAGGCT
+"""
+
+            new File("${inputsDir}/input.csv").text = """\
+run_name,run_type,file_type,run_dir,samplesheet
+test_run,SBX-D,bam,${bamDir},${inputsDir}/samplesheet.csv
+"""
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir = "$outputDir/results"
+                input  = "${outputDir}/additional_regions_unmatched_label/inputs/input.csv"
+                aligner = 'bwa'
+                enable_small_variant_caller = false
+                alignment_metrics_additional_regions = ['nonexistent_region']
+                alignment_metrics_additional_region_beds = [:]
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.success },
+                { assert combined.contains("alignment_metrics_additional_regions label 'nonexistent_region' not found in alignment_metrics_additional_region_beds") }
             )
         }
     }

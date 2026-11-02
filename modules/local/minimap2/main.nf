@@ -39,10 +39,11 @@ process MINIMAP2_ALIGN {
     find -L 'fastq' -name '*.fastq.gz' -print0 \\
     | xargs -0 -n 10 zcat \\
     | minimap2 \\
+          -t ${task.cpus} \\
           $args \\
           ${fasta} \\
           - \\
-    | samtools $samtools_command $args2 ${reference} -o ${prefix}.${extension} -
+    | samtools $samtools_command --threads ${task.cpus} $args2 ${reference} -o ${prefix}.${extension} -
     """
 
     stub:

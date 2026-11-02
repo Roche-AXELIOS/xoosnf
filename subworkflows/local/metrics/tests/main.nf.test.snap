@@ -8,16 +8,19 @@
                         "run_name": "test_run",
                         "run_type": "SBX-D",
                         "report_prefix": "dedup",
+                        "region_labels": [
+                            "autosomes"
+                        ],
                         "metrics_region": "autosomes"
                     },
                     "HG001.alignment_metrics_dedup_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
                 ]
             ]
         ],
-        "timestamp": "2026-06-28T17:26:37.843930089",
+        "timestamp": "2026-09-18T08:34:10.999473124",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     },
     "stub - all metrics enabled": {
@@ -29,6 +32,10 @@
                         "run_name": "test_run",
                         "run_type": "SBX-D",
                         "report_prefix": "dedup",
+                        "region_labels": [
+                            "autosomes",
+                            "targets"
+                        ],
                         "metrics_region": "autosomes"
                     },
                     "HG001.alignment_metrics_dedup_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
@@ -39,6 +46,10 @@
                         "run_name": "test_run",
                         "run_type": "SBX-D",
                         "report_prefix": "dedup",
+                        "region_labels": [
+                            "autosomes",
+                            "targets"
+                        ],
                         "metrics_region": "targets"
                     },
                     "HG001.alignment_metrics_dedup_targets.json:md5,8a80554c91d9fca8acb82f023de02f11"
@@ -47,7 +58,8 @@
                     {
                         "id": "HG001",
                         "run_name": "test_run",
-                        "run_type": "SBX-D"
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup"
                     },
                     "HG001.gc_bias_dedup.json:md5,8a80554c91d9fca8acb82f023de02f11"
                 ],
@@ -61,10 +73,66 @@
                 ]
             ]
         ],
-        "timestamp": "2026-06-28T17:26:48.648001533",
+        "timestamp": "2026-10-02T21:58:41.150751153",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - with additional alignment metrics": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup",
+                        "region_labels": [
+                            "vntr",
+                            "tr",
+                            "autosomes"
+                        ],
+                        "metrics_region": "autosomes"
+                    },
+                    "HG001.alignment_metrics_dedup_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ],
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup",
+                        "region_labels": [
+                            "vntr",
+                            "tr",
+                            "autosomes"
+                        ],
+                        "metrics_region": "tr"
+                    },
+                    "HG001.alignment_metrics_dedup_tr.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ],
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "report_prefix": "dedup",
+                        "region_labels": [
+                            "vntr",
+                            "tr",
+                            "autosomes"
+                        ],
+                        "metrics_region": "vntr"
+                    },
+                    "HG001.alignment_metrics_dedup_vntr.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-30T00:33:01.971423309",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
         }
     }
 }

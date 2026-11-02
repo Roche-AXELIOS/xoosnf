@@ -1,0 +1,38 @@
+nextflow_process {
+
+    name "Test Process XOOS_READ_COLLAPSER_CONSENSUS"
+    script "../main.nf"
+    process "XOOS_READ_COLLAPSER_CONSENSUS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_read_collapser"
+    tag "xoos_read_collapser/consensus"
+
+    test("stub - emits consensus fastq and metrics under metrics/ subdir") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'HG001'], file('input.bam'), file('input.bam.bai'), file('targets.bed') ]
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.fastq.size() == 1 },
+                // The emitted metrics dir preserves the tool's 'metrics/' nesting,
+                // matching markdup and the rescue-secondary layout.
+                { assert process.out.metrics_dir.size() == 1 },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/summary_stats.tsv").exists() },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/cluster_size_distribution_summary.tsv").exists() },
+                { assert path("${process.out.metrics_dir[0][1]}/metrics/cluster_size_distributions.tsv").exists() },
+            )
+        }
+    }
+}

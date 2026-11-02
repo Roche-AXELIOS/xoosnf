@@ -47,6 +47,7 @@ process RTGTOOLS_VCFEVAL {
     ${query_index}
 
     rtg ${args2} vcfeval \\
+        --threads=${task.cpus} \\
         ${args} \\
         --baseline=${truth_vcf} \\
         ${bed_regions} \\

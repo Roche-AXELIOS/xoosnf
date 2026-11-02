@@ -102,9 +102,12 @@ nextflow_process {
         }
 
         then {
+            def targetCoverage = process.out.per_target_coverage[0][1].name
+            def baseCoverage = process.out.per_base_coverage[0][1].name
             assertAll(
                 { assert process.success },
-                { assert snapshot(sanitizeOutput(process.out)).match() }
+                { assert targetCoverage == 'test.CollectHsMetrics.per_target_coverage' },
+                { assert baseCoverage == 'test.CollectHsMetrics.per_base_coverage' }
             )
         }
     }

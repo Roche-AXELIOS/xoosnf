@@ -1,5 +1,5 @@
 {
-    "stub - pb_giraffe aligner with enable_read_collapser_dedup (Parabricks markdup disabled)": {
+    "stub - pb_giraffe aligner": {
         "content": [
             [
                 [
@@ -62,7 +62,7 @@
             "nextflow": "26.04.4"
         }
     },
-    "stub - pb_fq2bam aligner with enable_read_collapser_dedup (Parabricks markdup disabled)": {
+    "stub - pb_fq2bam aligner": {
         "content": [
             [
                 [

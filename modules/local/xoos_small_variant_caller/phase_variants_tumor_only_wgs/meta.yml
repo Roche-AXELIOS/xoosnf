@@ -1,0 +1,79 @@
+name: xoos_small_variant_caller_phase_variants_tumor_only_wgs
+description: Phase somatic variants using read-level evidence from a Mutect2 bamout BAM.
+keywords:
+  - small-variant-caller
+  - phase
+  - phasing
+  - somatic
+  - tumor-only
+tools:
+  - phase_variants:
+      description: XOOS small variant caller component.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: Mutect2 bamout BAM file
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file
+        ontologies: []
+    - vcf:
+        type: file
+        description: Filtered somatic VCF file
+        ontologies: []
+    - vcf_index:
+        type: file
+        description: VCF index file
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "*_phased.vcf.gz":
+          type: file
+          description: "Phased somatic VCF"
+          pattern: "*_phased.vcf.gz"
+          ontologies: []
+      - "*_phased.vcf.gz.tbi":
+          type: file
+          description: "TBI index for the phased somatic VCF"
+          pattern: "*_phased.vcf.gz.tbi"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - phase_variants:
+          type: string
+          description: The name of the tool
+      - phase_variants --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - phase_variants:
+          type: string
+          description: The name of the tool
+      - phase_variants --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@roche-axelios"
+maintainers:
+  - "@roche-axelios"

@@ -1,0 +1,41 @@
+Changes in component 'nf-core/gatk4/haplotypecaller'
+Changes in 'gatk4/haplotypecaller/main.nf':
+--- modules/nf-core/gatk4/haplotypecaller/main.nf
++++ modules/nf-core/gatk4/haplotypecaller/main.nf
+@@ -3,9 +3,7 @@
+     label 'process_low'
+ 
+     conda "${moduleDir}/environment.yml"
+-    container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
+-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ced519873646379e287bc28738bdf88e975edd39a92e7bc6a34bccd37153d9d0/data'
+-        : 'community.wave.seqera.io/library/gatk4_gcnvkernel:edb12e4f0bf02cd3'}"
++    container "docker.io/broadinstitute/gatk-nightly:2026-02-05-4.6.2.0-21-ge8c49f600-NIGHTLY-SNAPSHOT"
+ 
+     input:
+     tuple val(meta), path(input), path(input_index), path(intervals), path(dragstr_model)
+@@ -19,6 +17,7 @@
+     tuple val(meta), path("*.vcf.gz"), emit: vcf
+     tuple val(meta), path("*.tbi"), emit: tbi, optional: true
+     tuple val(meta), path("*.realigned.bam"), emit: bam, optional: true
++    tuple val(meta), path("*.realigned.bai"), emit: bai, optional: true
+     tuple val("${task.process}"), val('gatk4'), eval("gatk --version | sed -n '/GATK.*v/s/.*v//p'"), topic: versions, emit: versions_gatk4
+ 
+     when:
+@@ -60,9 +59,11 @@
+     def bamout_command = args.contains("--bam-writer-type") ? "--bam-output ${prefix.replaceAll('.g\\s*$', '')}.realigned.bam" : ""
+ 
+     def stub_realigned_bam = bamout_command ? "touch ${prefix.replaceAll('.g\\s*$', '')}.realigned.bam" : ""
++    def stub_realigned_bai = bamout_command ? "touch ${prefix.replaceAll('.g\\s*$', '')}.realigned.bai" : ""
+     """
+     echo "" | gzip > ${prefix}.vcf.gz
+     touch ${prefix}.vcf.gz.tbi
+     ${stub_realigned_bam}
++    ${stub_realigned_bai}
+     """
+ }
+
+'modules/nf-core/gatk4/haplotypecaller/environment.yml' is unchanged
+'modules/nf-core/gatk4/haplotypecaller/meta.yml' is unchanged
+'modules/nf-core/gatk4/haplotypecaller/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/gatk4/haplotypecaller/tests/main.nf.test' is unchanged
+************************************************************

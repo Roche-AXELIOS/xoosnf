@@ -10,8 +10,10 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ],
                     [
@@ -21,8 +23,10 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ]
                 ],
@@ -78,8 +82,10 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ],
                     [
@@ -89,17 +95,19 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-06-20T17:59:31.5360264",
+        "timestamp": "2026-09-25T07:23:50.520714495",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "26.04.3"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
         }
     },
     "stub - contamination detection with external vcf": {
@@ -113,8 +121,10 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ]
                 ],
@@ -150,17 +160,19 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-06-25T19:03:40.888599194",
+        "timestamp": "2026-09-25T07:23:32.855078473",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     },
     "stub - contamination detection without external vcf (binary default)": {
@@ -174,8 +186,10 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ]
                 ],
@@ -211,17 +225,19 @@
                             "run_type": "SBX-D"
                         },
                         [
-                            "contamination.counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
-                            "contamination.results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            "contamination_estimation_results.tsv:md5,d41d8cd98f00b204e9800998ecf8427e",
+                            [
+                                "per_site_counts.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                            ]
                         ]
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-06-25T19:03:49.376594956",
+        "timestamp": "2026-09-25T07:23:41.558483968",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.4"
+            "nextflow": "26.04.6"
         }
     }
 }

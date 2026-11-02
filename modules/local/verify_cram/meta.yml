@@ -1,0 +1,60 @@
+name: "verify_cram"
+description: |
+  Verify that a pre-aligned CRAM carries M5 (reference-checksum) tags on every
+  @SQ header record BEFORE converting it to BAM. The M5 tag records the MD5 of
+  each reference contig and is what lets `samtools` resolve the CRAM against the
+  supplied reference during conversion. A CRAM missing M5 tags cannot be safely
+  decoded against a reference, so this module fails fast with an informative
+  error listing the offending contigs instead of silently emitting a corrupt
+  BAM.
+keywords:
+  - cram
+  - reference
+  - checksum
+  - m5
+  - validation
+  - samtools
+tools:
+  - samtools:
+      description: |
+        SAMtools is a set of utilities for interacting with and post-processing
+        short DNA sequence read alignments in SAM/BAM/CRAM formats.
+      homepage: http://www.htslib.org/
+      documentation: http://www.htslib.org/doc/samtools.html
+      tool_dev_url: https://github.com/samtools/samtools
+      doi: 10.1093/bioinformatics/btp352
+      licence: ["MIT"]
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information, e.g. `[ id:'sample1' ]`.
+    - cram:
+        type: file
+        description: Pre-aligned CRAM file to verify.
+        pattern: "*.cram"
+    - crai:
+        type: file
+        description: Index for the CRAM file.
+        pattern: "*.crai"
+output:
+  - cram:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information, e.g. `[ id:'sample1' ]`.
+      - cram:
+          type: file
+          description: The validated CRAM file, passed through unchanged.
+          pattern: "*.cram"
+      - crai:
+          type: file
+          description: The CRAM index, passed through unchanged.
+          pattern: "*.crai"
+  - versions_samtools:
+      type: file
+      description: samtools version emitted on the `versions` topic.
+authors:
+  - "@xoos"
+maintainers:
+  - "@xoos"

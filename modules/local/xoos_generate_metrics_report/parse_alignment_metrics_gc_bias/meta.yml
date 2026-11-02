@@ -1,0 +1,57 @@
+name: xoos_parse_alignment_metrics_gc_bias
+description: Parse GC bias metrics from XOOS alignment_metrics into report JSON.
+keywords:
+  - metrics
+  - gc-bias
+  - parse
+tools:
+  - generate-metrics-report:
+      description: XOOS tool that parses and aggregates per-sample metrics into report JSON and TSV.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Executable License Agreement"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: Sample metadata, e.g. `[ id:'sample1' ]`.
+    - source:
+        type: string
+        description: Source or stage label.
+    - gc_bias:
+        type: file
+        description: Directory containing alignment_metrics GC bias files.
+        ontologies: []
+output:
+  report:
+    - - meta:
+          type: map
+          description: Sample metadata.
+      - "*.gc_bias_*.json":
+          type: file
+          description: Parsed GC bias report JSON.
+          pattern: "*.gc_bias_*.json"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Process name.
+      - generate-metrics-report:
+          type: string
+          description: Tool name.
+      - generate-metrics-report --version:
+          type: eval
+          description: Command used to obtain the tool version.
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Process name.
+      - generate-metrics-report:
+          type: string
+          description: Tool name.
+      - generate-metrics-report --version:
+          type: eval
+          description: Command used to obtain the tool version.
+authors: []
+maintainers: []

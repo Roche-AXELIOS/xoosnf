@@ -1,0 +1,25 @@
+{
+    "stub - generates GC bias report JSON": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001"
+                    },
+                    "HG001.gc_bias_dedup.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ],
+            [
+                [
+                    "XOOS_PARSE_ALIGNMENT_METRICS_GC_BIAS",
+                    "generate-metrics-report"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T08:33:39.855003012",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}

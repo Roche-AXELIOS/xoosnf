@@ -1,6 +1,6 @@
 process XOOS_CNC_METRICS_TO_MULTIQC {
     conda false
-    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.2.0'
 
     label 'process_single'
     tag "${meta.id}"
@@ -19,7 +19,7 @@ process XOOS_CNC_METRICS_TO_MULTIQC {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: meta.id
     """
-    metrics_file=\$(find . -maxdepth 1 -name '*_metrics.tsv' | head -1)
+    metrics_file=\$(find -L . -maxdepth 2 -name '*_metrics.tsv' | head -1)
     if [ -z "\$metrics_file" ]; then
         echo "ERROR: *_metrics.tsv not found in staged files" >&2
         exit 1

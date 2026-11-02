@@ -6,7 +6,8 @@
  * graph is built once per sample before partitioning, then shared across
  * all partitions.
  *
- * The output channel has the same shape as ALIGN: [ val(meta), path(bam), path(bai) ]
+ * The bams output channel has the same shape as ALIGN: [ val(meta), path(bam), path(bai) ]
+ * The giraffe_graphs output exposes the per-sample graph tuple used for Giraffe alignment.
  */
 
 include { ALIGN                    } from './main'
@@ -31,6 +32,7 @@ workflow PARTITION_ALIGN_MERGE {
     ch_ref_paths       // channel: [ path(dict) ] — linearized reference .dict for pbrun giraffe --ref-paths
 
     main:
+    giraffe_graphs = channel.empty()
 
     // Partition FASTQs — always emits exactly partition_count items per sample
     ch_all_partitions = partitionFastqs(ch_fastq, partition_count)
@@ -54,6 +56,10 @@ workflow PARTITION_ALIGN_MERGE {
             .map { meta, _reads, graph, zipcodes, minimizers, dist ->
                 [meta.id, graph, zipcodes, minimizers, dist]
             }
+        giraffe_graphs = giraffe_inputs
+            .map { meta, _reads, graph, zipcodes, minimizers, dist ->
+                [meta, graph, zipcodes, minimizers, dist]
+            }
 
         // 3. Combine each partition with the shared graph using original_id as key
         ch_partitioned_with_graphs = ch_partitioned
@@ -65,20 +71,32 @@ workflow PARTITION_ALIGN_MERGE {
 
         // 4. Align each partition with the shared personalized graph
         if (aligner == 'vg_giraffe') {
-            align_bams = VG_GIRAFFE(ch_partitioned_with_graphs).bam
+            align_bams = VG_GIRAFFE(ch_partitioned_with_graphs, ch_ref_paths).bam
         } else {
             align_bams = PARABRICKS_GIRAFFE_SINGLE_END_MULTIPLE_FASTQS(ch_partitioned_with_graphs, ch_ref_paths).bam
         }
     } else {
         // Non-giraffe or giraffe without personalization: delegate to ALIGN
-        align_bams = ALIGN(
+        align_out = ALIGN(
             aligner,
             ch_partitioned,
             ch_reference,
             ch_bwa_idx,
             ch_giraffe_idx,
             ch_ref_paths,
-        ).bams
+        )
+        align_bams = align_out.bams
+        if (isGiraffeAligner(aligner)) {
+            giraffe_graphs = align_out.giraffe_graphs
+                .map { meta, graph, zipcodes, minimizers, dist ->
+                    def clean_meta = meta.clone()
+                    clean_meta.remove('partition')
+                    clean_meta.remove('single_end')
+                    clean_meta.id = clean_meta.remove('original_id')
+                    [clean_meta, graph, zipcodes, minimizers, dist]
+                }
+                .unique()
+        }
     }
 
     // Gather: group partition BAMs back by sample and merge
@@ -119,4 +137,5 @@ workflow PARTITION_ALIGN_MERGE {
 
     emit:
     bams // channel: [ val(meta), path(bam), path(bai) ]
+    giraffe_graphs = giraffe_graphs // channel: [ val(meta), path(gbz), path(zipcodes), path(min), path(dist) ]
 }

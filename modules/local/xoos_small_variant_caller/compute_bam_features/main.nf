@@ -1,10 +1,12 @@
+include { germlineLibraryTypeOption } from '../germline_library_type'
+
 def expandMultipleOptions(optionName, values) {
     return values.collect { value -> "${optionName} '${value}'" }.join(' \\\n')
 }
 
 process XOOS_SMALL_VARIANT_CALLER_COMPUTE_BAM_FEATURES {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/small_variant_caller:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/small_variant_caller:1.2.0'
 
     label 'process_high'
 
@@ -28,11 +30,13 @@ process XOOS_SMALL_VARIANT_CALLER_COMPUTE_BAM_FEATURES {
     """
     mkdir -p "small_variant_caller"
 
-    compute_bam_features germline \\
+    compute_bam_features germline-wgs \\
+        ${germlineLibraryTypeOption(meta.run_type)} \\
         ${expandMultipleOptions('--bam-input', bams)} \\
         --genome '${reference}' \\
         --output-file 'small_variant_caller/${prefix}.bam_features.txt' \\
         ${target_regions_arg} \\
+        --threads ${task.cpus} \\
         ${args}
     """
 

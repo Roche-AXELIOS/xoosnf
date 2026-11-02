@@ -11,15 +11,54 @@ nextflow_process {
     tag "parabricks/mutectcaller"
 
     test("stub - no intervals") {
+        // Tumor-normal mode (a normal BAM is supplied). The module itself passes
+        // no sample-name flags; --tumor-name / --in-normal-bam / --normal-name
+        // come from the subworkflow ext.args config. The stub block does not
+        // render the script, so this only guards that the tumor-normal input
+        // shape is accepted and produces the expected outputs.
         options "-stub"
 
         when {
             process {
                 """
                 input[0] = Channel.of(
-                    [ [id: 'test', tumor_id: 'TUMOR'],
+                    [ [id: 'test', tumor_id: 'TUMOR', normal_id: 'NORMAL'],
                       file('tumor.bam'), file('tumor.bam.bai'),
                       file('normal.bam'), file('normal.bam.bai'),
+                      [] ]
+                )
+                input[1] = [ [id: 'ref'], file('genome.fa') ]
+                input[2] = []
+                input[3] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf },
+                { assert process.out.stats },
+                { assert process.out.bam }
+            )
+        }
+    }
+
+    test("stub - tumor-only (no normal_id)") {
+        // Tumor-only mode (no normal BAM). The module passes no sample-name
+        // flags; the subworkflow ext.args config supplies --tumor-name (pbrun
+        // requires it even in tumor-only mode). The stub block does not render
+        // the script, so this only guards that the tumor-only input shape is
+        // accepted and produces the expected outputs.
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'test', tumor_id: 'test'],
+                      file('tumor.bam'), file('tumor.bam.bai'),
+                      [], [],
                       [] ]
                 )
                 input[1] = [ [id: 'ref'], file('genome.fa') ]

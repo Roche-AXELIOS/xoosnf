@@ -1,0 +1,38 @@
+nextflow_process {
+
+    name "Test Process XOOS_COPY_NUMBER_CALLER_GERMLINE_WGS"
+    script "../main.nf"
+    process "XOOS_COPY_NUMBER_CALLER_GERMLINE_WGS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_copy_number_caller"
+    tag "xoos_copy_number_caller/germline_wgs"
+
+    test("stub - runs with an SBX-S library type") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'SAMPLE1', run_type: 'YS', bam_sample_name: 'BAM_SM'], file('sample.bam'), file('sample.bam.bai'), [], [] ]
+                )
+                input[1] = [ [id: 'ref'], file('reference.fa'), file('reference.fa.fai') ]
+                input[2] = [ [id: 'mappability'], file('mappability.bw') ]
+                input[3] = [ [id: 'seed'], file('seed.seg') ]
+                input[4] = [ [id: 'blocklist'], file('blocklist.bed') ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.vcf },
+                { assert process.out.results_dir },
+                { assert new File(process.out.results_dir[0][1].find { it.toString().endsWith('_germline_copy_number_callset.seg') }.toString()).text == "sample\tchromosome\tstart\tend\nSAMPLE1\tchr1\t1\t100\n" },
+            )
+        }
+    }
+}

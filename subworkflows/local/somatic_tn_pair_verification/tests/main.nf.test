@@ -1,0 +1,214 @@
+nextflow_workflow {
+
+    name "Test SOMATIC_TN_PAIR_VERIFICATION subworkflow"
+    script "../main.nf"
+    workflow "SOMATIC_TN_PAIR_VERIFICATION"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "somalier_verification"
+    tag "somalier/extract"
+    tag "somalier/relate"
+    tag "xoos_metrics_to_multiqc"
+    tag "xoos_generate_metrics_report"
+
+    test("stub - single T/N pair with warn mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().bams().somalierSites().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${launchDir}/test-data"
+                input[0] = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001', tumor_run_name: 'test_run', normal_run_name: 'test_run'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'somalier_sites'], file("\${testDataDir}/resources/somalier_sites.vcf") ])
+                input[3] = 'warn'  // somatic_tn_pair_mismatch_action
+                input[4] = 0.85    // concordance_cutoff
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.verified_pairs.size() == 1 },
+                { assert workflow.out.multiqc_files },
+                { assert workflow.out.report },
+                { assert snapshot(workflow.out.verified_pairs).match() }
+            )
+        }
+    }
+
+    test("stub - multiple T/N pairs with warn mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().bams().somalierSites().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${launchDir}/test-data"
+                input[0] = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001', tumor_run_name: 'test_run', normal_run_name: 'test_run'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ],
+                    [
+                        [id: 'pair2', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001', tumor_run_name: 'test_run', normal_run_name: 'test_run'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'somalier_sites'], file("\${testDataDir}/resources/somalier_sites.vcf") ])
+                input[3] = 'warn'  // somatic_tn_pair_mismatch_action
+                input[4] = 0.85    // concordance_cutoff
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.verified_pairs.size() == 2 },
+                { assert workflow.out.multiqc_files.size() == 2 },
+                { assert workflow.out.report.size() == 3 },
+                { assert snapshot(workflow.out.verified_pairs).match() }
+            )
+        }
+    }
+
+    // Regression test for cross-run T/N pairs: the tumor and the normal are
+    // sequenced on different runs. Pair metrics must be filed under the tumor's
+    // run, while sample metrics must split so each sample is reported under its
+    // own run.
+    test("stub - cross-run T/N pair with warn mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().bams().somalierSites().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${launchDir}/test-data"
+                input[0] = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'tumor_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001', tumor_run_name: 'tumor_run', normal_run_name: 'normal_run'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'somalier_sites'], file("\${testDataDir}/resources/somalier_sites.vcf") ])
+                input[3] = 'warn'  // somatic_tn_pair_mismatch_action
+                input[4] = 0.85    // concordance_cutoff
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.verified_pairs.size() == 1 },
+                // One pair-scoped MultiQC dir, attributed to the tumor's run.
+                { assert workflow.out.multiqc_files.size() == 1 },
+                { assert workflow.out.multiqc_files[0][0].id == 'tumor_run' },
+                // 1 pair report + 1 sample report per run (tumor_run, normal_run).
+                { assert workflow.out.report.size() == 3 },
+                { assert workflow.out.report.collect { it[0].id }.toSorted() == ['normal_run', 'pair1', 'tumor_run'] },
+                { assert snapshot(workflow.out.verified_pairs).match() }
+            )
+        }
+    }
+
+    test("stub - single T/N pair with skip mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().bams().somalierSites().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${launchDir}/test-data"
+                input[0] = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001', tumor_run_name: 'test_run', normal_run_name: 'test_run'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'somalier_sites'], file("\${testDataDir}/resources/somalier_sites.vcf") ])
+                input[3] = 'skip'  // somatic_tn_pair_mismatch_action
+                input[4] = 0.85    // concordance_cutoff
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.verified_pairs },
+                { assert workflow.out.multiqc_files },
+                { assert workflow.out.report },
+                { assert snapshot(workflow.out.verified_pairs).match() }
+            )
+        }
+    }
+
+    test("stub - single T/N pair with abort mode") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data").bwaRef().bams().somalierSites().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${launchDir}/test-data"
+                input[0] = Channel.of(
+                    [
+                        [id: 'pair1', run_name: 'test_run', run_type: 'SBX-D', tumor_id: 'HG002', normal_id: 'HG001', tumor_run_name: 'test_run', normal_run_name: 'test_run'],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG001.bam")],
+                        [file("\${testDataDir}/inputs/bam/HG002.bam.bai"), file("\${testDataDir}/inputs/bam/HG001.bam.bai")]
+                    ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'somalier_sites'], file("\${testDataDir}/resources/somalier_sites.vcf") ])
+                input[3] = 'abort' // somatic_tn_pair_mismatch_action
+                input[4] = 0.85    // concordance_cutoff
+                """
+            }
+        }
+
+        then {
+            // In stub mode the pairs.tsv is empty so concordance is null —
+            // the workflow logs a warning but does NOT abort (abort only
+            // triggers when concordance is below threshold, not when it is
+            // unparseable).
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.verified_pairs.size() == 1 },
+                { assert snapshot(workflow.out.verified_pairs).match() }
+            )
+        }
+    }
+}

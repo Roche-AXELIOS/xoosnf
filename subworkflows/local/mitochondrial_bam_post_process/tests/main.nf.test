@@ -1,0 +1,57 @@
+nextflow_workflow {
+
+    name "Test MITOCHONDRIAL_BAM_POST_PROCESS subworkflow"
+    script "../main.nf"
+    workflow "MITOCHONDRIAL_BAM_POST_PROCESS"
+    config "../nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "mitochondrial_bam_post_process"
+    tag "xoos_bam_post_process"
+    tag "vg/giraffe"
+    tag "vg/surject"
+
+    test("stub - recovers a chrM BAM from an NR-tagged Giraffe BAM") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").giraffeRef().bams().root()
+        }
+
+        when {
+            params {
+                giraffe_mitochondrial_bam_post_process_anchor_pad = 150
+                giraffe_mitochondrial_bam_post_process_window     = 150
+                giraffe_mitochondrial_bam_post_process_chrm_name  = 'chrM'
+                giraffe_mitochondrial_bam_post_process_multimap   = 10
+                outdir                                            = "$outputDir"
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([
+                    [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'],
+                    file("\${testDataDir}/resources/giraffe_ref/test.gbz"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.zipcodes"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.min"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.dist")
+                ])
+                input[2] = Channel.value(file("\${testDataDir}/resources/giraffe_ref/test.chrm_paths.grch38.gaf"))
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam.size() == 1 },
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001.chrM.bam') },
+                { assert workflow.out.bam[0][2].toString().endsWith('HG001.chrM.bam.bai') }
+            )
+        }
+    }
+}

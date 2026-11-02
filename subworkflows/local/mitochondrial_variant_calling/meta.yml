@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "MITOCHONDRIAL_VARIANT_CALLING"
+description: Call and filter mitochondrial (chrM) variants using GATK Mutect2 or Parabricks mutectcaller in mitochondria-mode followed by SVC germline-mitochondria filtering. The caller is selected by the use_gatk_mutect2 parameter.
+keywords:
+  - mitochondria
+  - chrM
+  - mutect2
+  - parabricks
+  - heteroplasmy
+  - variant-calling
+components:
+  - gatk4/mutect2
+  - parabricks/mutectcaller
+  - xoos_small_variant_caller/filter_variants_mitochondria
+  - mitochondrial_bam_post_process
+input:
+  - ch_bams:
+      type: channel
+      description: |
+        BAM files with index
+        Structure: [ val(meta), path(bam), path(bai) ]
+  - ch_reference:
+      type: channel
+      description: |
+        Reference FASTA with index
+        Structure: [ val(meta), path(fasta), path(fai) ]
+  - ch_reference_dict:
+      type: channel
+      description: |
+        Reference sequence dictionary
+        Structure: [ val(meta), path(dict) ]
+  - use_gatk_mutect2_mitochondrial:
+      type: val
+      description: |
+        Boolean flag. When true, use GATK Mutect2; when false, use Parabricks mutectcaller.
+  - ch_giraffe_graphs:
+      type: channel
+      description: |
+        Giraffe graph components used for alignment, required when enable_giraffe_mitochondrial_bam_post_process is true.
+        Structure: [ val(meta), path(gbz), path(zipcodes), path(min), path(dist) ]
+  - ch_giraffe_chrm_paths:
+      type: channel
+      description: |
+        Pre-generated chrM paths GAF from the base Giraffe graph resource bundle. For personalized graphs, this is paired with the personalized graph components above.
+        Structure: path(chrm_paths_gaf)
+output:
+  - vcf:
+      type: channel
+      description: |
+        Filtered mitochondrial VCF with index
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+authors: []
+maintainers: []

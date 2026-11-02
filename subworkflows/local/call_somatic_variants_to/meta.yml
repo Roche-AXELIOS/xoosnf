@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "CALL_SOMATIC_VARIANTS_TO"
+description: Orchestrate tumor-only somatic variant calling with Mutect2, small variant filtering, copy number calling, germline filtering, optional tumor-only MSI calling, and optional vcfeval evaluation
+keywords:
+  - somatic
+  - tumor-only
+  - mutect2
+  - variant-calling
+  - copy-number
+  - germline-filtering
+  - microsatellite-instability
+components:
+  - call_somatic_small_variants_to
+  - evaluate_small_variant_calls
+  - bcftools/concat
+  - bcftools/reheader
+  - replace_vcf_in_results
+  - xoos/copy/number/caller/tumor/only/wgs
+  - xoos/germline/filtering
+  - xoos/msi/caller/tumor/only
+input:
+  - ch_tumor_bams:
+      type: channel
+      description: |
+        Aligned tumor BAM files with index
+        Structure: [ val(meta), [ path(bam) ], [ path(bai) ] ]
+  - ch_msi_background_threshold_json:
+      type: channel
+      description: |
+        Optional MSI background-threshold JSON override.
+        Structure: [ val(meta), path(background_threshold_json) ]
+  - enable_msi_caller:
+      type: boolean
+      description: Enable tumor-only MSI calling.
+output:
+  - merged_vcf:
+      type: channel
+      description: |
+        Per-sample (merged) or per-caller (unmerged) VCFs
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - svc_vcf:
+      type: channel
+      description: |
+        Small variant caller filtered VCFs reheadered to the sample-sheet tumor name
+        Structure: [ val(meta), path(vcf), path(tbi) ]
+  - mutect_stats:
+      type: channel
+      description: |
+        Merged Mutect2 stats files when enable_mutect_stats is true
+        Structure: [ val(meta), path(stats) ]
+  - copy_number_caller_output:
+      type: channel
+      description: |
+        Copy number caller results directory
+        Structure: [ val(meta), path(results_dir) ]
+  - germline_filtering_output:
+      type: channel
+      description: |
+        Germline filtering prediction output
+        Structure: [ val(meta), path(prediction) ]
+  - msi_caller_output:
+      type: channel
+      description: Tumor-only MSI caller results directory.
+authors:
+  - "@roche-axelios"
+maintainers:
+  - "@roche-axelios"

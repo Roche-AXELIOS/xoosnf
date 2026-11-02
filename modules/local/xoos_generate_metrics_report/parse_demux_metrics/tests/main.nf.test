@@ -1,0 +1,37 @@
+nextflow_process {
+
+    name "Test Process XOOS_PARSE_DEMUX_METRICS"
+    script "../main.nf"
+    process "XOOS_PARSE_DEMUX_METRICS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_generate_metrics_report/parse_demux_metrics"
+
+    test("parses canonical demux run stats header") {
+        when {
+            process {
+                """
+                def dataDir = "\${projectDir}/modules/local/xoos_generate_metrics_report/parse_demux_metrics/tests/fixtures"
+                input[0] = Channel.of(
+                    [ [id: 'canonical'], file("\${dataDir}/canonical_run_stats.tsv", checkIfExists: true), file("\${dataDir}/sample_stats.tsv", checkIfExists: true) ]
+                )
+                """
+            }
+        }
+
+        then {
+            def metrics = new groovy.json.JsonSlurper().parse(path(process.out.report[0][1]))
+            def values = metrics.collectEntries { [(it.name): it.value] }
+            assertAll(
+                { assert process.success },
+                { assert values['demux/total_reads'] == '100' },
+                { assert values['demux/total_reads%'] == '100.00' },
+                { assert values['demux/too_short_reads'] == '0' },
+                { assert values['demux/too_short_reads%'] == 'NA' },
+            )
+        }
+    }
+}

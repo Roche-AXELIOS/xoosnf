@@ -1,0 +1,64 @@
+name: subsample_fastq_random
+description: Randomly subsample reads from FASTQ files to a target read count with seqkit.
+keywords:
+  - seqkit
+  - subsample
+  - fastq
+  - downsample
+  - random
+tools:
+  - seqkit:
+      description: A cross-platform toolkit for FASTA/Q file manipulation.
+      homepage: "https://bioinf.shenwei.me/seqkit/"
+      documentation: "https://bioinf.shenwei.me/seqkit/usage/"
+      doi: 10.1371/journal.pone.0163962
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - read_count:
+        type: integer
+        description: Target number of reads
+    - fastqs:
+        type: file
+        description: Input FASTQ read files
+        ontologies: []
+output:
+  fastq:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "subsampled/*.subsampled.fastq.gz":
+          type: file
+          description: "Output file matching `subsampled/*.subsampled.fastq.gz`"
+          pattern: "subsampled/*.subsampled.fastq.gz"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - seqkit:
+          type: string
+          description: The name of the tool
+      - 2.13.0:
+          type: string
+          description: The version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - seqkit:
+          type: string
+          description: The name of the tool
+      - 2.13.0:
+          type: string
+          description: The version of the tool
+authors: []
+maintainers: []

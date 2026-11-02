@@ -3,7 +3,7 @@ def expandMultipleOptions(optionName, values) {
 }
 
 process XOOS_GENERATE_REPORT {
-    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.2.0'
     conda false
 
     label 'process_single'

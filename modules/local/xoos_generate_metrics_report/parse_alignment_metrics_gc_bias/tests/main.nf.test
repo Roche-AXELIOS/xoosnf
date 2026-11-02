@@ -1,0 +1,36 @@
+nextflow_process {
+
+    name "Test Process XOOS_PARSE_ALIGNMENT_METRICS_GC_BIAS"
+    script "../main.nf"
+    process "XOOS_PARSE_ALIGNMENT_METRICS_GC_BIAS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_generate_metrics_report/parse_alignment_metrics_gc_bias"
+
+    test("stub - generates GC bias report JSON") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [ [id: 'HG001'], 'dedup', file('gc_bias') ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.report,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.report.size() == 1 },
+                { assert process.out.report[0][1].toString().endsWith('HG001.gc_bias_dedup.json') },
+            )
+        }
+    }
+}

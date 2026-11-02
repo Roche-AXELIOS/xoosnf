@@ -1,0 +1,52 @@
+{
+    "stub - pb_fq2bam aligner": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "single_end": true,
+                        "report_prefix": "downsampled_metrics",
+                        "region_labels": [
+                            "autosomes"
+                        ],
+                        "metrics_region": "autosomes"
+                    },
+                    "HG001.alignment_metrics_downsampled_metrics_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T17:46:13.090806345",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.6"
+        }
+    },
+    "stub - bwa aligner": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "HG001",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "single_end": true,
+                        "report_prefix": "downsampled_metrics",
+                        "region_labels": [
+                            "autosomes"
+                        ],
+                        "metrics_region": "autosomes"
+                    },
+                    "HG001.alignment_metrics_downsampled_metrics_autosomes.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-10T17:44:37.86572764",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "26.04.6"
+        }
+    }
+}

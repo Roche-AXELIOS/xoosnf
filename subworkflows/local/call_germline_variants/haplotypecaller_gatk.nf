@@ -2,11 +2,6 @@ include { GATK4_HAPLOTYPECALLER } from '../../../modules/nf-core/gatk4/haplotype
 include { GATK4_SPLITINTERVALS  } from '../../../modules/nf-core/gatk4/splitintervals/main'
 include { GATK4_MERGEVCFS       } from '../../../modules/nf-core/gatk4/mergevcfs/main'
 include { FAI_TO_BED            } from '../../../modules/local/fai_to_bed/main'
-
-def replaceExtension(path, extension) {
-    return file(path).resolveSibling(file(path).baseName + extension)
-}
-
 workflow HAPLOTYPECALLER_GATK {
     take:
     ch_bam            // channel: [ val(meta), path(bam), path(bai) ]
@@ -81,18 +76,27 @@ workflow HAPLOTYPECALLER_GATK {
         ch_reference_dict.map { _meta, dict -> [[id: 'dict'], dict] },
     )
 
-    // Derive TBI path from VCF for no_intervals branch (TBI output is optional in GATK4_HAPLOTYPECALLER)
+    // Join against the real tbi output channel instead of file("${vcf}.tbi") --
+    // a string-built path isn't DAG-tracked, so FilePorter stages it as a
+    // "foreign file" with no guarantee the producing task's write has landed.
+    // GATK4_HAPLOTYPECALLER runs with -OVI so a .tbi is always emitted; an inner
+    // join pairs each no_intervals vcf with its tbi and drops the intervals>1
+    // tbi entries (those are merged separately via GATK4_MERGEVCFS).
+    hc_tbi = GATK4_HAPLOTYPECALLER.out.tbi
+        .map { meta, tbi -> [meta - meta.subMap('interval_name'), tbi] }
+
     ch_vcfs = Channel.empty()
         .mix(
             GATK4_MERGEVCFS.out.vcf.join(GATK4_MERGEVCFS.out.tbi),
             hc_vcf.no_intervals
-                .map { meta, vcf -> [meta, vcf, file("${vcf}.tbi")] },
+                .join(hc_tbi),
         )
         .map { meta, vcf, tbi -> [meta - meta.subMap('num_intervals'), vcf, tbi] }
 
-    // Gather BAMs
+    // Gather BAMs — join BAM with its declared BAI emit before stripping interval_name
     hc_bam = GATK4_HAPLOTYPECALLER.out.bam
-        .map { meta, bam -> [meta - meta.subMap('interval_name'), bam] }
+        .join(GATK4_HAPLOTYPECALLER.out.bai)
+        .map { meta, bam, bai -> [meta - meta.subMap('interval_name'), bam, bai] }
         .branch {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
@@ -101,11 +105,11 @@ workflow HAPLOTYPECALLER_GATK {
     ch_bams = Channel.empty()
         .mix(
             hc_bam.intervals
-                .map { meta, bam -> [groupKey(meta, meta.num_intervals), bam] }
+                .map { meta, bam, bai -> [groupKey(meta, meta.num_intervals), bam, bai] }
                 .groupTuple()
-                .map { meta, bams -> [meta, bams, bams.collect { replaceExtension(it, '.bai') }] },
+                .map { meta, bams, bais -> [meta, bams, bais] },
             hc_bam.no_intervals
-                .map { meta, bam -> [meta, [bam], [replaceExtension(bam, '.bai')]] },
+                .map { meta, bam, bai -> [meta, [bam], [bai]] },
         )
         .map { meta, bams, bais -> [meta - meta.subMap('num_intervals'), bams, bais] }
 

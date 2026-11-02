@@ -2,7 +2,7 @@
 # Mock pbrun for stub tests — prints a minimal version block
 cat <<'EOF'
 Please visit https://docs.nvidia.com/clara/parabricks/latest for detailed documentation.
-pbrun: 4.7.0-1
+pbrun: 4.7.1-1
 ---
 Compatible With:
   BWA: 0.7.15

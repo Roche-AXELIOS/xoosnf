@@ -75,17 +75,6 @@ workflow PIPELINE_INITIALISATION {
     )
 
     //
-    // Warn about parameter combinations that are accepted but degrade results
-    //
-    def cnv_aligner_warning = copyNumberCallerAlignerWarning(
-        params.aligner,
-        params.enable_copy_number_caller.toBoolean()
-    )
-    if (cnv_aligner_warning) {
-        log.warn(cnv_aligner_warning)
-    }
-
-    //
     // Log RUO disclaimer
     //
     log.info("For Research Use Only. Not for use in diagnostic procedures.")
@@ -125,11 +114,28 @@ workflow PIPELINE_COMPLETION {
         .map { it instanceof List ? it.last() : it }
         .toList()
 
+    // Capture the workflow metadata in this scope, where `workflow` resolves
+    // correctly. Inside the nested onComplete closure below the implicit
+    // `workflow` binding resolves to null, so reading `workflow.success` there
+    // throws "Cannot get property 'success' on null object", which aborts the
+    // whole onComplete handler (no completion summary, non-zero driver exit).
+    // The closure closes over this local, sidestepping the null binding.
+    def workflow_metadata = workflow
+
     //
     // Completion email and summary
     //
     workflow.onComplete {
+        def run_succeeded = workflow_metadata.success
         if (email || email_on_fail) {
+            // Only resolve the MultiQC report value on success. On a failed or
+            // aborted run the MultiQC channel may never close (its upstream
+            // tasks were skipped when an earlier process failed), so
+            // multiqc_reports.getVal() would block the completion handler
+            // forever and the Nextflow process would never exit — hanging the
+            // enclosing scheduler job. There is no report to attach on failure
+            // anyway, so pass an empty list instead.
+            def multiqc_report_files = run_succeeded ? multiqc_reports.getVal() : []
             completionEmail(
                 summary_params,
                 email,
@@ -137,7 +143,7 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                multiqc_reports.getVal(),
+                multiqc_report_files,
             )
         }
 
@@ -154,19 +160,6 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-
-//
-// Warn when copy number calling is enabled with pb_giraffe, which cannot emit
-// the secondary alignments its rescue step needs (see returned message for
-// detail). Returns the warning message, or null when no warning applies. Kept
-// pure so it can be unit-tested without a pipeline run.
-//
-def copyNumberCallerAlignerWarning(aligner, enable_copy_number_caller) {
-    if (aligner == 'pb_giraffe' && enable_copy_number_caller) {
-        return "Copy number calling is enabled with the 'pb_giraffe' aligner, but Parabricks pbrun giraffe cannot emit secondary alignments (no --max-multimaps support). The secondary-alignment rescue step still runs, but will have no secondary alignments to rescue (effectively a no-op), which may reduce copy number calling accuracy. Use the 'vg_giraffe' aligner to enable effective secondary-alignment rescue."
-    }
-    return null
-}
 
 //
 // Generate methods description for MultiQC

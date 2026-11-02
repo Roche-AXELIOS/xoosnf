@@ -25,6 +25,7 @@ process GATK4_MUTECT2 {
     tuple val(meta), path("*.stats"), emit: stats
     tuple val(meta), path("*.f1r2.tar.gz"), emit: f1r2, optional: true
     tuple val(meta), path("*.realigned.bam"), emit: bam, optional: true
+    tuple val(meta), path("*.realigned.bai"), emit: bai, optional: true
     tuple val("${task.process}"), val('gatk4'), eval("gatk --version | sed -n '/GATK.*v/s/.*v//p'"), topic: versions, emit: versions_gatk4
 
     when:
@@ -52,6 +53,7 @@ process GATK4_MUTECT2 {
         ${interval_command} \\
         ${bamout_command} \\
         --tmp-dir . \\
+        --native-pair-hmm-threads '${task.cpus}' \\
         ${args}
     """
 
@@ -60,11 +62,13 @@ process GATK4_MUTECT2 {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def bamout_command = args.contains("--bam-writer-type") ? "--bam-output ${prefix.replaceAll('.g\\s*$', '')}.realigned.bam" : ""
     def stub_realigned_bam = bamout_command ? "touch ${prefix.replaceAll('.g\\s*$', '')}.realigned.bam" : ""
+    def stub_realigned_bai = bamout_command ? "touch ${prefix.replaceAll('.g\\s*$', '')}.realigned.bai" : ""
     """
     echo "" | gzip > ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
     touch ${prefix}.vcf.gz.stats
     echo "" | gzip > ${prefix}.f1r2.tar.gz
     ${stub_realigned_bam}
+    ${stub_realigned_bai}
     """
 }

@@ -1,0 +1,169 @@
+name: xoos_copy_number_caller_tumor_only_wgs
+description: Call somatic copy number variants from tumor-only WGS with the XOOS copy_number_caller.
+keywords:
+  - copy-number
+  - cnv
+  - somatic
+  - tumor-only
+  - wgs
+tools:
+  - copy_number_caller:
+      description: XOOS copy number variant caller.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - tumor_bam:
+        type: file
+        description: Tumor BAM file
+        ontologies: []
+    - tumor_bam_index:
+        type: file
+        description: Tumor BAM index
+        ontologies: []
+    - small_variant_vcf:
+        type: file
+        description: Small variant VCF
+        ontologies: []
+    - small_variant_vcf_index:
+        type: file
+        description: Small variant VCF index
+        ontologies: []
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - reference:
+        type: file
+        description: Reference FASTA file
+        ontologies: []
+    - reference_index:
+        type: file
+        description: Reference FASTA index file
+        ontologies: []
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - mappability_bigwig:
+        type: file
+        description: Optional mappability BigWig override. When omitted, Copy Number Caller selects its bundled track from the tumor BAM library type.
+        ontologies: []
+  - - meta4:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - cnv_seed_file:
+        type: file
+        description: Copy number seed segments file
+        ontologies: []
+  - - meta5:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - blocklist_bed:
+        type: file
+        description: Tumor-only copy number blocklist BED file
+        ontologies: []
+  - - meta6:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - population_vcf:
+        type: file
+        description: Population SNP VCF (e.g. gnomAD) used to identify germline heterozygous sites
+        ontologies: []
+    - population_vcf_index:
+        type: file
+        description: Population SNP VCF index
+        ontologies: []
+  - - meta7:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - snp_blocklist_bed:
+        type: file
+        description: BED file of SNP sites to exclude from BAF extraction
+        ontologies: []
+output:
+  vcf:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "copy_number_caller/*_somatic_copy_number_callset.vcf.gz":
+          type: file
+          description: "Somatic copy number callset VCF"
+          pattern: "copy_number_caller/*_somatic_copy_number_callset.vcf.gz"
+          ontologies: []
+  seg:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "copy_number_caller/*_somatic_copy_number_callset.seg":
+          type: file
+          description: "Somatic copy number callset SEG file (carries purity/ploidy)"
+          pattern: "copy_number_caller/*_somatic_copy_number_callset.seg"
+          ontologies: []
+  purity_ploidy:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "copy_number_caller/supplemental/*_purity_ploidy_grid.tsv":
+          type: file
+          description: "Purity/ploidy grid TSV"
+          pattern: "copy_number_caller/supplemental/*_purity_ploidy_grid.tsv"
+          ontologies: []
+  results_dir:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "copy_number_caller/*":
+          type: file
+          description: "All copy number caller output files"
+          pattern: "copy_number_caller/*"
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - copy_number_caller:
+          type: string
+          description: The name of the tool
+      - copy_number_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - copy_number_caller:
+          type: string
+          description: The name of the tool
+      - copy_number_caller --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@roche-axelios"
+maintainers:
+  - "@roche-axelios"

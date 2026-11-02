@@ -1,0 +1,92 @@
+nextflow_process {
+
+    name "Test Process REPLACE_VCF_IN_RESULTS"
+    script "../main.nf"
+    process "REPLACE_VCF_IN_RESULTS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "replace_vcf_in_results"
+
+    test("stub - preserves the caller output directory name") {
+        options "-stub"
+
+        setup {
+            def base = "${launchDir}/test-data"
+            new File("${base}/copy_number_caller/metrics").mkdirs()
+            new File("${base}/copy_number_caller/SAMPLE1_somatic_copy_number_callset.vcf.gz").text = "original"
+            new File("${base}/copy_number_caller/metrics/SAMPLE1_metrics.tsv").text = "metrics"
+            new File("${base}/reheadered.vcf.gz").text = "reheadered"
+            new File("${base}/reheadered.vcf.gz.tbi").text = "index"
+        }
+
+        when {
+            process {
+                """
+                def base = "${launchDir}/test-data"
+                input[0] = Channel.of([
+                    [id: 'SAMPLE1'],
+                    [
+                        file("\${base}/copy_number_caller/SAMPLE1_somatic_copy_number_callset.vcf.gz"),
+                        file("\${base}/copy_number_caller/metrics"),
+                    ],
+                    file("\${base}/reheadered.vcf.gz"),
+                    file("\${base}/reheadered.vcf.gz.tbi"),
+                    'SAMPLE1_somatic_copy_number_callset.vcf.gz',
+                    'copy_number_caller',
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.results_dir.size() == 1 },
+                { assert process.out.results_dir[0][0].id == 'SAMPLE1' },
+                { assert process.out.results_dir[0][1].every { it.toString().contains('/copy_number_caller/') } },
+            )
+        }
+    }
+
+    test("stub - preserves the MSI caller output directory name") {
+        options "-stub"
+
+        setup {
+            def base = "${launchDir}/test-data"
+            new File("${base}/msi_caller/metrics").mkdirs()
+            new File("${base}/msi_caller/SAMPLE1_msi_results.vcf.gz").text = "original"
+            new File("${base}/msi_caller/metrics/SAMPLE1_msi_statistics.tsv").text = "statistics"
+            new File("${base}/reheadered.vcf.gz").text = "reheadered"
+            new File("${base}/reheadered.vcf.gz.tbi").text = "index"
+        }
+
+        when {
+            process {
+                """
+                def base = "${launchDir}/test-data"
+                input[0] = Channel.of([
+                    [id: 'SAMPLE1'],
+                    [
+                        file("\${base}/msi_caller/SAMPLE1_msi_results.vcf.gz"),
+                        file("\${base}/msi_caller/metrics"),
+                    ],
+                    file("\${base}/reheadered.vcf.gz"),
+                    file("\${base}/reheadered.vcf.gz.tbi"),
+                    'SAMPLE1_msi_results.vcf.gz',
+                    'msi_caller',
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.results_dir.size() == 1 },
+                { assert process.out.results_dir[0][0].id == 'SAMPLE1' },
+                { assert process.out.results_dir[0][1].every { it.toString().contains('/msi_caller/') } },
+            )
+        }
+    }
+}

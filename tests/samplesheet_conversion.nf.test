@@ -25,9 +25,9 @@ nextflow_pipeline {
             // Create a sectioned samplesheet
             new File("${inputsDir}/samplesheet.csv").text = """\
 [Samples]
-Sample ID, Sample Index
-HG001,CTATTGAAGGCT
-HG002,GGAGTAACATCC
+Sample ID, Sample Index, Sample Type
+HG001,CTATTGAAGGCT,auto-detect
+HG002,GGAGTAACATCC,ffpe
 """
 
             new File("${inputsDir}/input.csv").text = """\
@@ -370,9 +370,9 @@ test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
 Experiment, Test
 
 [Samples]
-Sample ID, Sample Index
-HG001,CTATTGAAGGCT
-HG002,GGAGTAACATCC
+Sample ID, Sample Index, Sample Type
+HG001,CTATTGAAGGCT,auto-detect
+HG002,GGAGTAACATCC,ffpe
 """
 
             new File("${inputsDir}/input.csv").text = """\
@@ -401,9 +401,11 @@ test_run,SBX-D,demultiplexed_fastq,${fastqDir},${inputsDir}/samplesheet.csv
             assertAll(
                 { assert workflow.success },
                 { assert convertedFile.exists() : "Converted file not found at expected path: ${convertedFile}" },
-                { assert convertedFile.readLines()[0] == 'sample_name,sample_sid' : "Header mismatch: ${convertedFile.readLines()[0]}" },
+                { assert convertedFile.readLines()[0] == 'sample_name,sample_sid,sample_type' : "Header mismatch: ${convertedFile.readLines()[0]}" },
                 { assert convertedFile.text.contains('HG001') },
-                { assert convertedFile.text.contains('HG002') }
+                { assert convertedFile.text.contains('HG002') },
+                { assert convertedFile.text.contains('auto-detect') },
+                { assert convertedFile.text.contains('ffpe') }
             )
         }
     }

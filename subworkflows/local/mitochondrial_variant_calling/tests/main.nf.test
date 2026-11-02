@@ -1,0 +1,207 @@
+nextflow_workflow {
+
+    name "Test MITOCHONDRIAL_VARIANT_CALLING subworkflow"
+    script "../main.nf"
+    workflow "MITOCHONDRIAL_VARIANT_CALLING"
+    config "../nextflow.config"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "mitochondrial_variant_calling"
+    tag "gatk4/mutect2"
+    tag "parabricks/mutectcaller_mitochondrial"
+    tag "xoos_small_variant_caller"
+
+    test("stub - mitochondrial variant calling runs mutect2 mitochondrial-mode and svc filtering") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            params {
+                enable_mitochondrial_variant_caller   = true
+                enable_giraffe_mitochondrial_bam_post_process = false
+                aligner                               = 'pb_giraffe'
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = true  // use_gatk_mutect2_mitochondrial
+                input[4] = Channel.empty() // ch_giraffe_graphs
+                input[5] = Channel.empty() // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf.size() > 0 },
+                { assert snapshot(workflow.out.vcf).match("single_sample_vcf") }
+            )
+        }
+    }
+
+    test("stub - mitochondrial variant calling with parabricks mutectcaller") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = false  // use_gatk_mutect2_mitochondrial (use Parabricks)
+                input[4] = Channel.empty() // ch_giraffe_graphs
+                input[5] = Channel.empty() // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf.size() > 0 },
+                { assert snapshot(workflow.out.vcf).match("single_sample_vcf_parabricks") }
+            )
+        }
+    }
+
+    test("stub - mitochondrial variant calling with multiple samples") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ],
+                    [ [id: 'HG002', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG002.bam"), file("\${testDataDir}/inputs/bam/HG002.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = true  // use_gatk_mutect2_mitochondrial
+                input[4] = Channel.empty() // ch_giraffe_graphs
+                input[5] = Channel.empty() // ch_giraffe_chrm_paths
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf.size() == 2 },
+                { assert workflow.out.vcf.any { it[0].id == 'HG001' } },
+                { assert workflow.out.vcf.any { it[0].id == 'HG002' } },
+                { assert snapshot(workflow.out.vcf).match("multi_sample_vcf") }
+            )
+        }
+    }
+
+    test("stub - mitochondrial variant calling enables BAM post-process by default") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().bams().root()
+        }
+
+        when {
+            params {
+                // Leave enable_giraffe_mitochondrial_bam_post_process unset to verify
+                // that it follows the enabled mitochondrial caller by default.
+                enable_mitochondrial_variant_caller  = true
+                enable_pangenome_personalization      = false
+                aligner                               = 'pb_giraffe'
+                outdir                                = "$outputDir"
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = true  // use_gatk_mutect2_mitochondrial
+                input[4] = Channel.value([
+                    [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'],
+                    file("\${testDataDir}/resources/giraffe_ref/test.gbz"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.zipcodes"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.min"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.dist")
+                ])
+                input[5] = Channel.value(file("\${testDataDir}/resources/giraffe_ref/test.chrm_paths.grch38.gaf"))
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf.size() > 0 }
+            )
+        }
+    }
+
+    test("stub - mitochondrial BAM post-process accepts personalized graph inputs") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().giraffeRef().bams().root()
+        }
+
+        when {
+            params {
+                enable_giraffe_mitochondrial_bam_post_process = true
+                enable_pangenome_personalization      = true
+                aligner                               = 'pb_giraffe'
+                outdir                                = "$outputDir"
+            }
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[2] = Channel.value([ [id: 'reference_dict'], file("\${testDataDir}/resources/bwa_ref/test.dict") ])
+                input[3] = true  // use_gatk_mutect2_mitochondrial
+                input[4] = Channel.value([
+                    [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', personalized_on: file("\${testDataDir}/inputs/fastq/HG001")],
+                    file("\${testDataDir}/resources/giraffe_ref/test.gbz"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.zipcodes"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.min"),
+                    file("\${testDataDir}/resources/giraffe_ref/test.dist")
+                ])
+                input[5] = Channel.value(file("\${testDataDir}/resources/giraffe_ref/test.chrm_paths.grch38.gaf"))
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.vcf.size() > 0 }
+            )
+        }
+    }
+
+}

@@ -1,6 +1,6 @@
 process XOOS_CONTAMINATION_METRICS_TO_MULTIQC {
     conda false
-    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.2.0'
 
     label 'process_single'
     tag "${meta.id}"
@@ -22,7 +22,7 @@ process XOOS_CONTAMINATION_METRICS_TO_MULTIQC {
     mkdir -p '${prefix}_contamination_metrics_multiqc_input'
     xoos_to_multiqc.py \\
         --sample-name ${prefix} \\
-        --tfe-contamination-results ${contamination_results_dir}/contamination.results.tsv \\
+        --tfe-contamination-results ${contamination_results_dir}/contamination_estimation_results.tsv \\
         --output-dir '${prefix}_contamination_metrics_multiqc_input' \\
         ${args}
     """

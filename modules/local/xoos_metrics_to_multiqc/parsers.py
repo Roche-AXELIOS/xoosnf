@@ -38,6 +38,22 @@ def _num(value: str) -> int | float | str:
 # Accuracy metrics (base_level_accuracy_summary.tsv)
 # ---------------------------------------------------------------------------
 
+def _accuracy_phred(row: dict[str, str]) -> int | float | str:
+    """Return the row's Phred value, or ``NA`` when no bases were evaluated.
+
+    When every base is excluded by the quality filter, ``alignment_metrics``
+    still emits a Phred value capped at 93 even though the error rate is
+    undefined (``percentage`` is ``NA``). Reporting that 93 as genuine
+    accuracy is a silent failure, so treat an undefined percentage as the
+    no-data state and drop the meaningless Phred. A truly error-free sample
+    instead reports ``percentage = 0``, which is preserved.
+    """
+    percentage = _num(row.get("percentage", "NA"))
+    if not isinstance(percentage, (int, float)):
+        return "NA"
+    return _num(row.get("phred", "NA"))
+
+
 def parse_accuracy_metrics(input_file: Path) -> dict[str, Any]:
     """Extract Phred-scale accuracy values from base_level_accuracy_summary.tsv.
 
@@ -53,7 +69,7 @@ def parse_accuracy_metrics(input_file: Path) -> dict[str, Any]:
     with input_file.open() as f:
         for row in _dict_reader(f):
             error_type = row.get("type", "")
-            phred = _num(row.get("phred", "NA"))
+            phred = _accuracy_phred(row)
 
             if error_type == "all_errors_with_indel_bases":
                 metrics["Overall Phred-scale Accuracy"] = phred
@@ -79,7 +95,7 @@ def parse_hp_accuracy(input_file: Path) -> dict[str, Any]:
         for row in _dict_reader(f):
             hp_base = row.get("hp_base", "")
             hp_length = row.get("hp_length", "")
-            phred = _num(row.get("phred", "NA"))
+            phred = _accuracy_phred(row)
 
             if hp_base == "any" and hp_length == "8":
                 metrics["8-base HP Phred-scale Accuracy"] = phred
@@ -122,24 +138,19 @@ def parse_coverage_metrics(input_file: Path) -> dict[str, dict[str, Any]]:
     for each coverage type.  Non-numeric values (``NA``) are dropped so
     the output is safe to pass directly to MultiQC's boxplot renderer.
 
-    Returns a dict with keys ``coverage``, ``post_filter_coverage``, and
-    ``concordant_duplex_coverage``.  All three keys are always present;
-    each value is a dict of numeric summary stats, or an empty dict when
+    Returns a dict with keys ``coverage`` and ``post_filter_coverage``.
+    Each value is a dict of numeric summary stats, or an empty dict when
     the column is missing from the input or all its values were NA.
     """
     logger.info("Parsing coverage metrics: %s", input_file)
-    metrics: dict[str, dict[str, Any]] = {"coverage": {}, "concordant_duplex_coverage": {}, "post_filter_coverage": {}}
+    metrics: dict[str, dict[str, Any]] = {"coverage": {}, "post_filter_coverage": {}}
     with input_file.open() as f:
         for row in _dict_reader(f):
             name = row.get("metric_name", "")
-            has_duplex = "concordant_duplex_coverage" in row
-
             if name in _DISTRIBUTION_SUMMARY_METRICS_MAP:
                 mapped = _DISTRIBUTION_SUMMARY_METRICS_MAP[name]
                 _set_numeric_coverage(metrics["coverage"], mapped, row["any_coverage"])
                 _set_numeric_coverage(metrics["post_filter_coverage"], mapped, row["post_filter_coverage"])
-                if has_duplex:
-                    _set_numeric_coverage(metrics["concordant_duplex_coverage"], mapped, row["concordant_duplex_coverage"])
     return metrics
 
 # ---------------------------------------------------------------------------
@@ -273,9 +284,9 @@ def parse_demux_run_stats(input_file: Path) -> dict[str, Any]:
     raw: dict[str, Any] = {}
     with input_file.open() as f:
         for row in _dict_reader(f):
-            name = row.get("metrics_name", "")
+            name = row.get("metric_name", "")
             if name:
-                raw[name] = _num(row.get("count", 0))
+                raw[name] = _num(row.get("value", 0))
 
     if not raw:
         return {}
@@ -384,7 +395,7 @@ def parse_demux_sample_stats(input_file: Path) -> dict[str, dict[str, Any]]:
     return per_sample
 
 # ---------------------------------------------------------------------------
-# TFE results (tumor_fraction.results.tsv / contamination.results.tsv)
+# TFE results (tumor_fraction.results.tsv / contamination_estimation_results.tsv)
 # ---------------------------------------------------------------------------
 
 _TFE_SUMMARY_KEYS = [
@@ -467,6 +478,43 @@ def parse_vcfeval_roc(input_file: Path) -> list[list[Any]]:
         for row in _dict_reader(rows_converted):
             roc_data.append([_num(row["false_positives"]), _num(row["true_positives_call"])])
     return roc_data
+
+
+def parse_gc_bias_metrics(input_file: Path) -> list[list[Any]]:
+    """Parse alignment_metrics GC bias data for a MultiQC line graph."""
+    logger.info("Parsing GC bias data: %s", input_file)
+    points: list[list[Any]] = []
+    with input_file.open() as f:
+        for row in _dict_reader(f):
+            gc_percentage = _num(row.get("gc_percentage", "NA"))
+            coverage = _num(row.get("normalized_coverage", "NA"))
+            if isinstance(gc_percentage, (int, float)) and isinstance(
+                coverage, (int, float)
+            ):
+                points.append([gc_percentage, coverage])
+    return sorted(points, key=lambda point: point[0])
+
+
+def parse_gc_bias_summary(input_file: Path) -> dict[str, Any]:
+    """Extract unfiltered AT and GC dropout values from GC bias summary data."""
+    logger.info("Parsing GC bias summary data: %s", input_file)
+    metrics: dict[str, Any] = {}
+    metric_names = {
+        "at_dropout": "AT Dropout",
+        "gc_dropout": "GC Dropout",
+    }
+    with input_file.open() as f:
+        for line in f:
+            if not line.strip() or line.startswith("#"):
+                continue
+            fields = line.split()
+            if len(fields) < 2 or fields[0] == "metric_name":
+                continue
+            display_name = metric_names.get(fields[0])
+            if display_name is not None:
+                metrics[display_name] = _num(fields[1])
+    return metrics
+
 
 def parse_vcfeval_summary_from_roc(input_file: Path) -> dict[str, Any]:
     """Parse vcfeval ROC tsv and extract the best-threshold row by max F1."""
@@ -642,3 +690,103 @@ def parse_read_collapser_cluster_size_distributions(
         name: [[x, points[x]] for x in sorted(points)]
         for name, points in distributions.items()
     }
+
+
+# ---------------------------------------------------------------------------
+# Somalier metrics (pairs.tsv, samples.tsv from somalier relate)
+# ---------------------------------------------------------------------------
+
+def _parse_somalier_tsv(input_file: Path) -> list[dict[str, Any]]:
+    """Generic parser for somalier TSV files with # comment headers.
+
+    The last comment line (starting with #) is treated as the header row.
+    Returns a list of dicts, one per data row.
+    """
+    with input_file.open() as f:
+        lines = f.readlines()
+
+    header_line = None
+    data_lines = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#"):
+            header_line = stripped.lstrip("#")
+        else:
+            data_lines.append(stripped)
+
+    if header_line is None:
+        logger.warning("No header found in %s", input_file)
+        return []
+
+    reader = csv.DictReader(
+        data_lines,
+        fieldnames=header_line.split("\t"),
+        delimiter="\t",
+    )
+    return [{k: _num(v) for k, v in row.items()} for row in reader]
+
+
+def parse_somalier_pairs(input_file: Path) -> dict[str, dict[str, Any]]:
+    """Parse somalier pairs.tsv into a MultiQC table data dict.
+
+    Returns ``{"sampleA vs sampleB": {metric: value, ...}, ...}`` with the
+    key metrics selected for QC reporting:
+
+    * Relatedness – estimated coefficient of relatedness
+    * IBS0 – sites with zero shared alleles (high → sample swap)
+    * IBS2 – sites with both alleles shared
+    * Hom Concordance – concordance at homozygous sites
+    * Shared Hets – shared heterozygous genotype count
+    * Shared Hom Alts – shared homozygous-alt genotype count
+    * N Sites – total informative sites used
+    """
+    logger.info("Parsing somalier pairs: %s", input_file)
+    rows = _parse_somalier_tsv(input_file)
+    data: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        label = f"{row.get('sample_a', '?')} vs {row.get('sample_b', '?')}"
+        data[label] = {
+            "Relatedness": row.get("relatedness", "NA"),
+            "IBS0": row.get("ibs0", "NA"),
+            "IBS2": row.get("ibs2", "NA"),
+            "Hom Concordance": row.get("hom_concordance", "NA"),
+            "Shared Hets": row.get("shared_hets", "NA"),
+            "Shared Hom Alts": row.get("shared_hom_alts", "NA"),
+            "N Sites": row.get("n", "NA"),
+        }
+    return data
+
+
+def parse_somalier_samples(input_file: Path) -> dict[str, dict[str, Any]]:
+    """Parse somalier samples.tsv into a MultiQC table data dict.
+
+    Returns ``{sample_id: {metric: value, ...}, ...}`` with per-sample
+    genotype QC metrics:
+
+    * GT Depth Mean / SD – depth at genotyped sites
+    * Depth Mean / SD – overall depth
+    * AB Mean / Std – allele balance at het sites
+    * P Middling AB – fraction of hets with AB in [0.2, 0.8] (contamination)
+    * N Hom Ref / N Het / N Hom Alt / N Unknown – genotype counts
+    """
+    logger.info("Parsing somalier samples: %s", input_file)
+    rows = _parse_somalier_tsv(input_file)
+    data: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        sid = str(row.get("sample_id", "unknown"))
+        data[sid] = {
+            "GT Depth Mean": row.get("gt_depth_mean", "NA"),
+            "GT Depth SD": row.get("gt_depth_sd", "NA"),
+            "Depth Mean": row.get("depth_mean", "NA"),
+            "Depth SD": row.get("depth_sd", "NA"),
+            "AB Mean": row.get("ab_mean", "NA"),
+            "AB Std": row.get("ab_std", "NA"),
+            "P Middling AB": row.get("p_middling_ab", "NA"),
+            "N Hom Ref": row.get("n_hom_ref", "NA"),
+            "N Het": row.get("n_het", "NA"),
+            "N Hom Alt": row.get("n_hom_alt", "NA"),
+            "N Unknown": row.get("n_unknown", "NA"),
+        }
+    return data

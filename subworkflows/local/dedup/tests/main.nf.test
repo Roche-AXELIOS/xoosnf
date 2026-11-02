@@ -23,15 +23,14 @@ nextflow_workflow {
                 input[0] = 'markdup'
                 input[1] = 'bwa'
                 input[2] = false
-                input[3] = false
-                input[4] = Channel.of(
+                input[3] = Channel.of(
                     [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
-                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
-                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[7] = Channel.value([ [], [] ])
-                input[8] = Channel.value([ [], [], [] ])
-                input[9] = Channel.value([])
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
                 """
             }
         }
@@ -45,7 +44,7 @@ nextflow_workflow {
         }
     }
 
-    test("stub - markdup strategy with pb_fq2bam aligner, BAM already pb_markdup (skips markdup)") {
+    test("stub - markdup strategy with pb_fq2bam aligner, pb_markdup BAM is re-marked") {
         options "-stub"
 
         setup {
@@ -59,17 +58,15 @@ nextflow_workflow {
                 input[0] = 'markdup'
                 input[1] = 'pb_fq2bam'
                 input[2] = false
-                input[3] = false
-                // A BAM already in an acceptable dedup state for a Parabricks
-                // profile (pb_markdup) and not needing rescue must bypass MARKDUP.
-                input[4] = Channel.of(
-                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'pb_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                // Parabricks-marked input is re-marked by XOOS read_collapser.
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'pb_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
-                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
-                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[7] = Channel.value([ [], [] ])
-                input[8] = Channel.value([ [], [], [] ])
-                input[9] = Channel.value([])
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
                 """
             }
         }
@@ -78,12 +75,15 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bam },
+                // XOOS markdup adds a `_markdup` suffix to the BAM filename so
+                // the presence of the `_markdup` suffix indicates that the BAM has been re-marked
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001_markdup.bam') },
                 { assert snapshot(workflow.out.bam).match() }
             )
         }
     }
 
-    test("stub - markdup strategy with pb_giraffe aligner, BAM sas_markdup, no rescue (skips markdup)") {
+    test("stub - markdup strategy with pb_giraffe aligner, rescue not required, sas_markdup BAM is re-marked") {
         options "-stub"
 
         setup {
@@ -97,18 +97,15 @@ nextflow_workflow {
                 input[0] = 'markdup'
                 input[1] = 'pb_giraffe'
                 input[2] = false
-                // rescue_policy is false (e.g. enable_copy_number_caller disabled),
-                // so an externally marked BAM (sas_markdup) is a trusted pre-marked
-                // state on a Parabricks profile and must bypass MARKDUP.
-                input[3] = false
-                input[4] = Channel.of(
-                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'sas_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                // SAS-marked input is deliberately re-marked by XOOS read_collapser.
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'sas_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
-                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
-                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[7] = Channel.value([ [], [] ])
-                input[8] = Channel.value([ [], [], [] ])
-                input[9] = Channel.value([])
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
                 """
             }
         }
@@ -117,12 +114,15 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bam },
+                // XOOS markdup adds a `_markdup` suffix to the BAM filename so
+                // the presence of the `_markdup` suffix indicates that the BAM has been re-marked
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001_markdup.bam') },
                 { assert snapshot(workflow.out.bam).match() }
             )
         }
     }
 
-    test("stub - markdup strategy with pb_giraffe aligner, BAM sas_markdup, rescue required (runs markdup)") {
+    test("stub - markdup strategy with pb_giraffe aligner, rescue required, raw BAM runs secondary rescue and markdup") {
         options "-stub"
 
         setup {
@@ -135,20 +135,16 @@ nextflow_workflow {
                 def testDataDir = "\${projectDir}/test-data-stub"
                 input[0] = 'markdup'
                 input[1] = 'pb_giraffe'
-                input[2] = false
-                // rescue_policy is true (e.g. enable_copy_number_caller enabled). A
-                // BAM that has not yet been rescued still needs secondary rescue,
-                // which re-marks duplicates, so it must run MARKDUP even though its
-                // sas_markdup state would otherwise be accepted.
-                input[3] = true
-                input[4] = Channel.of(
-                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'sas_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                input[2] = true
+                // An unrescued BAM must run secondary rescue before MARKDUP.
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'none', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
-                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
-                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[7] = Channel.value([ [], [] ])
-                input[8] = Channel.value([ [], [], [] ])
-                input[9] = Channel.value([])
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
                 """
             }
         }
@@ -157,12 +153,16 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bam },
+                { assert workflow.out.bam[0][0].bam_secondary_rescued },
+                // XOOS markdup adds a `_markdup` suffix to the BAM filename so
+                // the presence of the `_markdup` suffix indicates that the BAM has been re-marked
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001_markdup.bam') },
                 { assert snapshot(workflow.out.bam).match() }
             )
         }
     }
 
-    test("stub - markdup strategy with pb_fq2bam aligner, BAM not yet marked (runs markdup)") {
+    test("stub - markdup strategy with pb_fq2bam aligner, raw BAM input runs markdup") {
         options "-stub"
 
         setup {
@@ -176,18 +176,16 @@ nextflow_workflow {
                 input[0] = 'markdup'
                 input[1] = 'pb_fq2bam'
                 input[2] = false
-                input[3] = false
-                // A Parabricks BAM that was not marked at alignment time (e.g. an
-                // alignment-partitioned run) arrives with bam_dedup 'none' and must
-                // be marked by the read collapser.
-                input[4] = Channel.of(
-                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup: 'none', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                // An unmarked BAM arrives with bam_dedup_type 'none' and must be
+                // marked by the read collapser.
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'none', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
-                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
-                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[7] = Channel.value([ [], [] ])
-                input[8] = Channel.value([ [], [], [] ])
-                input[9] = Channel.value([])
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
                 """
             }
         }
@@ -196,7 +194,8 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bam },
-                { assert snapshot(workflow.out.bam).match() }
+                { assert snapshot(workflow.out.bam).match() },
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001_markdup.bam') },
             )
         }
     }
@@ -215,15 +214,14 @@ nextflow_workflow {
                 input[0] = 'consensus'
                 input[1] = 'bwa'
                 input[2] = false
-                input[3] = false
-                input[4] = Channel.of(
+                input[3] = Channel.of(
                     [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D'], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
                 )
-                input[5] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
-                input[6] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
-                input[7] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
-                input[8] = Channel.value([ [], [], [] ])
-                input[9] = Channel.value([])
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
                 """
             }
         }
@@ -232,6 +230,157 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert workflow.out.bam },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - xoos_markdup input bypasses markdup when rescue is not required") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'bwa'
+                input[2] = false
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'xoos_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                // XOOS markdup adds a `_markdup` suffix to the BAM filename so
+                // the lack of the `_markdup` suffix indicates that the BAM bypassed the markdup step
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001.bam') },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - xoos_secondary_rescue_and_markdup input bypasses both rescue and markdup") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'pb_giraffe'
+                input[2] = true
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'xoos_markdup', bam_secondary_rescued: true], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                // XOOS markdup adds a `_markdup` suffix to the BAM filename so
+                // the lack of the `_markdup` suffix indicates that the BAM bypassed the markdup step
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001.bam') },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - xoos_markdup input re-runs rescue and markdup when rescue is required") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'markdup'
+                input[1] = 'pb_giraffe'
+                input[2] = true
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'xoos_markdup', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [], [] ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert workflow.out.bam[0][0].bam_secondary_rescued },
+                // XOOS markdup adds a `_markdup` suffix to the BAM filename so
+                // the presence of the `_markdup` suffix indicates that the BAM has been re-marked
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001_markdup.bam') },
+                { assert snapshot(workflow.out.bam).match() }
+            )
+        }
+    }
+
+    test("stub - xoos_consensus input bypasses consensus") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${projectDir}/test-data-stub").bwaRef().bams().root()
+        }
+
+        when {
+            workflow {
+                """
+                def testDataDir = "\${projectDir}/test-data-stub"
+                input[0] = 'consensus'
+                input[1] = 'bwa'
+                input[2] = false
+                input[3] = Channel.of(
+                    [ [id: 'HG001', run_name: 'test_run', run_type: 'SBX-D', bam_dedup_type: 'xoos_consensus', bam_secondary_rescued: false], file("\${testDataDir}/inputs/bam/HG001.bam"), file("\${testDataDir}/inputs/bam/HG001.bam.bai") ]
+                )
+                input[4] = Channel.value([ [id: 'target_bed'], file("\${testDataDir}/resources/bwa_ref/test.autosomes.bed") ])
+                input[5] = Channel.value([ [id: 'reference'], file("\${testDataDir}/resources/bwa_ref/test.fna"), file("\${testDataDir}/resources/bwa_ref/test.fna.fai") ])
+                input[6] = Channel.value([ [id: 'bwa_idx'], file("\${testDataDir}/resources/bwa_ref") ])
+                input[7] = Channel.value([ [], [], [] ])
+                input[8] = Channel.value([])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.bam },
+                { assert workflow.out.bam[0][1].toString().endsWith('HG001.bam') },
                 { assert snapshot(workflow.out.bam).match() }
             )
         }

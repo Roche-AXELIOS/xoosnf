@@ -1,6 +1,6 @@
 process XOOS_VCFEVAL_METRICS_TO_MULTIQC {
     conda false
-    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/xoos-to-multiqc:1.2.0'
 
     label 'process_single'
     tag "${meta.id}"

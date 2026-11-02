@@ -1,0 +1,130 @@
+{
+    "stub - consensus with minimap2 then bwa re-alignment": {
+        "content": [
+            {
+                "ADD_RUN_INFO_TO_MULTIQC_HEADER": [
+                    "add-run-info-to-multiqc-header"
+                ],
+                "ALIGNMENT_METRICS_STRATIFIED": [
+                    "alignment_metrics"
+                ],
+                "BWA_MEM_SINGLE_END_MULTIPLE_FASTQS": [
+                    "bwa",
+                    "samtools"
+                ],
+                "MINIMAP2_ALIGN": [
+                    "minimap2",
+                    "samtools"
+                ],
+                "PARSE_ALIGNMENT_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "SAMTOOLS_INDEX": [
+                    "samtools"
+                ],
+                "XOOS_ALIGNMENT_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_COMBINE_MULTIQC_REPORTS": [
+                    "xoos_to_multiqc"
+                ],
+                "XOOS_GENERATE_REPORT": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_GENERATE_REPORT_SUMMARY": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_MERGE_AND_LABEL_BED": [
+                    "alignment_metrics"
+                ],
+                "XOOS_PARSE_READ_COLLAPSER_METRICS": [
+                    "generate-metrics-report"
+                ],
+                "XOOS_READ_COLLAPSER_CONSENSUS": [
+                    "read_collapser"
+                ],
+                "XOOS_READ_COLLAPSER_METRICS_TO_MULTIQC": [
+                    "xoos_to_multiqc"
+                ]
+            },
+            [
+                "index",
+                "index/alignment_metrics_files.json",
+                "index/bam.json",
+                "index/cnc_output.json",
+                "index/combined_report.json",
+                "index/combined_report_summary.json",
+                "index/contamination_output.json",
+                "index/demux_metrics_files.json",
+                "index/demuxed_fastqs.json",
+                "index/gc_bias_metrics_files.json",
+                "index/germline_filtering_output.json",
+                "index/hs_metrics_files.json",
+                "index/msi_output.json",
+                "index/multiqc_report.json",
+                "index/mutect_stats.json",
+                "index/pre_dedup_bam.json",
+                "index/pre_subsample_bam.json",
+                "index/raw_vc_vcf.json",
+                "index/read_collapser_metrics_files.json",
+                "index/somalier_output.json",
+                "index/str_output.json",
+                "index/svc_mitochondrial_vcf.json",
+                "index/svc_pretrained_vcf.json",
+                "index/svc_retrained_vcf.json",
+                "index/tfe_output.json",
+                "index/vcf.json",
+                "index/vcfeval_output.json",
+                "pipeline_info",
+                "pipeline_info/xoos_software_mqc_versions.yml",
+                "test_run",
+                "test_run/HG001",
+                "test_run/HG001/HG001.bam",
+                "test_run/HG001/HG001.bam.bai",
+                "test_run/HG001/alignment_metrics",
+                "test_run/HG001/alignment_metrics/dedup_autosomes",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/accuracy",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/accuracy/base_level_accuracy_summary.tsv",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/accuracy/hp_errors.tsv",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/coverage",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/coverage/coverage_distribution_summary.tsv",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/coverage/coverage_stats.tsv",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/read_metrics",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/read_metrics/read_length_summary.tsv",
+                "test_run/HG001/alignment_metrics/dedup_autosomes/read_metrics/read_metrics_summary.tsv",
+                "test_run/HG001/read_collapser",
+                "test_run/HG001/read_collapser/metrics",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG001/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG001/read_collapser/metrics/summary_stats.tsv",
+                "test_run/HG002",
+                "test_run/HG002/HG002.bam",
+                "test_run/HG002/HG002.bam.bai",
+                "test_run/HG002/alignment_metrics",
+                "test_run/HG002/alignment_metrics/dedup_autosomes",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/accuracy",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/accuracy/base_level_accuracy_summary.tsv",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/accuracy/hp_errors.tsv",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/coverage",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/coverage/coverage_distribution_summary.tsv",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/coverage/coverage_stats.tsv",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/read_metrics",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/read_metrics/read_length_summary.tsv",
+                "test_run/HG002/alignment_metrics/dedup_autosomes/read_metrics/read_metrics_summary.tsv",
+                "test_run/HG002/read_collapser",
+                "test_run/HG002/read_collapser/metrics",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distribution_summary.tsv",
+                "test_run/HG002/read_collapser/metrics/cluster_size_distributions.tsv",
+                "test_run/HG002/read_collapser/metrics/summary_stats.tsv",
+                "test_run/metrics-report-summary.tsv",
+                "test_run/metrics-report.tsv",
+                "test_run/multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-09-30T00:25:08.641252694",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}

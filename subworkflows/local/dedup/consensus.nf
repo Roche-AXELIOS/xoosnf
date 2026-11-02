@@ -16,19 +16,21 @@ workflow CONSENSUS_AND_REALIGN {
     consensus_fastq = XOOS_READ_COLLAPSER_CONSENSUS(
         ch_bam.combine(ch_bed).map { meta, bam, bai, _meta2, bed -> [meta, bam, bai, bed] },
     ).fastq
-    consensus_bam = ALIGN(
+    align_out = ALIGN(
         aligner,
         consensus_fastq,
         ch_fasta,
         ch_bwa_idx,
         ch_giraffe_idx,
         ch_ref_paths,
-    ).bams
+    )
+    consensus_bam = align_out.bams
 
     ch_read_collapser_metrics_json_report = XOOS_PARSE_READ_COLLAPSER_METRICS(XOOS_READ_COLLAPSER_CONSENSUS.out.metrics_dir).report
 
     emit:
     bam                        = consensus_bam // channel: [ val(meta), path(bam), path(bai) ]
+    giraffe_graphs             = align_out.giraffe_graphs // channel: [ val(meta), path(gbz), path(zipcodes), path(min), path(dist) ]
     report                     = ch_read_collapser_metrics_json_report // channel: [ val(meta), path(json_report) ]
     read_collapser_metrics_dir = XOOS_READ_COLLAPSER_CONSENSUS.out.metrics_dir // channel: [ val(meta), path(metrics_dir) ]
     versions                   = Channel.empty() // versions are collected via topic channels

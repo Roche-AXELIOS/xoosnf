@@ -7,6 +7,7 @@ workflow TUMOR_FRACTION_ESTIMATION {
     ch_bams                   // channel: [ val(meta), path(bam), path(bai) ]
     ch_reference              // channel: [ val(meta_ref), path(fasta), path(fai) ]
     ch_tfe_included_regions   // channel: [ val(meta_bed), path(bed) ]
+    ch_tfe_panel_of_normals     // channel: [ val(meta_pon), path(panel_of_normals_tsv), path(panel_of_normals_tbi) ]
 
     main:
 
@@ -16,14 +17,27 @@ workflow TUMOR_FRACTION_ESTIMATION {
     // The reporter_vcf may originate from a separate somatic TN run or be
     // provided directly for cfDNA workflows.
     // Samples without reporter_vcf are excluded — TFE produces no output for them.
-    ch_tfe_input = ch_bams
+    ch_tfe_samples = ch_bams
         .filter { meta, _bam, _bai -> meta.containsKey('reporter_vcf') && meta.reporter_vcf }
-        .map { meta, bam, bai -> [ meta, bam, bai, file(meta.reporter_vcf) ] }
+
+    ch_tfe_bam_input = ch_tfe_samples
+        .map { meta, bam, bai -> [ meta, bam, bai ] }
+
+    ch_reporter_vcf = ch_tfe_samples
+        .map { meta, _bam, _bai ->
+            def meta_reporter_vcf = [ tumor_sample_name: meta.reporter_vcf_tumor_sample ]
+            if (meta.containsKey('reporter_vcf_normal_sample') && meta.reporter_vcf_normal_sample) {
+                meta_reporter_vcf = meta_reporter_vcf + [ normal_sample_name: meta.reporter_vcf_normal_sample ]
+            }
+            [ meta_reporter_vcf, file(meta.reporter_vcf), [] ]
+        }
 
     XOOS_TUMOR_FRACTION_ESTIMATOR_TUMOR_FRACTION(
-        ch_tfe_input,
+        ch_tfe_bam_input,
+        ch_reporter_vcf,
         ch_reference,
         ch_tfe_included_regions,
+        ch_tfe_panel_of_normals
     )
 
     XOOS_TFE_METRICS_TO_MULTIQC(XOOS_TUMOR_FRACTION_ESTIMATOR_TUMOR_FRACTION.out.results)

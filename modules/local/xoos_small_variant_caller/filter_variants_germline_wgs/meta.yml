@@ -95,9 +95,6 @@ input:
         type: file
         description: Target regions BED file
         ontologies: []
-  - use_multisample_model:
-      type: boolean
-      description: Whether to use the multisample model
   - aligner:
       type: string
       description: Aligner name
@@ -117,6 +114,17 @@ output:
           type: file
           description: "Output file matching `small_variant_caller/*_svc.vcf.gz.tbi`"
           pattern: "small_variant_caller/*_svc.vcf.gz.tbi"
+          ontologies: []
+  metrics:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1' ]`
+      - "small_variant_caller/*_svc_metrics.tsv":
+          type: file
+          description: "Output file matching `small_variant_caller/*_svc_metrics.tsv`"
+          pattern: "small_variant_caller/*_svc_metrics.tsv"
           ontologies: []
   versions:
     - - ${task.process}:

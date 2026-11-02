@@ -1,0 +1,120 @@
+nextflow_pipeline {
+
+    name "Test pipeline - CRAM input, convert to BAM, skip demux and alignment (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "cram_input"
+
+    test("stub - cram input with germline variant calling") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .crams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_cram.csv"
+                aligner                     = 'bwa'
+                variant_calling_mode        = 'germline'
+                enable_small_variant_caller = true
+                use_gatk_haplotype_caller   = true
+                dedup_strategy              = 'markdup'
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    test("cram input without reference fails fast") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .crams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_cram.csv"
+                aligner                     = 'bwa'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+                // Override the reference provided by bwaRef() to exercise the
+                // CRAM-requires-reference guard in readCramInput.
+                reference_fasta             = null
+                reference_fai               = null
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("required when file_type is 'cram'") }
+            )
+        }
+    }
+
+    test("cram input without reference dict succeeds") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .crams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_cram.csv"
+                aligner                     = 'bwa'
+                variant_calling_mode        = 'germline'
+                enable_small_variant_caller = false
+                use_gatk_haplotype_caller   = true
+                dedup_strategy              = 'markdup'
+                reference_dict              = null
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+}

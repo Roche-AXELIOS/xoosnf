@@ -1,0 +1,210 @@
+nextflow_pipeline {
+
+    name "Test pipeline - dedup_aligner (post-read-collapser aligner)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "dedup_aligner"
+
+    // Consensus dedup re-aligns the read-collapser consensus reads. With
+    // dedup_aligner set, that re-alignment uses a different aligner than the
+    // initial alignment. Here the initial alignment is minimap2 (needs only
+    // reference_fasta) and the post-collapser re-alignment is bwa (needs
+    // bwa_index_dir). This exercises final_aligner selection and, crucially,
+    // the union bwa-index channel: the bwa index must be built because the
+    // final aligner needs it even though the initial aligner does not.
+    test("stub - consensus with minimap2 then bwa re-alignment") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                             = "$outputDir"
+                input                              = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                            = 'minimap2'
+                dedup_aligner                      = 'bwa'
+                variant_calling_mode               = 'none'
+                dedup_strategy                     = 'consensus'
+                read_collapser_preset              = 'te-simplex'
+                enable_small_variant_caller        = false
+                enable_copy_number_caller          = false
+                enable_str_caller                  = false
+                enable_alignment_metrics_autosomes = true
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    // A Giraffe dedup_aligner with a non-Giraffe initial aligner must be
+    // rejected: the two map against different reference spaces, so mixing them
+    // across the read-collapser boundary is not permitted.
+    test("should fail - giraffe dedup_aligner with non-giraffe aligner") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .giraffeRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir/results"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                     = 'pb_fq2bam'
+                dedup_aligner               = 'pb_giraffe'
+                dedup_strategy              = 'consensus'
+                read_collapser_preset       = 'te-simplex'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("Cannot mix Giraffe and non-Giraffe aligners across the read-collapser boundary") }
+            )
+        }
+    }
+
+    // The reverse mix (non-Giraffe dedup_aligner with a Giraffe initial
+    // aligner) must also be rejected.
+    test("should fail - non-giraffe dedup_aligner with giraffe aligner") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .giraffeRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir/results"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                     = 'pb_giraffe'
+                dedup_aligner               = 'bwa'
+                dedup_strategy              = 'consensus'
+                read_collapser_preset       = 'te-simplex'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("Cannot mix Giraffe and non-Giraffe aligners across the read-collapser boundary") }
+            )
+        }
+    }
+
+    // The two Giraffe aligners cannot be swapped for each other across the
+    // read-collapser boundary: their --ref-paths requirements differ and the
+    // reference paths are derived from the initial aligner.
+    test("should fail - different giraffe aligners across the boundary") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .giraffeRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir/results"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                     = 'vg_giraffe'
+                dedup_aligner               = 'pb_giraffe'
+                dedup_strategy              = 'consensus'
+                read_collapser_preset       = 'te-simplex'
+                enable_small_variant_caller = false
+            }
+        }
+
+        then {
+            def combined = (workflow.stdout + workflow.stderr).join('\n')
+            assertAll(
+                { assert workflow.failed },
+                { assert combined.contains("Cannot use different Giraffe aligners across the read-collapser boundary") }
+            )
+        }
+    }
+
+    // dedup_aligner has no effect unless dedup_strategy is 'consensus', so
+    // setting it with a non-consensus strategy must NOT require that aligner's
+    // index files. Here dedup_aligner=bwa is set with dedup_strategy=markdup and
+    // bwa_index_dir is explicitly unset; the run must not fail schema validation
+    // on bwa_index_dir. The initial aligner is minimap2 (needs only the fasta,
+    // provided by bwaRef).
+    test("stub - dedup_aligner index not required when dedup_strategy is not consensus") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .fastqs()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir/results"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet.csv"
+                aligner                     = 'minimap2'
+                dedup_aligner               = 'bwa'
+                dedup_strategy              = 'markdup'
+                bwa_index_dir               = null
+                variant_calling_mode        = 'none'
+                enable_small_variant_caller = false
+                enable_copy_number_caller   = false
+                enable_str_caller           = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success }
+            )
+        }
+    }
+}

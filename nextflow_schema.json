@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/Roche-AXELIOS/xoosnf/main/nextflow_schema.json",
     "title": "Roche-AXELIOS/xoosnf pipeline parameters",
-    "description": "An end-to-end bioinformatics pipeline for processing sequencing data generated on Roche's AXELIOS platform",
+    "description": "XOOS (sbX Optimized Open Source) Nextflow pipeline for processing sequencing data produced by the Roche AXELIOS 1 sequencer",
     "type": "object",
     "$defs": {
         "input_output_options": {
@@ -93,7 +93,7 @@
                 "giraffe_index_dir": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "Path to the directory containing Giraffe reference files.",
+                    "description": "Path to the directory containing Giraffe reference files. Required for Giraffe mitochondrial BAM post-processing when pre-aligned BAM/CRAM inputs are present.",
                     "exists": true
                 },
                 "giraffe_reference_linearized": {
@@ -126,6 +126,15 @@
                     "description": "Path to the BED file defining autosomal regions.",
                     "exists": true
                 },
+                "alignment_metrics_additional_region_beds": {
+                    "type": "object",
+                    "description": "Map of region label to BED file path for additional alignment metrics regions. Defined in resource configs. Example: {\"vntr\": \"/path/to/vntr.bed\", \"tandem_repeat\": \"/path/to/tr.bed\"}.",
+                    "additionalProperties": {
+                        "type": "string",
+                        "format": "path",
+                        "exists": true
+                    }
+                },
                 "pop_af_vcf": {
                     "type": "string",
                     "format": "path",
@@ -136,6 +145,18 @@
                     "type": "string",
                     "format": "path",
                     "description": "Path to the index file for the population allele frequency VCF.",
+                    "exists": true
+                },
+                "svc_panel_of_normals_vcf": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to an indexed panel of normals VCF produced by generate_pon for somatic small-variant filtering. Optional; when omitted, PON-derived features retain their default values.",
+                    "exists": true
+                },
+                "svc_panel_of_normals_tbi": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the tabix index for the panel of normals VCF.",
                     "exists": true
                 },
                 "contamination_vcf": {
@@ -157,25 +178,37 @@
                 "svc_model_germline_snv": {
                     "type": "string",
                     "format": "path",
-                    "description": "Path to the small variant caller model for SNVs.",
+                    "description": "Path to the small variant caller SNV model for germline calling. Overrides the model shipped in the small variant caller container.",
                     "exists": true
                 },
                 "svc_model_germline_indel": {
                     "type": "string",
                     "format": "path",
-                    "description": "Path to the small variant caller model for indels.",
+                    "description": "Path to the small variant caller indel model for germline calling. Overrides the model shipped in the small variant caller container.",
                     "exists": true
                 },
                 "svc_model_somatic_tumor_normal": {
                     "type": "string",
                     "format": "path",
-                    "description": "Path to the small variant caller model for somatic tumor-normal variant calling.",
+                    "description": "Path to the small variant caller model for somatic tumor-normal calling. Overrides the model shipped in the small variant caller container.",
                     "exists": true
                 },
                 "svc_model_somatic_tumor_only": {
                     "type": "string",
                     "format": "path",
-                    "description": "Path to the small variant caller model for somatic tumor-only variant calling.",
+                    "description": "Path to the small variant caller model for somatic tumor-only calling. Overrides the model shipped in the small variant caller container.",
+                    "exists": true
+                },
+                "cnc_somatic_to_blocklist_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to a BED file of regions to exclude from tumor-only copy number analysis. If not provided, the container-packaged default (hg38_tumor_only_wgs_blocklist.bed) is used, which additionally masks common germline CNVs and the HLA/MHC region that would otherwise bias the tumor-only purity and ploidy search.",
+                    "exists": true
+                },
+                "cnc_somatic_to_snp_blocklist_bed": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to a BED file of SNP sites (e.g. recurrent-artifact loci) to exclude from tumor-only BAF extraction in the copy number caller. If not provided, the container-packaged default is used.",
                     "exists": true
                 },
                 "chr_x_par_bed": {
@@ -205,13 +238,25 @@
                 "cnv_blocklist_bed": {
                     "type": "string",
                     "format": "path",
-                    "description": "Path to a BED file of regions to exclude from copy number analysis before generating intervals. If not provided, the container-packaged default (hg38_blocklist.bed) is used for somatic tumor-normal calling.",
+                    "description": "Path to a BED file of regions to exclude from copy number analysis before generating intervals. If not provided, the container-packaged default is used: hg38_blocklist.bed for somatic tumor-normal calling, hg38_decoy_intervals.bed for germline calling.",
                     "exists": true
                 },
                 "repeat_catalog": {
                     "type": "string",
                     "format": "path",
                     "description": "Path to the repeat catalog file for STR calling. If not provided, the container-packaged default (hg38.full_repeat_catalog.json) is used.",
+                    "exists": true
+                },
+                "msi_sites_thresholds_tsv": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the optional MSI microsatellite sites file with embedded per-site thresholds for tumor-normal MSI calling. If not set, the pipeline supplies its bundled default.",
+                    "exists": true
+                },
+                "msi_background_threshold_json": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Optional MSI tumor-only panel-of-normals background thresholds JSON. If not set, the pipeline supplies its bundled default.",
                     "exists": true
                 },
                 "target_bed": {
@@ -223,7 +268,7 @@
                 "capture_bed": {
                     "type": "string",
                     "format": "path",
-                    "description": "Path to the capture (bait) BED file.",
+                    "description": "Path to the capture (bait) BED file. When HS metrics are enabled and this is not provided, target_bed is used as a fallback and on-bait metrics may be inaccurate.",
                     "exists": true
                 },
                 "high_confidence_bed_dir": {
@@ -266,10 +311,30 @@
                     "format": "directory-path",
                     "description": "Directory containing BED files defining evaluation regions for somatic tumor-normal small variant caller model retraining. The pipeline will look for a BED file whose name contains the sample name as a substring."
                 },
+                "svc_somatic_to_truth_vcf_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing truth VCF files used for somatic tumor-only small variant caller evaluation. The pipeline will look for a VCF file whose name contains the sample name as a substring."
+                },
+                "svc_somatic_to_eval_bed_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory containing BED files defining evaluation regions for somatic tumor-only small variant caller evaluation. The pipeline will look for a BED file whose name contains the sample name as a substring."
+                },
                 "reference_sdf": {
                     "type": "string",
                     "format": "directory-path",
                     "description": "Pre-built RTG SDF directory for the reference genome. Must correspond to the same reference build as reference_fasta (identical contigs and lengths), otherwise vcfeval results will be incorrect. When provided, RTGTOOLS_FORMAT is skipped during vcfeval. Generate with 'rtg format -o <output.sdf> <reference.fasta>'."
+                },
+                "tfe_panel_of_normals_tsv": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the tumor fraction estimator panel of normals TSV file. When not provided, systematic noise filtering is skipped."
+                },
+                "tfe_panel_of_normal_tbi": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Path to the index file for the tumor fraction estimator panel of normals TSV file."
                 }
             }
         },
@@ -360,6 +425,36 @@
                 }
             ]
         },
+        "downsampled_bwa_metrics_options": {
+            "title": "Downsampled BWA metrics options",
+            "type": "object",
+            "description": "Options for computing alignment metrics on downsampled BWA-aligned reads. Used for cross-validation with the R&D pipeline.",
+            "default": "",
+            "properties": {
+                "enable_downsampled_bwa_metrics": {
+                    "type": "boolean",
+                    "description": "Enable downsampled BWA alignment metrics. When enabled, raw demuxed FASTQs are subsampled, re-aligned with BWA, and full alignment metrics are computed on the BWA-aligned BAM."
+                },
+                "downsampled_bwa_metrics_aligner": {
+                    "type": "string",
+                    "default": "pb_fq2bam",
+                    "enum": ["pb_fq2bam", "bwa"],
+                    "description": "Aligner to use for the downsampled BWA metrics step. 'pb_fq2bam' uses GPU-accelerated Parabricks fq2bam; 'bwa' uses CPU-based BWA-MEM."
+                },
+                "downsampled_bwa_metrics_read_count": {
+                    "type": "integer",
+                    "default": 200000000,
+                    "minimum": 1,
+                    "description": "Number of reads to retain when downsampling FASTQs for BWA metrics."
+                },
+                "downsampled_bwa_metrics_seed": {
+                    "type": "integer",
+                    "default": 100,
+                    "minimum": 1,
+                    "description": "Random seed for reproducible downsampling of FASTQs for BWA metrics."
+                }
+            }
+        },
         "demux_options": {
             "title": "Demultiplexing options",
             "type": "object",
@@ -404,54 +499,6 @@
                         "required": ["demux_strand_detect_index"]
                     },
                     "errorMessage": "enable_demux_strand_detect requires demux_strand_detect_index. Provide the path to the Strand Detect index, or set enable_demux_strand_detect to false."
-                },
-                {
-                    "if": {
-                        "allOf": [
-                            {
-                                "properties": {
-                                    "exclude_partial_reads": {
-                                        "const": false
-                                    }
-                                },
-                                "required": ["exclude_partial_reads"]
-                            },
-                            {
-                                "properties": {
-                                    "aligner": {
-                                        "type": "string",
-                                        "pattern": "^(pb_fq2bam|pb_giraffe)$"
-                                    }
-                                }
-                            },
-                            {
-                                "properties": {
-                                    "dedup_strategy": {
-                                        "type": "string",
-                                        "const": "markdup"
-                                    }
-                                }
-                            },
-                            {
-                                "not": {
-                                    "properties": {
-                                        "enable_read_collapser_dedup": {
-                                            "const": true
-                                        }
-                                    },
-                                    "required": ["enable_read_collapser_dedup"]
-                                }
-                            }
-                        ]
-                    },
-                    "then": {
-                        "properties": {
-                            "exclude_partial_reads": {
-                                "const": true
-                            }
-                        }
-                    },
-                    "errorMessage": "Partial reads cannot be enabled when using Parabricks integrated deduplication. The Parabricks aligners (`pb_fq2bam`, `pb_giraffe`) with `--dedup_strategy markdup` perform duplicate marking during alignment and do not support partial reads. Set exclude_partial_reads to true, switch to a non-Parabricks aligner or a different dedup_strategy, or set enable_read_collapser_dedup to true to run a separate MARKDUP step."
                 }
             ]
         },
@@ -477,7 +524,7 @@
                 },
                 "pangenome_personalization_downsample_read_count": {
                     "type": "integer",
-                    "default": 200000000,
+                    "default": 350000000,
                     "minimum": 1,
                     "description": "Number of FASTQ reads to use when building the sample-specific personalized Giraffe graph."
                 },
@@ -492,10 +539,10 @@
                     "description": "Number of partitions to distribute FASTQ files across when alignment partitioning is enabled."
                 },
                 "max_parabricks_alignment_read_length": {
-                    "type": ["integer", "null"],
-                    "default": null,
+                    "type": ["integer", "string", "null"],
+                    "default": 1024,
                     "minimum": 1,
-                    "description": "Maximum read length for Parabricks fq2bam and giraffe aligners. When set, adds --max-read-length to the aligner arguments. Leave unset to use the Parabricks default (480)."
+                    "description": "Maximum read length for the Parabricks fq2bam aligner. Defaults to 1024; when set, adds both --max-read-length and --max-read-length-on-gpu (with the same value) to the fq2bam arguments. Set to null to omit both flags and use the Parabricks fq2bam default (480). This option does not affect Parabricks Giraffe, which uses its own default read length."
                 }
             },
             "allOf": [
@@ -569,9 +616,10 @@
                     "default": "markdup",
                     "description": "Strategy to use for deduplication of reads."
                 },
-                "enable_read_collapser_dedup": {
-                    "type": "boolean",
-                    "description": "When using `pb_fq2bam` or `pb_giraffe` with `--dedup_strategy markdup`, disable the duplicate marking integrated into the Parabricks aligner and run a separate XOOS read_collapser MARKDUP step instead. Has no effect with other aligners or deduplication strategies."
+                "dedup_aligner": {
+                    "type": ["string", "null"],
+                    "enum": ["bwa", "minimap2", "pb_fq2bam", "pb_minimap2", "vg_giraffe", "pb_giraffe", null],
+                    "description": "Aligner to use for the post-read-collapser re-alignment in the consensus deduplication path (`--dedup_strategy consensus`). When null (default), the re-alignment reuses `--aligner`, so the same aligner runs before and after read collapsing. Set this to run a different aligner after read collapsing than before it (e.g. `--aligner pb_fq2bam --dedup_aligner minimap2`). The pre- and post-collapser aligners must target the same reference space: Giraffe aligners (`pb_giraffe`, `vg_giraffe`) map against the linearized pangenome reference while the other aligners map against the standard reference, so mixing a Giraffe aligner with a non-Giraffe aligner across the read-collapser boundary is not permitted; the two Giraffe aligners also cannot be swapped for each other (a Giraffe re-alignment must use the same Giraffe aligner as the initial alignment). Has no effect unless `--dedup_strategy consensus`."
                 },
                 "read_collapser_preset": {
                     "type": "string",
@@ -584,38 +632,105 @@
                         "rna-bulk",
                         "none"
                     ],
-                    "description": "Preset to use for XOOS read_collapser.",
-                    "$comment": "Special case: read_collapser_preset is intentionally allowed to be set even when the read collapser is not invoked (e.g. Parabricks aligners with --dedup_strategy markdup and without --enable_read_collapser_dedup). In that configuration the preset is not consumed by a read collapser step, but permitting it lets profiles declare the preset uniformly without triggering a validation error."
+                    "description": "Preset to use for XOOS read_collapser."
                 },
                 "read_collapser_cluster_by_umi": {
-                    "type": "boolean",
-                    "description": "Enable UMI-based clustering in XOOS read_collapser (adds --cluster-by-umi flag)."
+                    "type": ["boolean", "null"],
+                    "default": null,
+                    "description": "Enable or disable UMI-based clustering in XOOS read_collapser. When set, adds --cluster-by-umi=true or --cluster-by-umi=false; when null, the option is omitted."
                 },
                 "read_collapser_ignore_read_name_parsing_errors": {
                     "type": "boolean",
                     "description": "Ignore read name parsing errors in XOOS read_collapser (adds --ignore-read-name-parsing-errors flag). When enabled, reads whose names cannot be parsed are treated as full reads with no UMIs instead of failing. Use with caution: if the input BAM does contain UMIs/SIDs in a non-standard read name format, they will be silently ignored."
                 },
-                "rescue_secondary_min_alignment_score_ratio": {
-                    "type": "number",
-                    "description": "Minimum alignment score ratio (AS/read_length) for a secondary alignment to be eligible for rescue. Default used by the tool is 0.8."
+                "read_collapser_wiggle_room": {
+                    "type": ["integer", "null"],
+                    "default": null,
+                    "description": "Wiggle room for XOOS read_collapser consensus clustering (adds --wiggle-room). Has no effect unless --dedup_strategy consensus."
+                },
+                "enable_publish_pre_dedup_bam": {
+                    "type": "boolean",
+                    "description": "Publish the pre-dedup BAM (the BAM that is fed into markdup/consensus) to the output directory. Only applies when dedup_strategy is not 'none'."
                 }
             },
             "allOf": [
                 {
                     "if": {
                         "properties": {
-                            "enable_read_collapser_dedup": {
-                                "const": true
+                            "dedup_strategy": {
+                                "const": "consensus"
+                            },
+                            "dedup_aligner": {
+                                "type": "string",
+                                "pattern": "^(pb_fq2bam|bwa)$"
                             }
                         },
-                        "required": ["enable_read_collapser_dedup"]
+                        "required": ["dedup_strategy", "dedup_aligner"]
                     },
                     "then": {
-                        "required": ["dedup_strategy"]
+                        "required": ["bwa_index_dir"]
                     },
-                    "errorMessage": "enable_read_collapser_dedup requires dedup_strategy to be set. Specify dedup_strategy as 'markdup', 'consensus', or 'none'."
+                    "errorMessage": "bwa_index_dir is required when dedup_aligner is 'pb_fq2bam' or 'bwa' and dedup_strategy is 'consensus'."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "dedup_strategy": {
+                                "const": "consensus"
+                            },
+                            "dedup_aligner": {
+                                "type": "string",
+                                "pattern": "^(minimap2|pb_minimap2)$"
+                            }
+                        },
+                        "required": ["dedup_strategy", "dedup_aligner"]
+                    },
+                    "then": {
+                        "required": ["reference_fasta", "reference_fai"]
+                    },
+                    "errorMessage": "reference_fasta and reference_fai are required when dedup_aligner is 'minimap2' or 'pb_minimap2' and dedup_strategy is 'consensus'."
                 }
             ]
+        },
+        "bam_post_processing_options": {
+            "title": "BAM post-processing options",
+            "type": "object",
+            "description": "Options for post-processing aligned BAM files.",
+            "default": "",
+            "properties": {
+                "rescue_secondary_min_alignment_score_ratio": {
+                    "type": "number",
+                    "description": "Minimum alignment score ratio (AS/read_length) for a secondary alignment to be eligible for rescue. Default used by the tool is 0.8."
+                },
+                "enable_giraffe_mitochondrial_bam_post_process": {
+                    "type": ["boolean", "null"],
+                    "default": null,
+                    "description": "Recover chrM reads from Giraffe-aligned, NR-tagged BAMs before mitochondrial variant calling using the XOOS bam_post_process workflow. When unset, defaults to true when enable_mitochondrial_variant_caller is enabled with a Giraffe aligner (pb_giraffe or vg_giraffe); set to false to opt out."
+                },
+                "giraffe_mitochondrial_bam_post_process_anchor_pad": {
+                    "type": "integer",
+                    "default": 150,
+                    "minimum": 0,
+                    "description": "Padding in bp around each polymorphic NuMT anchor for mitochondrial BAM post-process recruitment."
+                },
+                "giraffe_mitochondrial_bam_post_process_window": {
+                    "type": "integer",
+                    "default": 150,
+                    "minimum": 0,
+                    "description": "Window in bp around NuMT anchors for mitochondrial BAM post-process recruitment and presence checks."
+                },
+                "giraffe_mitochondrial_bam_post_process_chrm_name": {
+                    "type": "string",
+                    "default": "chrM",
+                    "description": "Mitochondrial contig and graph path name used by mitochondrial BAM post-processing."
+                },
+                "giraffe_mitochondrial_bam_post_process_multimap": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1,
+                    "description": "Maximum number of Giraffe placements to retain for mitochondrial BAM post-process realignment."
+                }
+            }
         },
         "metrics_options": {
             "title": "Metrics options",
@@ -634,6 +749,10 @@
                 "enable_alignment_metrics_targets": {
                     "type": "boolean",
                     "description": "Enable calculation of alignment metrics for target regions."
+                },
+                "enable_target_enrichment_metrics": {
+                    "type": "boolean",
+                    "description": "Enable calculation of targeted-enrichment metrics."
                 },
                 "enable_hp_metrics": {
                     "type": "boolean",
@@ -691,6 +810,11 @@
                     "description": "List of coverage bin cutoffs to report in alignment metrics. Leave empty to use default.",
                     "pattern": "^$|^\\[\\d+(\\s*,\\s*\\d+)*\\]$"
                 },
+                "alignment_metrics_additional_regions": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "List of region labels from alignment_metrics_additional_region_beds to include in stratified alignment metrics."
+                },
                 "metrics_report_summary_patterns": {
                     "type": "array",
                     "items": {
@@ -717,46 +841,6 @@
                         }
                     },
                     "errorMessage": "enable_pre_dedup_metrics cannot be true when dedup_strategy is 'none'. Pre-deduplication metrics compare reads before and after deduplication, so deduplication must be enabled. Set dedup_strategy to 'markdup' or 'consensus', or set enable_pre_dedup_metrics to false."
-                },
-                {
-                    "if": {
-                        "allOf": [
-                            {
-                                "properties": {
-                                    "dedup_strategy": {
-                                        "type": "string",
-                                        "const": "markdup"
-                                    }
-                                }
-                            },
-                            {
-                                "properties": {
-                                    "aligner": {
-                                        "type": "string",
-                                        "pattern": "^(pb_fq2bam|pb_giraffe)$"
-                                    }
-                                }
-                            },
-                            {
-                                "not": {
-                                    "properties": {
-                                        "enable_read_collapser_dedup": {
-                                            "const": true
-                                        }
-                                    },
-                                    "required": ["enable_read_collapser_dedup"]
-                                }
-                            }
-                        ]
-                    },
-                    "then": {
-                        "properties": {
-                            "enable_pre_dedup_metrics": {
-                                "const": false
-                            }
-                        }
-                    },
-                    "errorMessage": "Parabricks aligners perform duplicate marking during alignment by default, so pre-deduplication metrics cannot be calculated when using `--dedup_strategy markdup` with Parabricks aligners. Use `--enable_read_collapser_dedup true` to disable Parabricks duplicate marking and run a separate MARKDUP step, which enables pre-dedup metrics."
                 },
                 {
                     "if": {
@@ -796,9 +880,9 @@
                         "required": ["enable_hs_metrics"]
                     },
                     "then": {
-                        "required": ["reference_fasta", "capture_bed", "target_bed"]
+                        "required": ["reference_fasta", "target_bed"]
                     },
-                    "errorMessage": "enable_hs_metrics requires reference_fasta, capture_bed, and target_bed. Provide all three, or set enable_hs_metrics to false."
+                    "errorMessage": "enable_hs_metrics requires reference_fasta and target_bed. Provide both, or set enable_hs_metrics to false. capture_bed is optional and falls back to target_bed."
                 },
                 {
                     "if": {
@@ -862,6 +946,59 @@
                 }
             ]
         },
+        "somatic_tn_pair_verification_options": {
+            "title": "Somatic Tumor/Normal pair verification options",
+            "type": "object",
+            "description": "Options for Tumor/Normal pair verification using somalier.",
+            "default": "",
+            "properties": {
+                "enable_somatic_tn_pair_verification": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Tumor/Normal sample pair verification using somalier. Runs before somatic variant calling to verify that paired samples originate from the same individual."
+                },
+                "somatic_tn_pair_mismatch_action": {
+                    "type": "string",
+                    "enum": ["warn", "abort", "skip"],
+                    "default": "warn",
+                    "description": "Behavior when a Tumor/Normal pair mismatch is detected by somalier. Use 'warn' to log a warning and continue, 'abort' to stop the pipeline with an error, or 'skip' to exclude the mismatched pair from downstream variant calling."
+                },
+                "somalier_sites_vcf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to the somalier sites VCF containing known polymorphic sites for genotype extraction. Available from the somalier releases for GRCh37 and GRCh38.",
+                    "exists": true
+                },
+                "somatic_tn_pair_concordance_cutoff": {
+                    "type": "number",
+                    "default": 0.9,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Minimum concordance threshold for Tumor/Normal pair verification. Pairs with concordance below this value are flagged as potential mismatches. Same-patient pairs typically have concordance > 0.95; unrelated pairs < 0.4."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enable_somatic_tn_pair_verification": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_somatic_tn_pair_verification"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "somatic_tn"
+                            }
+                        },
+                        "required": ["somalier_sites_vcf", "reference_fasta", "reference_fai", "variant_calling_mode"]
+                    },
+                    "errorMessage": "enable_somatic_tn_pair_verification requires somalier_sites_vcf, reference_fasta, and reference_fai. Provide all three resource files, or disable enable_somatic_tn_pair_verification."
+                }
+            ]
+        },
         "variant_calling_options": {
             "title": "Variant calling/training options",
             "type": "object",
@@ -870,9 +1007,9 @@
             "properties": {
                 "variant_calling_mode": {
                     "type": "string",
-                    "enum": ["germline", "somatic_tn", "none"],
+                    "enum": ["germline", "somatic_tn", "somatic_to", "none"],
                     "default": "none",
-                    "description": "Select the mode for variant calling. Use 'none' to skip variant calling entirely."
+                    "description": "Select the mode for variant calling. Use 'somatic_tn' for matched tumor-normal, 'somatic_to' for tumor-only, 'germline' for germline, or 'none' to skip variant calling entirely."
                 },
                 "enable_small_variant_caller": {
                     "type": "boolean",
@@ -886,7 +1023,12 @@
                 "use_gatk_mutect2": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use GATK Mutect2 for somatic variant calling instead of Parabricks MutectCaller."
+                    "description": "Use GATK Mutect2 for somatic variant calling instead of Parabricks MutectCaller. Applies to both somatic tumor-normal ('somatic_tn') and tumor-only ('somatic_to') modes."
+                },
+                "use_gatk_mutect2_mitochondrial": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use GATK Mutect2 for mitochondrial variant calling instead of Parabricks MutectCaller."
                 },
                 "enable_variant_calling_partitioning": {
                     "type": "boolean",
@@ -903,11 +1045,6 @@
                     "default": 1,
                     "minimum": 1,
                     "description": "Number of partitions to use for variant calling when running on GPU. This is used as the default partition count when enable_variant_calling_partitioning is set to true and the pipeline is running on a GPU backend."
-                },
-                "use_multisample_model": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use multisample model for small variant calling."
                 },
                 "enable_small_variant_caller_retrain": {
                     "type": "boolean",
@@ -930,37 +1067,52 @@
                 "enable_copy_number_caller_baf": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Pass small variant caller VCF to the copy number caller for B-allele frequency estimation. When false, the copy number caller runs without BAF data."
+                    "description": "Pass the HaplotypeCaller VCF to the copy number caller for B-allele frequency estimation. When false, the copy number caller runs without BAF data."
+                },
+                "enable_germline_filtering": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable germline variant filtering. Only supported when variant_calling_mode is 'somatic_to'; consumes the purity/ploidy (SEG) output of the tumor-only copy number caller."
                 },
                 "enable_str_caller": {
                     "type": "boolean",
                     "default": false,
                     "description": "Enable short tandem repeat caller."
                 },
+                "enable_msi_caller": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable the microsatellite instability (MSI) caller (beta / experimental). Runs tumor-normal MSI in somatic_tn mode and tumor-only MSI in somatic_to mode."
+                },
+                "enable_mitochondrial_variant_caller": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable mitochondrial variant calling on chrM using GATK Mutect2 in mitochondria-mode followed by SVC germline-mitochondria threshold filtering. Detects heteroplasmy down to AF >= 1%."
+                },
                 "enable_merge_vcf": {
                     "type": "boolean",
-                    "description": "Merge VCF outputs from different variant callers into a single VCF using bcftools concat. Only supported when variant_calling_mode is 'germline'; somatic tumor-normal calling produces per-caller VCFs that cannot be merged."
+                    "description": "Merge VCF outputs from different variant callers into a single VCF using bcftools concat. Supported for 'germline' and tumor-only ('somatic_to') modes. In 'somatic_to' mode the germline-filtered VCF (when enable_germline_filtering is set) or the small-variant VCF is merged with the copy-number-caller VCF and, when enabled, the MSI VCF. Not supported for matched tumor-normal ('somatic_tn'), which produces per-caller VCFs."
+                },
+                "small_variant_caller_sequencing_protocol": {
+                    "type": "string",
+                    "enum": ["duplex", "duplex-simplex", "simplex", "umi"],
+                    "default": "duplex",
+                    "description": "Sequencing protocol passed to the small variant caller (compute_bam_features and filter_variants) via --sequencing-protocol. Use 'simplex' for simplex inputs and 'duplex-simplex' for hybrid duplex/simplex inputs."
+                },
+                "small_variant_caller_germline_model_type": {
+                    "type": "string",
+                    "enum": ["large", "small"],
+                    "default": "large",
+                    "description": "Germline WGS small-variant-caller model family for filter_variants bundled-model selection. Defaults to 'large'; explicit germline SNV/indel model paths remain authoritative. Model retraining always uses the SVC 'small' family."
+                },
+                "gatk_activeregion_alt_multiplier": {
+                    "type": ["integer", "string", "null"],
+                    "default": 5,
+                    "minimum": 0,
+                    "description": "Value for the GATK HaplotypeCaller --activeregion-alt-multiplier option. Set to null to omit the option entirely (recommended for simplex data, where the multiplier should not be used)."
                 }
             },
             "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "variant_calling_mode": {
-                                "type": "string",
-                                "const": "germline"
-                            },
-                            "enable_vcfeval": {
-                                "const": true
-                            }
-                        },
-                        "required": ["variant_calling_mode", "enable_vcfeval"]
-                    },
-                    "then": {
-                        "required": ["germline_small_variant_truth_vcf_dir", "germline_small_variant_eval_bed_dir"]
-                    },
-                    "errorMessage": "enable_vcfeval with variant_calling_mode 'germline' requires germline_small_variant_truth_vcf_dir and germline_small_variant_eval_bed_dir. Provide directories containing per-sample truth VCFs and evaluation BED files, or disable enable_vcfeval."
-                },
                 {
                     "if": {
                         "properties": {
@@ -1030,6 +1182,51 @@
                 {
                     "if": {
                         "properties": {
+                            "variant_calling_mode": {
+                                "type": "string",
+                                "const": "somatic_to"
+                            },
+                            "enable_copy_number_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["variant_calling_mode", "enable_copy_number_caller"]
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_small_variant_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_small_variant_caller"]
+                    },
+                    "errorMessage": "enable_copy_number_caller with variant_calling_mode 'somatic_to' requires enable_small_variant_caller to also be true. The tumor-only copy number caller depends on small variant calls as input. Set enable_small_variant_caller to true, or disable enable_copy_number_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_germline_filtering": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_germline_filtering"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "somatic_to"
+                            },
+                            "enable_copy_number_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["variant_calling_mode", "enable_copy_number_caller"]
+                    },
+                    "errorMessage": "enable_germline_filtering requires variant_calling_mode 'somatic_to' and enable_copy_number_caller to be true. Germline filtering consumes the purity/ploidy (SEG) output of the tumor-only copy number caller. Set variant_calling_mode to 'somatic_to' and enable_copy_number_caller to true, or disable enable_germline_filtering."
+                },
+                {
+                    "if": {
+                        "properties": {
                             "enable_small_variant_caller": {
                                 "const": true
                             }
@@ -1040,20 +1237,6 @@
                         "required": ["reference_fasta", "reference_fai", "reference_dict", "pop_af_vcf", "pop_af_tbi"]
                     },
                     "errorMessage": "enable_small_variant_caller requires reference_fasta, reference_fai, reference_dict, pop_af_vcf, and pop_af_tbi. Provide all five resource files, or disable enable_small_variant_caller."
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "enable_copy_number_caller": {
-                                "const": true
-                            }
-                        },
-                        "required": ["enable_copy_number_caller"]
-                    },
-                    "then": {
-                        "required": ["mappability_bw"]
-                    },
-                    "errorMessage": "enable_copy_number_caller requires mappability_bw. Provide the path to a mappability bigWig file, or disable enable_copy_number_caller."
                 },
                 {
                     "if": {
@@ -1268,6 +1451,24 @@
             "allOf": [
                 {
                     "if": {
+                        "required": ["svc_panel_of_normals_vcf"]
+                    },
+                    "then": {
+                        "required": ["svc_panel_of_normals_tbi"]
+                    },
+                    "errorMessage": "svc_panel_of_normals_vcf requires svc_panel_of_normals_tbi. Provide both files, or omit both parameters."
+                },
+                {
+                    "if": {
+                        "required": ["svc_panel_of_normals_tbi"]
+                    },
+                    "then": {
+                        "required": ["svc_panel_of_normals_vcf"]
+                    },
+                    "errorMessage": "svc_panel_of_normals_tbi requires svc_panel_of_normals_vcf. Provide both files, or omit both parameters."
+                },
+                {
+                    "if": {
                         "properties": {
                             "enable_alignment_metrics_targets": {
                                 "const": true
@@ -1282,20 +1483,15 @@
                 {
                     "if": {
                         "properties": {
-                            "enable_read_collapser_dedup": {
+                            "enable_target_enrichment_metrics": {
                                 "const": true
                             }
                         }
                     },
                     "then": {
-                        "properties": {
-                            "dedup_strategy": {
-                                "const": "markdup"
-                            }
-                        },
-                        "required": ["dedup_strategy"]
+                        "required": ["target_bed"]
                     },
-                    "errorMessage": "enable_read_collapser_dedup requires dedup_strategy 'markdup'. This flag disables Parabricks integrated duplicate marking and runs a separate XOOS read_collapser MARKDUP step instead. Set dedup_strategy to 'markdup', or disable enable_read_collapser_dedup."
+                    "errorMessage": "enable_target_enrichment_metrics requires target_bed. Provide the path to a target BED file, or set enable_target_enrichment_metrics to false."
                 },
                 {
                     "if": {
@@ -1322,6 +1518,21 @@
                                     "const": true
                                 }
                             },
+                            "enable_msi_caller": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_mitochondrial_variant_caller": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
+                            "enable_giraffe_mitochondrial_bam_post_process": {
+                                "not": {
+                                    "const": true
+                                }
+                            },
                             "enable_vcfeval": {
                                 "not": {
                                     "const": true
@@ -1341,16 +1552,21 @@
                                 "not": {
                                     "const": true
                                 }
+                            },
+                            "enable_germline_filtering": {
+                                "not": {
+                                    "const": true
+                                }
                             }
                         }
                     },
-                    "errorMessage": "Variant caller flags (enable_small_variant_caller, enable_copy_number_caller, enable_str_caller, enable_vcfeval, enable_small_variant_caller_retrain, enable_merge_vcf, enable_mutect_stats) cannot be enabled when variant_calling_mode is 'none'. Set variant_calling_mode to 'germline' or 'somatic_tn' to use variant calling features, or disable all variant caller flags."
+                    "errorMessage": "Variant caller flags (enable_small_variant_caller, enable_copy_number_caller, enable_str_caller, enable_msi_caller, enable_mitochondrial_variant_caller, enable_giraffe_mitochondrial_bam_post_process, enable_vcfeval, enable_small_variant_caller_retrain, enable_merge_vcf, enable_mutect_stats, enable_germline_filtering) cannot be enabled when variant_calling_mode is 'none'. Set variant_calling_mode to 'germline', 'somatic_tn', or 'somatic_to' to use variant calling features, or disable all variant caller flags."
                 },
                 {
                     "if": {
                         "properties": {
                             "variant_calling_mode": {
-                                "const": "somatic_tn"
+                                "enum": ["somatic_tn", "somatic_to"]
                             }
                         },
                         "required": ["variant_calling_mode"]
@@ -1364,7 +1580,7 @@
                             }
                         }
                     },
-                    "errorMessage": "Giraffe aligners (pb_giraffe, vg_giraffe) are not currently supported with variant_calling_mode 'somatic_tn'. Set aligner to a non-Giraffe aligner (e.g. 'bwa', 'minimap2', 'pb_fq2bam', or 'pb_minimap2'), or change variant_calling_mode."
+                    "errorMessage": "Giraffe aligners (pb_giraffe, vg_giraffe) are not currently supported with variant_calling_mode 'somatic_tn' or 'somatic_to'. Set aligner to a non-Giraffe aligner (e.g. 'bwa', 'minimap2', 'pb_fq2bam', or 'pb_minimap2'), or change variant_calling_mode."
                 },
                 {
                     "if": {
@@ -1397,12 +1613,12 @@
                     "then": {
                         "properties": {
                             "variant_calling_mode": {
-                                "const": "somatic_tn"
+                                "enum": ["somatic_tn", "somatic_to"]
                             }
                         },
                         "required": ["variant_calling_mode"]
                     },
-                    "errorMessage": "use_gatk_mutect2 requires variant_calling_mode 'somatic_tn'. GATK Mutect2 is a somatic variant caller that requires matched tumor-normal pairs. Set variant_calling_mode to 'somatic_tn', or disable use_gatk_mutect2."
+                    "errorMessage": "use_gatk_mutect2 requires variant_calling_mode 'somatic_tn' or 'somatic_to'. GATK Mutect2 is a somatic variant caller. Set variant_calling_mode to 'somatic_tn' or 'somatic_to', or disable use_gatk_mutect2."
                 },
                 {
                     "if": {
@@ -1422,6 +1638,141 @@
                         "required": ["variant_calling_mode"]
                     },
                     "errorMessage": "enable_str_caller requires variant_calling_mode 'germline'. Short tandem repeat calling is only available in germline mode. Set variant_calling_mode to 'germline', or disable enable_str_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_msi_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_msi_caller"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "enum": ["somatic_tn", "somatic_to"]
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "enable_msi_caller requires variant_calling_mode 'somatic_tn' or 'somatic_to'. Set variant_calling_mode appropriately, or disable enable_msi_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enable_mitochondrial_variant_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_mitochondrial_variant_caller"]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "germline"
+                            }
+                        },
+                        "required": ["variant_calling_mode"]
+                    },
+                    "errorMessage": "enable_mitochondrial_variant_caller requires variant_calling_mode 'germline'. Mitochondrial variant calling is only available in germline mode. Set variant_calling_mode to 'germline', or disable enable_mitochondrial_variant_caller."
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "use_gatk_mutect2_mitochondrial": {
+                                "const": true
+                            }
+                        },
+                        "required": ["use_gatk_mutect2_mitochondrial"]
+                    },
+                    "then": {
+                        "properties": {
+                            "enable_mitochondrial_variant_caller": {
+                                "const": true
+                            }
+                        },
+                        "required": ["enable_mitochondrial_variant_caller"]
+                    },
+                    "errorMessage": "use_gatk_mutect2_mitochondrial requires enable_mitochondrial_variant_caller to be true. Enable mitochondrial variant calling, or disable use_gatk_mutect2_mitochondrial."
+                },
+                {
+                    "if": {
+                        "allOf": [
+                            {
+                                "properties": {
+                                    "enable_giraffe_mitochondrial_bam_post_process": {
+                                        "const": true
+                                    }
+                                }
+                            },
+                            {
+                                "not": {
+                                    "properties": {
+                                        "enable_giraffe_mitochondrial_bam_post_process": {
+                                            "type": "null"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "variant_calling_mode": {
+                                "const": "germline"
+                            },
+                            "enable_mitochondrial_variant_caller": {
+                                "const": true
+                            },
+                            "aligner": {
+                                "enum": ["pb_giraffe", "vg_giraffe"]
+                            }
+                        },
+                        "required": [
+                            "variant_calling_mode",
+                            "enable_mitochondrial_variant_caller",
+                            "aligner",
+                            "giraffe_index_dir"
+                        ]
+                    },
+                    "errorMessage": "enable_giraffe_mitochondrial_bam_post_process requires germline mitochondrial variant calling with aligner 'pb_giraffe' or 'vg_giraffe' and giraffe_index_dir."
+                },
+                {
+                    "if": {
+                        "allOf": [
+                            {
+                                "properties": {
+                                    "enable_mitochondrial_variant_caller": {
+                                        "const": true
+                                    }
+                                },
+                                "required": ["enable_mitochondrial_variant_caller"]
+                            },
+                            {
+                                "properties": {
+                                    "aligner": {
+                                        "enum": ["pb_giraffe", "vg_giraffe"]
+                                    }
+                                },
+                                "required": ["aligner"]
+                            },
+                            {
+                                "not": {
+                                    "properties": {
+                                        "enable_giraffe_mitochondrial_bam_post_process": {
+                                            "const": false
+                                        }
+                                    },
+                                    "required": ["enable_giraffe_mitochondrial_bam_post_process"]
+                                }
+                            }
+                        ]
+                    },
+                    "then": {
+                        "required": ["giraffe_index_dir"]
+                    },
+                    "errorMessage": "Giraffe mitochondrial BAM post-processing defaults to enabled when mitochondrial variant calling uses a Giraffe aligner, so giraffe_index_dir is required unless enable_giraffe_mitochondrial_bam_post_process is explicitly false."
                 },
                 {
                     "if": {
@@ -1454,12 +1805,12 @@
                     "then": {
                         "properties": {
                             "variant_calling_mode": {
-                                "const": "somatic_tn"
+                                "enum": ["somatic_tn", "somatic_to"]
                             }
                         },
                         "required": ["variant_calling_mode"]
                     },
-                    "errorMessage": "enable_mutect_stats requires variant_calling_mode 'somatic_tn'. Mutect stats are only produced during somatic tumor-normal variant calling. Set variant_calling_mode to 'somatic_tn', or disable enable_mutect_stats."
+                    "errorMessage": "enable_mutect_stats requires variant_calling_mode 'somatic_tn' or 'somatic_to'. Mutect stats are only produced during somatic variant calling. Set variant_calling_mode to 'somatic_tn' or 'somatic_to', or disable enable_mutect_stats."
                 },
                 {
                     "if": {
@@ -1552,7 +1903,7 @@
                             }
                         }
                     },
-                    "errorMessage": "Somatic TN VCFs cannot be merged into a single VCF. enable_merge_vcf is not supported when variant_calling_mode is 'somatic_tn'. Only per-caller VCFs can be produced with somatic TN calling mode."
+                    "errorMessage": "enable_merge_vcf is not supported when variant_calling_mode is 'somatic_tn'. Matched tumor-normal calling produces only per-caller VCFs. Tumor-only ('somatic_to') mode does support merging."
                 }
             ],
             "properties": {}
@@ -1569,6 +1920,9 @@
             "$ref": "#/$defs/subsampling_options"
         },
         {
+            "$ref": "#/$defs/downsampled_bwa_metrics_options"
+        },
+        {
             "$ref": "#/$defs/demux_options"
         },
         {
@@ -1578,10 +1932,16 @@
             "$ref": "#/$defs/dedup_options"
         },
         {
+            "$ref": "#/$defs/bam_post_processing_options"
+        },
+        {
             "$ref": "#/$defs/metrics_options"
         },
         {
             "$ref": "#/$defs/tfe_contamination_options"
+        },
+        {
+            "$ref": "#/$defs/somatic_tn_pair_verification_options"
         },
         {
             "$ref": "#/$defs/variant_calling_options"

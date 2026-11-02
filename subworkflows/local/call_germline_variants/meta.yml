@@ -11,8 +11,9 @@ components:
   - call_germline_small_variants
   - evaluate_small_variant_calls
   - xoos/copy/number/caller/germline/wgs
-  - bcftools/index
   - bcftools/concat
+  - bcftools/reheader
+  - replace_vcf_in_results
   - xoos/str/caller
 input:
   - ch_bam:
@@ -63,6 +64,9 @@ input:
   - ch_cnv_seed_file:
       type: channel
       description: CNV caller seed file
+  - ch_cnv_blocklist_bed:
+      type: channel
+      description: BED file of regions to exclude from copy number analysis
   - ch_repeat_catalog_json:
       type: channel
       description: STR repeat catalog JSON
@@ -72,9 +76,6 @@ input:
   - use_gatk_haplotype_caller:
       type: boolean
       description: Use GATK HaplotypeCaller
-  - use_multisample_model:
-      type: boolean
-      description: Use multisample model for variant calling
   - aligner:
       type: string
       description: Aligner used for alignment
@@ -102,6 +103,16 @@ input:
   - partition_count:
       type: integer
       description: Number of partitions
+  - ch_giraffe_graphs:
+      type: channel
+      description: |
+        Giraffe graph components used for alignment, required by mitochondrial BAM post-processing.
+        Structure: [ val(meta), path(gbz), path(zipcodes), path(min), path(dist) ]
+  - ch_giraffe_chrm_paths:
+      type: channel
+      description: |
+        Pre-generated chrM paths GAF from the base Giraffe graph resource bundle. For personalized graphs, this is paired with the personalized graph components above.
+        Structure: path(chrm_paths_gaf)
 output:
   - merged_vcf:
       type: channel

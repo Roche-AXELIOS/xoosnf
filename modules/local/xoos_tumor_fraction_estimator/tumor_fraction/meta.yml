@@ -51,6 +51,19 @@ input:
         type: file
         description: Included regions BED (optional)
         ontologies: []
+  - - meta_pon:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1' ]`
+    - panel_of_normals_tsv:
+        type: file
+        description: Tumor fraction estimator panel of normals TSV file (optional)
+        ontologies: []
+    - panel_of_normals_tbi:
+        type: file
+        description: Index file for the tumor fraction estimator panel of normals TSV file (optional)
+        ontologies: []
 output:
   results:
     - - meta:

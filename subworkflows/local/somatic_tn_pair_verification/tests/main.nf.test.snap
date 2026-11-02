@@ -1,0 +1,171 @@
+{
+    "stub - multiple T/N pairs with warn mode": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "pair1",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002",
+                        "normal_id": "HG001",
+                        "tumor_run_name": "test_run",
+                        "normal_run_name": "test_run"
+                    },
+                    [
+                        "HG002.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ],
+                    [
+                        "HG002.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                [
+                    {
+                        "id": "pair2",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002",
+                        "normal_id": "HG001",
+                        "tumor_run_name": "test_run",
+                        "normal_run_name": "test_run"
+                    },
+                    [
+                        "HG002.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ],
+                    [
+                        "HG002.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-17T21:02:23.52502815",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - single T/N pair with warn mode": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "pair1",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002",
+                        "normal_id": "HG001",
+                        "tumor_run_name": "test_run",
+                        "normal_run_name": "test_run"
+                    },
+                    [
+                        "HG002.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ],
+                    [
+                        "HG002.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-17T21:01:56.847145545",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - cross-run T/N pair with warn mode": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "pair1",
+                        "run_name": "tumor_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002",
+                        "normal_id": "HG001",
+                        "tumor_run_name": "tumor_run",
+                        "normal_run_name": "normal_run"
+                    },
+                    [
+                        "HG002.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ],
+                    [
+                        "HG002.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-17T21:02:34.000000000",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - single T/N pair with skip mode": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "pair1",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002",
+                        "normal_id": "HG001",
+                        "tumor_run_name": "test_run",
+                        "normal_run_name": "test_run"
+                    },
+                    [
+                        "HG002.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ],
+                    [
+                        "HG002.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-17T21:02:45.719442451",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    },
+    "stub - single T/N pair with abort mode": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "pair1",
+                        "run_name": "test_run",
+                        "run_type": "SBX-D",
+                        "tumor_id": "HG002",
+                        "normal_id": "HG001",
+                        "tumor_run_name": "test_run",
+                        "normal_run_name": "test_run"
+                    },
+                    [
+                        "HG002.bam:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ],
+                    [
+                        "HG002.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "HG001.bam.bai:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-07-17T21:03:05.749368987",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

@@ -17,6 +17,12 @@
                 "type": "string",
                 "pattern": "^[ACGT]+$"
             },
+            "truth_sample_name": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9._-]+$",
+                "description": "Optional sample name used to match truth resources and select the sample for vcfeval. When omitted, the workflow's existing sample-name inference is used.",
+                "errorMessage": "truth_sample_name may only contain letters, digits, dot, underscore, and hyphen."
+            },
             "target_bed": {
                 "type": "string",
                 "format": "path",
@@ -40,12 +46,21 @@
             },
             "sample_type": {
                 "type": "string",
-                "enum": ["ffpe", "cell-line"]
+                "enum": ["auto-detect", "ffpe", "cell-line"],
+                "description": "Optional sample type for somatic tumor-normal model selection. Defaults to auto-detect when omitted or when paired samples disagree. Ignored for non-tumor-normal samples."
             },
             "reporter_vcf": {
                 "type": "string",
                 "format": "path",
                 "exists": true
+            },
+            "reporter_vcf_tumor_sample": {
+                "type": "string",
+                "description": "Sample name in the reporter VCF that corresponds to the tumor sample. Required when reporter_vcf is provided."
+            },
+            "reporter_vcf_normal_sample": {
+                "type": "string",
+                "description": "Sample name in the reporter VCF that corresponds to the normal sample. Optional."
             },
             "bam_type": {
                 "type": "string",
@@ -57,12 +72,14 @@
                     "xoos_secondary_rescue_and_markdup",
                     "xoos_consensus"
                 ],
-                "meta": ["bam_type"]
+                "meta": ["bam_type"],
+                "description": "State of pre-aligned BAM/CRAM inputs. When omitted, defaults to 'no_dedup' so the configured deduplication strategy is applied. sas_markdup inputs are re-marked because SAS duplicate marking is not reliable for every library type. Ignored for basecall and FASTQ inputs."
             }
         },
         "required": ["sample_name", "sample_sid"],
         "dependentRequired": {
-            "TN": ["group"]
+            "TN": ["group"],
+            "reporter_vcf": ["reporter_vcf_tumor_sample"]
         }
     }
 }

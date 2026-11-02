@@ -62,11 +62,14 @@ workflow {
 
     publish:
     bam = XOOS.out.bam
+    pre_dedup_bam = XOOS.out.pre_dedup_bam
     pre_subsample_bam = XOOS.out.pre_subsample_bam
     vcf = XOOS.out.vcf
     raw_vc_vcf = XOOS.out.raw_vc_vcf
+    mutect_stats = XOOS.out.mutect_stats
     svc_pretrained_vcf = XOOS.out.svc_pretrained_vcf
     svc_retrained_vcf = XOOS.out.svc_retrained_vcf
+    svc_mitochondrial_vcf = XOOS.out.svc_mitochondrial_vcf
     vcfeval_output = XOOS.out.vcfeval_output
     demuxed_fastqs = XOOS.out.demuxed_fastqs
     demux_metrics_files = XOOS.out.demux_metrics_files
@@ -74,6 +77,8 @@ workflow {
     combined_report_summary = XOOS.out.combined_report_summary
     multiqc_report = XOOS.out.multiqc_report
     cnc_output = XOOS.out.cnc_output
+    msi_output = XOOS.out.msi_output
+    germline_filtering_output = XOOS.out.germline_filtering_output
     str_output = XOOS.out.str_output
     tfe_output = XOOS.out.tfe_output
     contamination_output = XOOS.out.contamination_output
@@ -81,6 +86,7 @@ workflow {
     gc_bias_metrics_files = XOOS.out.gc_bias_metrics_files
     hs_metrics_files = XOOS.out.hs_metrics_files
     read_collapser_metrics_files = XOOS.out.read_collapser_metrics_files
+    somalier_output = XOOS.out.somalier_output
 }
 
 // Each output declares an index file so that tuple-based outputs are included
@@ -91,6 +97,12 @@ output {
         path { meta, _bam_path, _bai_path -> "${meta.run_name}/${meta.id}" }
         index {
             path 'index/bam.json'
+        }
+    }
+    pre_dedup_bam {
+        path { meta, _bam_path, _bai_path -> "${meta.run_name}/${meta.id}/pre_dedup" }
+        index {
+            path 'index/pre_dedup_bam.json'
         }
     }
     pre_subsample_bam {
@@ -111,6 +123,12 @@ output {
             path 'index/raw_vc_vcf.json'
         }
     }
+    mutect_stats {
+        path { meta, _stats_path -> "${meta.run_name}/${meta.id}/mutect2" }
+        index {
+            path 'index/mutect_stats.json'
+        }
+    }
     svc_pretrained_vcf {
         path { meta, _vcf_path, _tbi_path -> "${meta.run_name}/${meta.id}/small_variant_caller/pretrained" }
         index {
@@ -123,12 +141,19 @@ output {
             path 'index/svc_retrained_vcf.json'
         }
     }
+    svc_mitochondrial_vcf {
+        path { meta, _vcf_path, _tbi_path -> "${meta.run_name}/${meta.id}/small_variant_caller/mitochondrial" }
+        index {
+            path 'index/svc_mitochondrial_vcf.json'
+        }
+    }
     vcfeval_output {
         // The emitted directory is named 'vcfeval', so publishing to the model
         // type parent yields '<model_type>/vcfeval/'. svc_model_type is e.g.
-        // 'small_variant_pretrained'/'small_variant_retrained' (germline) or
-        // 'pretrained' (somatic); normalise to pretrained/retrained so the raw
-        // vcfeval output sits beside the corresponding SVC VCF.
+        // 'small_variant_pretrained'/'small_variant_retrained' (germline and
+        // somatic-to) or 'pretrained' (somatic tumor-normal); normalise to
+        // pretrained/retrained so the raw vcfeval output sits beside the
+        // corresponding SVC VCF.
         path { meta, _vcfeval_dir ->
             def model_type = (meta.svc_model_type ?: 'pretrained').replaceFirst(/^small_variant_/, '')
             "${meta.run_name}/${meta.id}/small_variant_caller/${model_type}"
@@ -160,6 +185,18 @@ output {
             path 'index/cnc_output.json'
         }
     }
+    msi_output {
+        path { meta, _msi_out_dir -> "${meta.run_name}/${meta.id}" }
+        index {
+            path 'index/msi_output.json'
+        }
+    }
+    germline_filtering_output {
+        path { meta, _prediction -> "${meta.run_name}/${meta.id}/germline_filtering" }
+        index {
+            path 'index/germline_filtering_output.json'
+        }
+    }
     str_output {
         path { meta, _str_out_dir -> "${meta.run_name}/${meta.id}" }
         index {
@@ -181,7 +218,11 @@ output {
     alignment_metrics_files {
         // One directory per metrics stage (report_prefix) and region so that the
         // identically named coverage/accuracy/read_metrics dirs do not collide.
-        path { meta, _read_metrics, _coverage, _accuracy -> "${meta.run_name}/${meta.id}/alignment_metrics/${meta.report_prefix}_${meta.metrics_region}" }
+        path { meta, read_metrics, coverage, accuracy ->
+            read_metrics >> "${meta.run_name}/${meta.id}/alignment_metrics/${meta.report_prefix}_${meta.metrics_region}/read_metrics"
+            coverage >> "${meta.run_name}/${meta.id}/alignment_metrics/${meta.report_prefix}_${meta.metrics_region}/coverage"
+            accuracy >> "${meta.run_name}/${meta.id}/alignment_metrics/${meta.report_prefix}_${meta.metrics_region}/accuracy"
+        }
         index {
             path 'index/alignment_metrics_files.json'
         }
@@ -206,6 +247,12 @@ output {
         path { meta, _read_collapser_metrics -> "${meta.run_name}/${meta.id}" }
         index {
             path 'index/read_collapser_metrics_files.json'
+        }
+    }
+    somalier_output {
+        path { meta, _pairs_tsv, _samples_tsv, _html -> "${meta.run_name}/${meta.id}/somalier" }
+        index {
+            path 'index/somalier_output.json'
         }
     }
     combined_report {

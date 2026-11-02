@@ -1,6 +1,6 @@
 process XOOS_ALIGNMENT_METRICS_ALL {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/alignment_metrics:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/alignment_metrics:1.2.0'
 
     label 'process_high'
     tag "${meta1.id}"
@@ -21,14 +21,15 @@ process XOOS_ALIGNMENT_METRICS_ALL {
 
     script:
     def reference_opt = fasta ? "--reference ${fasta}" : ""
-    def bed_opt = bed ? "--bed-input ${bed}" : ""
+    def bed_opt = bed ? "--bed ${bed}" : ""
     def args = task.ext.args ?: ''
     """
     alignment_metrics all \\
-        --bam-input '${bam}' \\
+        --bam '${bam}' \\
         ${bed_opt} \\
         ${reference_opt} \\
         --output-dir . \\
+        --threads ${task.cpus} \\
         ${args}
     """
 

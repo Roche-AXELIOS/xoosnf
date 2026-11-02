@@ -16,19 +16,13 @@ input:
   - aligner:
       type: string
       description: Aligner used (bwa, minimap2, vg_giraffe, pb_fq2bam, pb_minimap2, pb_giraffe)
-  - enable_read_collapser_dedup:
+  - enable_secondary_rescue:
       type: boolean
-      description: Force markdup regardless of aligner
-  - rescue_policy:
-      type: boolean
-      description: |
-        Whether this run's configuration wants secondary-alignment rescue. The
-        actual per-BAM decision is made inside MARKDUP, which skips BAMs already
-        carrying bam_secondary_rescued (rescue is not idempotent).
+      description: Whether this run needs secondary-alignment rescue
   - ch_bam:
       type: channel
       description: |
-        Aligned BAM files with index
+        Aligned BAM files with index and bam_dedup_type/bam_secondary_rescued metadata
         Structure: [ val(meta), path(bam), path(bai) ]
   - ch_bed:
       type: channel
@@ -56,6 +50,11 @@ output:
       description: |
         Deduplicated BAM files with index
         Structure: [ val(meta), path(bam), path(bai) ]
+  - giraffe_graphs:
+      type: channel
+      description: |
+        Giraffe graph components used for consensus realignment. Empty unless the consensus aligner is Giraffe.
+        Structure: [ val(meta), path(gbz), path(zipcodes), path(min), path(dist) ]
   - report:
       type: channel
       description: |

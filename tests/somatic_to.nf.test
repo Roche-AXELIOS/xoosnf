@@ -1,0 +1,87 @@
+nextflow_pipeline {
+
+    name "Test pipeline - somatic tumor-only (stub)"
+    script "../main.nf"
+    tag "pipeline"
+    tag "pipeline_stub"
+    tag "somatic_to"
+
+    test("stub - somatic tumor-only with gatk mutect2") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_bam.csv"
+                aligner                     = 'bwa'
+                variant_calling_mode        = 'somatic_to'
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = true
+                use_gatk_mutect2            = true
+                dedup_strategy              = 'markdup'
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            def stableVersions = path("$outputDir/pipeline_info/xoos_software_mqc_versions.yml").yaml
+                .findAll { k, v -> k != "Nextflow" && k != "Workflow" }
+                .collectEntries { process, tools ->
+                    [process, tools instanceof Map ? tools.keySet().findAll { it != "Nextflow" }.sort() : []]
+                }
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stableVersions,
+                    stableOutputFiles
+                ).match() }
+            )
+        }
+    }
+
+    test("stub - somatic tumor-only with gatk mutect2 and stats") {
+        options "-stub"
+
+        setup {
+            TestFixture.under("${launchDir}/test-data")
+                .bwaRef()
+                .variantCallingResources()
+                .bams()
+                .samplesheets()
+                .writeResources()
+        }
+
+        when {
+            params {
+                load("${launchDir}/test-data/resources.json")
+                outdir                      = "$outputDir"
+                input                       = "${launchDir}/test-data/inputs/input_samplesheet_bam.csv"
+                aligner                     = 'bwa'
+                variant_calling_mode        = 'somatic_to'
+                enable_small_variant_caller = true
+                enable_copy_number_caller   = true
+                use_gatk_mutect2            = true
+                enable_mutect_stats         = true
+                dedup_strategy              = 'markdup'
+            }
+        }
+
+        then {
+            def stableOutputFiles = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            assertAll(
+                { assert workflow.success },
+                { assert stableOutputFiles.any { it.contains('/mutect2/') && it.endsWith('.stats') } }
+            )
+        }
+    }
+}

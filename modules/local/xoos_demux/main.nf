@@ -1,6 +1,6 @@
 process XOOS_DEMUX {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/demux:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/demux:1.2.0'
 
     label 'process_high'
     tag "${meta.id}"
@@ -18,15 +18,16 @@ process XOOS_DEMUX {
     task.ext.when == null || task.ext.when
 
     script:
-    def strand_detect_args = strand_detect_index ? "--strand-detect ${strand_detect_index}" : ''
+    def strand_detect_args = strand_detect_index ? "--strand-index ${strand_detect_index}" : ''
     def args = task.ext.args ?: ''
     """
     demux \\
-        --input '${fastq_dir}' \\
-        --out-dir 'demux' \\
+        --reads '${fastq_dir}' \\
+        --output-dir 'demux' \\
         --sample-sheet '${sample_sheet}' \\
         --adapter-design-name '${meta.run_type}' \\
         ${strand_detect_args} \\
+        --threads ${task.cpus} \\
         ${args}
     """
 

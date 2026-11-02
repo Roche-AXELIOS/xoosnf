@@ -1,0 +1,67 @@
+nextflow_process {
+
+    name "Test Process XOOS_CNC_METRICS_TO_MULTIQC"
+    script "../main.nf"
+    process "XOOS_CNC_METRICS_TO_MULTIQC"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_metrics_to_multiqc"
+    tag "xoos_metrics_to_multiqc/cnc_metrics"
+
+    test("real script: finds prefixed metrics TSV nested under a staged metrics directory") {
+
+        setup {
+            def base = "${launchDir}/test-data/nested"
+            new File("${base}/metrics").mkdirs()
+            new File("${base}/metrics/HG001_metrics.tsv").text = "Metric\tValue\nNumber of segments\t1\n"
+        }
+
+        when {
+            process {
+                """
+                def base = "${launchDir}/test-data/nested"
+                input[0] = [
+                    [id: 'HG001'],
+                    [ file("\${base}/metrics") ]
+                ]
+                """
+            }
+        }
+
+        then {
+            if (process.success) {
+                assert process.out.multiqc_report_dir
+            } else {
+                assert process.errorReport.contains('Command exit status:\n  127')
+                assert process.errorReport.contains('xoos_to_multiqc.py: command not found')
+            }
+        }
+    }
+
+    test("real script: fails fast if no CNC metrics TSV is staged") {
+
+        setup {
+            def base = "${launchDir}/test-data/missing"
+            new File("${base}").mkdirs()
+            new File("${base}/callset.seg").text = ""
+        }
+
+        when {
+            process {
+                """
+                def base = "${launchDir}/test-data/missing"
+                input[0] = [
+                    [id: 'HG001'],
+                    [ file("\${base}/callset.seg") ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assert !process.success
+            assert process.errorReport.contains('Command exit status:\n  1\n')
+        }
+    }
+}

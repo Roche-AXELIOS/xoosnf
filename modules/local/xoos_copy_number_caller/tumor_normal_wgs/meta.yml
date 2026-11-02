@@ -63,7 +63,7 @@ input:
           e.g. `[ id:'sample1' ]`
     - mappability_bigwig:
         type: file
-        description: Mappability bigWig track
+        description: Optional mappability BigWig override. When omitted, Copy Number Caller selects its bundled track from the normal BAM library type.
         ontologies: []
   - - meta4:
         type: map

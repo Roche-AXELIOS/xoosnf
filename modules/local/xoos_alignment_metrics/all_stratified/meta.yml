@@ -1,0 +1,70 @@
+name: "xoos_alignment_metrics_all_stratified"
+description: Compute label-stratified alignment metrics (accuracy, coverage, read metrics) from a labeled BED using `alignment_metrics all --stratify-by-label`.
+keywords:
+  - alignment
+  - metrics
+  - coverage
+  - accuracy
+  - stratify
+tools:
+  - "alignment_metrics":
+      description: "XOOS alignment metrics tool"
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+
+input:
+  - - meta1:
+        type: map
+        description: Groovy Map containing sample information, e.g. `[ id:'sample1' ]`
+    - bam:
+        type: file
+        description: Input BAM file
+        pattern: "*.bam"
+    - bam_index:
+        type: file
+        description: BAM index file
+        pattern: "*.bai"
+  - - meta2:
+        type: map
+        description: Groovy Map containing reference information
+    - fasta:
+        type: file
+        description: Reference FASTA file
+        pattern: "*.{fa,fasta}"
+    - fai:
+        type: file
+        description: Reference FASTA index
+        pattern: "*.fai"
+  - - meta3:
+        type: map
+        description: Groovy Map containing BED information
+    - bed:
+        type: file
+        description: Labeled BED file (4th column carries comma-separated labels)
+        pattern: "*.bed"
+
+output:
+  metrics_dir:
+    - - meta1:
+          type: map
+          description: Groovy Map containing sample information
+      - "metrics":
+          type: directory
+          description: Output directory containing per-label subdirectories, each with `accuracy/`, `coverage/` and `read_metrics/`.
+          pattern: "metrics"
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - alignment_metrics:
+          type: string
+          description: The name of the tool
+      - alignment_metrics --version:
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@roche-axelios"
+maintainers:
+  - "@roche-axelios"

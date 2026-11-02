@@ -2,13 +2,15 @@ def expandMultipleOptions(optionName, values) {
     return values.collect { value -> "${optionName} '${value}'" }.join(' \\\n')
 }
 
+def ponOption(pon) {
+    return pon ? "--pon-vcf '${pon}'" : ''
+}
+
 def alignerSampleTypeOptions(sample_type, aligner) {
-    def sample_type_name = sample_type.toLowerCase()
-    if (sample_type_name != 'ffpe' && sample_type_name != 'cell-line') {
+    def sample_type_name = (sample_type ?: 'auto-detect').toLowerCase()
+    if (!(sample_type_name in ['auto-detect', 'ffpe', 'cell-line'])) {
         error("Unknown sample type: ${sample_type}")
     }
-    // Remove hyphen from sample_type for model file naming
-    sample_type_name = sample_type_name.replaceAll('-', '')
 
     // Normalize aligner to model file naming: pb_giraffe/vg_giraffe -> giraffe, pb_fq2bam/bwa -> bwa
     def aligner_name = aligner.toLowerCase()
@@ -26,7 +28,7 @@ def alignerSampleTypeOptions(sample_type, aligner) {
 
 process XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_TUMOR_NORMAL_WGS {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/small_variant_caller:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/small_variant_caller:1.2.0'
 
     label 'process_high'
 
@@ -37,11 +39,13 @@ process XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_TUMOR_NORMAL_WGS {
     tuple val(meta2), path(reference), path(reference_index)
     tuple val(meta3), path(model)
     tuple val(meta4), path(popaf), path(popaf_index)
+    tuple val(meta5), path(pon), path(pon_index)
     tuple val(meta6), path(target_regions_bed)
     val(aligner)
 
     output:
     tuple val(meta), path("${prefix}_svc.vcf.gz"), path("${prefix}_svc.vcf.gz.tbi"), emit: vcf
+    tuple val(meta), path("${prefix}_svc_metrics.tsv"), emit: metrics
     tuple val("${task.process}"), val('filter_variants'), eval("filter_variants --version"), emit: versions, topic: versions
 
     when:
@@ -56,13 +60,16 @@ process XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_TUMOR_NORMAL_WGS {
         ${expandMultipleOptions('--bam-input', bams)} \\
         --vcf-input '${vcf}' \\
         ${popaf ? "--pop-af-vcf ${popaf}" : ''} \\
+        ${ponOption(pon)} \\
         ${model ? "--model '${model}'" : ''} \\
-        ${alignerSampleTypeOptions(meta.sample_type ?: "ffpe", aligner)} \\
+        ${alignerSampleTypeOptions(meta.sample_type, aligner)} \\
         --genome '${reference}' \\
         ${target_regions_bed ? "--target-regions '${target_regions_bed}'" : ''} \\
         --output-dir '.' \\
         --vcf-output '${prefix}_svc.vcf.gz' \\
-        --tumor-sample-name '${meta.tumor_id ?: meta.id}' \\
+        --tumor-sample-name '${meta.tumor_sample_name ?: meta.tumor_id ?: meta.id}' \\
+        --output-metrics '${prefix}_svc_metrics.tsv' \\
+        --threads ${task.cpus} \\
         ${args}
     """
 
@@ -71,5 +78,6 @@ process XOOS_SMALL_VARIANT_CALLER_FILTER_VARIANTS_TUMOR_NORMAL_WGS {
     """
     gzip -n < /dev/null > '${prefix}_svc.vcf.gz'
     touch '${prefix}_svc.vcf.gz.tbi'
+    printf 'metric_name\\tvalue\\tpercentage\\tdenominator\\nqc_status\\tNA\\tNA\\tNA\\n' > '${prefix}_svc_metrics.tsv'
     """
 }

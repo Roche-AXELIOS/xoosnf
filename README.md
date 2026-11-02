@@ -1,7 +1,8 @@
 # Roche-AXELIOS/xoosnf
 
 [![GitHub Actions CI Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/nf-test.yml)
-[![GitHub Actions Linting Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.21339773-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.21339773)
+[![GitHub Actions Linting Status](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml/badge.svg)](https://github.com/Roche-AXELIOS/xoosnf/actions/workflows/linting.yml)
+[![Cite with Zenodo](https://img.shields.io/badge/DOI-10.5281/zenodo.21339773-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.21339773)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
@@ -34,7 +35,7 @@ curl -sSL -o nextflow https://github.com/nextflow-io/nextflow/releases/download/
 chmod +x nextflow
 ```
 
-Now, you can run the pipeline from basecall FASTQs, demultiplexed FASTQs, or BAMs using:
+Now, you can run the pipeline from basecall FASTQs, demultiplexed FASTQs, BAMs, or CRAMs using:
 
 ```bash
 NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
@@ -46,19 +47,17 @@ NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
     --aligner bwa \
     --enable_pangenome_personalization false \
     --use_gatk_haplotype_caller true \
-    --enable_variant_calling_partitioning false \
     --enable_contamination_estimation false
 
 NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
   ./nextflow run Roche-AXELIOS/xoosnf \
     -profile docker,test,germline_wgs_duplex \
     -params-file xoosnf-test-datasets/resources/resources.json \
-    --input bam/runsheet.csv \
-    --outdir $(pwd)/output/demultiplexed \
+    --input demultiplexed_fastq/runsheet.csv \
+    --outdir $(pwd)/output/demultiplexed_fastq \
     --aligner bwa \
     --enable_pangenome_personalization false \
     --use_gatk_haplotype_caller true \
-    --enable_variant_calling_partitioning false \
     --enable_contamination_estimation false
 
 NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
@@ -70,7 +69,17 @@ NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
     --aligner bwa \
     --enable_pangenome_personalization false \
     --use_gatk_haplotype_caller true \
-    --enable_variant_calling_partitioning false \
+    --enable_contamination_estimation false
+
+NXF_FILE_ROOT=$(pwd)/xoosnf-test-datasets \
+  ./nextflow run Roche-AXELIOS/xoosnf \
+    -profile docker,test,germline_wgs_duplex \
+    -params-file xoosnf-test-datasets/resources/resources.json \
+    --input cram/runsheet.csv \
+    --outdir output/cram \
+    --aligner bwa \
+    --enable_pangenome_personalization false \
+    --use_gatk_haplotype_caller true \
     --enable_contamination_estimation false
 ```
 
@@ -86,8 +95,7 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use Roche-AXELIOS/xoosnf for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+If you use Roche-AXELIOS/xoosnf for your analysis, please cite it using the following doi: [10.5281/zenodo.21339773](https://doi.org/10.5281/zenodo.21339773)
 
 This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).
 

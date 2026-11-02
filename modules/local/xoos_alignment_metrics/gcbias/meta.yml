@@ -1,0 +1,70 @@
+name: xoos_alignment_metrics_gcbias
+description: Compute GC bias metrics from a BAM with the XOOS alignment_metrics gcbias subcommand.
+keywords:
+  - alignment
+  - metrics
+  - gc-bias
+  - qc
+tools:
+  - alignment_metrics:
+      description: XOOS tool to compute alignment metrics.
+      homepage: "https://github.com/Roche-AXELIOS/XOOS"
+      documentation: "https://roche-axelios.gitbook.io/xoos"
+      licence: ["XOOS Public License"]
+      identifier: ""
+input:
+  - - meta1:
+        type: map
+        description: Sample metadata, e.g. `[ id:'sample1' ]`.
+    - bam:
+        type: file
+        description: BAM alignment file.
+        ontologies: []
+    - bam_index:
+        type: file
+        description: BAM index file.
+        ontologies: []
+  - - meta2:
+        type: map
+        description: Reference metadata.
+    - fasta:
+        type: file
+        description: Reference FASTA file.
+        ontologies: []
+    - fai:
+        type: file
+        description: Reference FASTA index file.
+        ontologies: []
+output:
+  gc_bias_metrics:
+    - - meta:
+          type: map
+          description: Sample metadata.
+      - gc_bias:
+          type: file
+          description: Directory containing gc_bias.tsv and gc_bias_summary.tsv.
+          pattern: gc_bias
+          ontologies: []
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Process name.
+      - alignment_metrics:
+          type: string
+          description: Tool name.
+      - alignment_metrics --version:
+          type: eval
+          description: Command used to obtain the tool version.
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: Process name.
+      - alignment_metrics:
+          type: string
+          description: Tool name.
+      - alignment_metrics --version:
+          type: eval
+          description: Command used to obtain the tool version.
+authors: []
+maintainers: []

@@ -1,6 +1,8 @@
+include { germlineLibraryTypeOption } from '../germline_library_type'
+
 process XOOS_SMALL_VARIANT_CALLER_TRAIN_MODEL {
     conda false
-    container 'ghcr.io/roche-axelios/xoos/small_variant_caller:1.1.0'
+    container 'ghcr.io/roche-axelios/xoos/small_variant_caller:1.2.0'
 
     label 'process_high'
 
@@ -28,12 +30,14 @@ process XOOS_SMALL_VARIANT_CALLER_TRAIN_MODEL {
     printf '%s\\n' '${vcf_features}' > '${prefix}.vcf_features_list.txt'
     printf '%s\\n' '${truth_vcf}' > '${prefix}.vcf_truth_list.txt'
 
-    train_model germline \\
+    train_model germline-wgs \\
+        ${germlineLibraryTypeOption(meta.run_type)} \\
         --positive-bam-features '${prefix}.bam_features_list.txt' \\
         --positive-vcf-features '${prefix}.vcf_features_list.txt' \\
         --truth-vcfs '${prefix}.vcf_truth_list.txt' \\
         --snv-output-file 'small_variant_caller/${prefix}.model_snv.txt' \\
         --indel-output-file 'small_variant_caller/${prefix}.model_indel.txt' \\
+        --threads ${task.cpus} \\
         ${args}
     """
 

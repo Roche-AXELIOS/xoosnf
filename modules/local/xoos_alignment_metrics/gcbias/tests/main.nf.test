@@ -1,0 +1,39 @@
+nextflow_process {
+
+    name "Test Process XOOS_ALIGNMENT_METRICS_GC_BIAS"
+    script "../main.nf"
+    process "XOOS_ALIGNMENT_METRICS_GC_BIAS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_alignment_metrics"
+    tag "xoos_alignment_metrics/gcbias"
+
+    test("stub - generates GC bias metrics") {
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of(
+                    [ [id: 'HG001'], file('HG001.bam'), file('HG001.bam.bai') ]
+                )
+                input[1] = Channel.value([ [id: 'reference'], file('reference.fasta'), file('reference.fasta.fai') ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.gc_bias_metrics,
+                    process.out.versions.collect { it[0..-2] }
+                ).match() },
+                { assert process.out.gc_bias_metrics.size() == 1 },
+                { assert process.out.gc_bias_metrics[0][1].toString().endsWith('gc_bias') },
+            )
+        }
+    }
+}

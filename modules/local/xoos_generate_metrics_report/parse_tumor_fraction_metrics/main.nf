@@ -1,5 +1,5 @@
 process XOOS_PARSE_TUMOR_FRACTION_METRICS {
-    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.1.0'
+    container 'ghcr.io/roche-axelios/xoosnf/generate-metrics-report:1.2.0'
     conda false
 
     label 'process_single'
@@ -19,7 +19,7 @@ process XOOS_PARSE_TUMOR_FRACTION_METRICS {
     """
     generate-metrics-report parse-tumor-fraction-metrics \\
         --sample-name '${meta.id}' \\
-        --input '${results_dir}/tumor_fraction.results.tsv' \\
+        --input '${results_dir}/tumor_fraction_estimation_results.tsv' \\
         --output '${meta.id}.tumor_fraction.json'
     """
 

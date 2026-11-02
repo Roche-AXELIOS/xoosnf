@@ -3,9 +3,7 @@ process PICARD_COLLECTHSMETRICS {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/08/0861295baa7c01fc593a9da94e82b44a729dcaf8da92be8e565da109aa549b25/data'
-        : 'community.wave.seqera.io/library/picard:3.4.0--e9963040df0a9bf6'}"
+    container "ghcr.io/roche-csi/picard:3.4.0-roche.1"
 
     input:
     tuple val(meta), path(bam), path(bai), path(bait_intervals, stageAs: "baits/*"), path(target_intervals, stageAs: 'targets/*')
@@ -16,6 +14,8 @@ process PICARD_COLLECTHSMETRICS {
 
     output:
     tuple val(meta), path("*_metrics"), emit: metrics
+    tuple val(meta), path("*.CollectHsMetrics.per_target_coverage"), emit: per_target_coverage
+    tuple val(meta), path("*.CollectHsMetrics.per_base_coverage"), emit: per_base_coverage
     tuple val("${task.process}"), val('picard'), eval("picard CollectHsMetrics --version 2>&1 | sed -n 's/.*Version://p'"), topic: versions, emit: versions_picard
 
     when:
@@ -59,12 +59,14 @@ process PICARD_COLLECTHSMETRICS {
         --BAIT_INTERVALS ${bait_interval_list} \\
         --TARGET_INTERVALS ${target_interval_list} \\
         --INPUT ${bam} \\
-        --OUTPUT ${prefix}.CollectHsMetrics.coverage_metrics
+        --OUTPUT ${prefix}.CollectHsMetrics.coverage_metrics \\
+        --PER_TARGET_COVERAGE ${prefix}.CollectHsMetrics.per_target_coverage \\
+        --PER_BASE_COVERAGE ${prefix}.CollectHsMetrics.per_base_coverage
     """
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.CollectHsMetrics.coverage_metrics
+    touch ${prefix}.CollectHsMetrics.coverage_metrics ${prefix}.CollectHsMetrics.per_target_coverage ${prefix}.CollectHsMetrics.per_base_coverage
     """
 }

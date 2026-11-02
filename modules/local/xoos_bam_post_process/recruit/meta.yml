@@ -1,0 +1,40 @@
+name: xoos_bam_post_process_recruit
+description: Select chrM and NuMT-associated reads for mitochondrial BAM post-processing.
+keywords:
+  - bam
+  - mitochondria
+  - numt
+  - fastq
+tools:
+  - process-mitochondrial-bam:
+      description: XOOS BAM post-processing tool for mitochondrial read recovery.
+      homepage: https://github.com/Roche-AXELIOS/XOOS
+      licence: ["Apache-2.0"]
+input:
+  - - meta:
+        type: map
+        description: Sample metadata
+    - bam:
+        type: file
+        description: Original coordinate-sorted, indexed, NR-tagged BAM
+        pattern: "*.bam"
+    - bam_index:
+        type: file
+        description: BAM index
+        pattern: "*.bai"
+output:
+  recruited:
+    - - meta:
+          type: map
+          description: Sample metadata
+      - "*.recruit.names":
+          type: file
+          description: Recruited read names
+      - "*.recruit.bed":
+          type: file
+          description: Merged NuMT recruitment regions
+      - "*.reads.fastq":
+          type: file
+          description: FASTQ containing chrM and recruited reads
+authors: []
+maintainers: []

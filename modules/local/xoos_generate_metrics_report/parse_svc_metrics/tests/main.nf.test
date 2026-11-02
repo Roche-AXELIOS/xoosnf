@@ -1,0 +1,53 @@
+nextflow_process {
+
+    name "Test Process XOOS_PARSE_SVC_METRICS"
+    script "../main.nf"
+    process "XOOS_PARSE_SVC_METRICS"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_local"
+    tag "xoos_generate_metrics_report"
+    tag "xoos_generate_metrics_report/parse_svc_metrics"
+
+    test("parses metrics for every SVC invocation") {
+        when {
+            process {
+                """
+                def dataDir = "\${projectDir}/modules/local/xoos_generate_metrics_report/parse_svc_metrics/tests/fixtures"
+                def sources = [
+                    'small_variant_pretrained',
+                    'small_variant_retrained',
+                    'small_variant_mitochondria',
+                    'small_variant_tumor_normal',
+                    'small_variant_tumor_only',
+                ]
+                input[0] = Channel.fromList(sources.collect { source ->
+                    [ [id: 'HG002'], file("\${dataDir}/filter_variants_metrics.tsv", checkIfExists: true), source ]
+                })
+                """
+            }
+        }
+
+        then {
+            def reports = process.out.report.collect { tuple ->
+                [tuple[0], new groovy.json.JsonSlurper().parse(path(tuple[1]))]
+            }
+            def qcMetricNames = reports.collect { meta, metrics ->
+                metrics.find { it.name.endsWith('/qc_status') }.name
+            }
+            assertAll(
+                { assert process.success },
+                { assert reports.size() == 5 },
+                { assert qcMetricNames.sort() == [
+                    'small_variant_mitochondria/qc_status',
+                    'small_variant_pretrained/qc_status',
+                    'small_variant_retrained/qc_status',
+                    'small_variant_tumor_normal/qc_status',
+                    'small_variant_tumor_only/qc_status',
+                ] },
+                { assert reports.every { meta, metrics -> metrics.find { it.name.endsWith('/qc_status') }.value == 'pass' } },
+            )
+        }
+    }
+}
